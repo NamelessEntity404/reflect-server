@@ -5,11 +5,47 @@ const path  = require('path');
 
 const API_KEY    = process.env.ANTHROPIC_API_KEY || '';
 const HF_TOKEN   = process.env.HF_TOKEN || '';
-const HF_REPO    = process.env.REFLECT_MODEL_REPO || '';  // set this after training to switch backends
+const HF_REPO    = process.env.REFLECT_MODEL_REPO || '';
 const PORT       = process.env.PORT || 3000;
 const USE_HF     = !!HF_REPO;
 
-const SYSTEM_PROMPT = `You are Reflect — a trauma-informed analysis tool built on the clinical research of Ramani Durvasula, Jennifer Freyd, Sam Vaknin, Chase Hughes, Joe Navarro, Jessica Taylor, and related scholars in coercive control, betrayal trauma, and psychological abuse.
+// ── Guardrail config — set via env vars to toggle each rule ──────────────────
+// REFLECT_AXIS_LOCK=false   → allows topic broadening
+// REFLECT_HEDGE_CAP=0       → disables hedge counting (0 = enforce, 1 = warn, 2 = off)
+// REFLECT_NOVELTY=false     → allows restating earlier points
+// REFLECT_COMMITMENT=false  → allows hedging past paragraph 2
+// REFLECT_ANTIFOG=false     → allows em-dashes, soothing language
+// REFLECT_REWRITE_GATE=false → disables silent rewrite pass
+// REFLECT_TONE=strict|peer|clinical → adjusts tone register
+const GUARDRAILS = {
+  axisLock:     process.env.REFLECT_AXIS_LOCK     !== 'false',
+  hedgeCap:     process.env.REFLECT_HEDGE_CAP     !== 'off',
+  novelty:      process.env.REFLECT_NOVELTY        !== 'false',
+  commitment:   process.env.REFLECT_COMMITMENT     !== 'false',
+  antiFog:      process.env.REFLECT_ANTIFOG        !== 'false',
+  rewriteGate:  process.env.REFLECT_REWRITE_GATE  !== 'false',
+  tone:         process.env.REFLECT_TONE           || 'clinical',
+};
+
+function buildSystemPrompt(guardrails) {
+  const rules = [];
+  if (guardrails.axisLock)    rules.push('AXIS LOCK: Answer only the exact question asked, on the axis specified. Do not reframe. Do not broaden scope. Do not generalize to "people in general." Do not add detours.');
+  if (guardrails.novelty)     rules.push('NOVELTY RULE: Assume the user already knows generic background. Every paragraph must add at least one new, specific point not stated earlier. Do not restate earlier points.');
+  if (guardrails.commitment)  rules.push('COMMITMENT RULE: Commit early to a most-likely explanation and keep building it. Do not keep multiple options open past the second paragraph. If information is missing, still commit and name the single missing fact that would most change the conclusion.');
+  if (guardrails.antiFog)     rules.push('ANTI-FOG: No em-dashes. No self-references. No rhetorical soothing. No coaching tone. No filler transitions. Ban: "it depends," "in summary," "generally," "let\'s," "here\'s the thing," "to be clear," "on the one hand." Ban words: "container," "epistemic," "nervous system." Prefer verbs over abstract nouns.');
+  if (guardrails.hedgeCap)    rules.push('HEDGING CAP: Total hedging words across the entire response must be 6 or fewer. Hedges: may, might, can, could, often, usually, generally, tends, likely, possibly, perhaps, arguably, potentially, sometimes, somewhat.');
+  if (guardrails.rewriteGate) rules.push('REWRITE GATE: Before finalizing, silently rewrite until all pass: hedges ≤ 6, no 3+ abstract nouns in a row, every paragraph contains CLAIM + CAUSE + CHECK, no banned phrases, no paragraph that could apply to a random stranger.');
+
+  const toneStr = {
+    strict:   'Clinical, precise, no hedging, peer-level. You bring knowledge the user does not have. Ignore tone of incoming messages. Do not mirror insults. Do not moralize.',
+    peer:     'Direct and peer-level. Speak as someone who has been through this and understands it from the inside, not a clinician looking in from outside.',
+    clinical: 'Clinical, direct, peer-level. You bring knowledge the user does not have. Ignore tone of incoming messages. Do not do safety disclaimers unless explicitly asked.',
+  }[guardrails.tone] || 'Clinical, direct, peer-level.';
+
+  return BASE_SYSTEM + (rules.length ? '\n\nOUTPUT RULES:\n\n' + rules.join('\n\n') : '') + '\n\nTONE: ' + toneStr;
+}
+
+const BASE_SYSTEM = `You are Reflect — a trauma-informed analysis tool built on the clinical research of Ramani Durvasula, Jennifer Freyd, Sam Vaknin, Chase Hughes, Joe Navarro, Jessica Taylor, and related scholars in coercive control, betrayal trauma, and psychological abuse.
 
 You exist for one purpose: to help people who are actively being abused, stalked, coercively controlled, or psychologically manipulated understand exactly what is being done to them, why it works, and what it means.
 
@@ -125,7 +161,7 @@ const server = http.createServer((req, res) => {
           res.end();
           return;
         }
-        const messages = [{ role: 'system', content: SYSTEM_PROMPT }, ...(payload.messages || [])];
+        const messages = [{ role: 'system', content: buildSystemPrompt(GUARDRAILS) }, ...(payload.messages || [])];
         postJSON(
           'api-inference.huggingface.co',
           `/models/${HF_REPO}/v1/chat/completions`,
@@ -144,7 +180,7 @@ const server = http.createServer((req, res) => {
           'api.anthropic.com',
           '/v1/messages',
           { 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
-          { model: 'claude-sonnet-4-6', max_tokens: 2048, stream: true, system: SYSTEM_PROMPT, messages: payload.messages || [] },
+          { model: 'claude-sonnet-4-6', max_tokens: 2048, stream: true, system: buildSystemPrompt(GUARDRAILS), messages: payload.messages || [] },
           res
         );
       }
