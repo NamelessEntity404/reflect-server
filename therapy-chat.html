@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reflect — Shane Graffiti Inc.</title>
+  <style>
+  :root {
+    --ink:      #F5F2E8;
+    --paper:    #05060a;
+    --acid:     #C8F000;
+    --acid-dim: #E8F97A;
+    --warm:     #F0EDD6;
+    --mid:      #A8A89A;
+    --rule:     rgba(200,240,0,0.12);
+    --glass-bg:       rgba(18,20,16,0.68);
+    --glass-blur:     blur(48px) saturate(180%) brightness(0.95);
+    --glass-border:   0.5px solid rgba(255,255,255,0.14);
+    --glass-shadow:   0 8px 40px rgba(0,0,0,0.55), inset 0 0.5px 0 rgba(255,255,255,0.18), inset 0 -0.5px 0 rgba(0,0,0,0.3);
+    --glass-user-bg:  rgba(200,240,0,0.1);
+    --glass-radius:   14px;
+    --mono:     'JetBrains Mono', monospace;
+    --red:      #FF4040;
+    --user-bg:  rgba(200,240,0,0.06);
+    --ai-bg:    rgba(255,255,255,0.03);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #000; height: 100%; overflow: hidden; }
+  body { background: transparent; height: 100%; overflow: hidden; }
+  body { color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; }
+  #bg-video { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; opacity: 0.35; }
+
+  /* HEADER */
+  .header { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:0.5px solid var(--rule); background:rgba(5,6,10,0.85); backdrop-filter:blur(20px); }
+  .header-left { display:flex; align-items:center; gap:14px; }
+  .header-badge { display:inline-flex; align-items:center; gap:8px; border-left:2px solid var(--acid); padding:3px 0 3px 12px; }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:var(--acid); animation:pulse-dot 2s ease-in-out infinite; }
+  .badge-label { font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--acid); text-transform:uppercase; }
+  .header-title { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; letter-spacing:0.04em; color:var(--ink); text-transform:uppercase; }
+  .header-title span { color:var(--acid); }
+  .admin-badge { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; color:var(--paper); background:var(--acid); padding:3px 7px; border-radius:3px; text-transform:uppercase; display:none; }
+  .btn-clear { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; color:var(--mid); background:none; border:0.5px solid rgba(168,168,154,0.2); border-radius:4px; padding:5px 10px; cursor:pointer; transition:color 0.2s,border-color 0.2s; text-transform:uppercase; }
+  .btn-clear:hover { color:var(--red); border-color:rgba(255,64,64,0.4); }
+
+  /* MESSAGES */
+  .messages { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:16px; scroll-behavior:smooth; }
+  .messages::-webkit-scrollbar { width:4px; }
+  .messages::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
+
+  /* EMPTY STATE */
+  .empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; opacity:0.6; }
+  .empty-glyph { font-family:'Barlow Condensed',sans-serif; font-size:64px; font-weight:900; color:var(--acid); opacity:0.3; letter-spacing:-2px; }
+  .empty-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink); }
+  .empty-sub { font-size:13px; color:var(--mid); max-width:360px; line-height:1.7; }
+
+  /* MESSAGES */
+  .msg { display:flex; flex-direction:column; gap:6px; max-width:780px; animation:msg-in 0.2s ease-out; }
+  @keyframes msg-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .msg.user { align-self:flex-end; align-items:flex-end; }
+  .msg.ai   { align-self:flex-start; align-items:flex-start; }
+  .msg-meta { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; color:var(--mid); text-transform:uppercase; padding:0 4px; }
+  .msg.user .msg-meta { color:rgba(200,240,0,0.5); }
+  .msg-bubble { padding:14px 18px; border-radius:var(--glass-radius); font-size:14px; line-height:1.7; backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+  .msg.user .msg-bubble { background:var(--glass-user-bg); border:0.5px solid rgba(200,240,0,0.22); border-bottom-right-radius:3px; }
+  .msg.ai   .msg-bubble { background:var(--glass-bg); border:var(--glass-border); border-bottom-left-radius:3px; }
+  .msg.ai .msg-bubble p + p { margin-top:10px; }
+
+  /* THINKING */
+  .thinking { display:flex; align-items:center; gap:6px; padding:12px 16px; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:var(--glass-radius); border-bottom-left-radius:3px; align-self:flex-start; }
+  .thinking-dot { width:5px; height:5px; border-radius:50%; background:var(--acid); animation:think 1.2s ease-in-out infinite; }
+  .thinking-dot:nth-child(2){animation-delay:0.2s}
+  .thinking-dot:nth-child(3){animation-delay:0.4s}
+  @keyframes think { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+  /* TRIAL ENDED */
+  .trial-ended { align-self:flex-start; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:var(--glass-radius); padding:20px 24px; max-width:480px; display:flex; flex-direction:column; gap:10px; }
+  .trial-ended-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; letter-spacing:0.06em; text-transform:uppercase; color:var(--acid); }
+  .trial-ended-sub { font-size:13px; color:var(--mid); line-height:1.6; }
+  .trial-ended-form { display:flex; gap:8px; margin-top:4px; }
+  .trial-ended-form input { flex:1; background:rgba(255,255,255,0.04); border:0.5px solid rgba(200,240,0,0.25); border-radius:5px; padding:8px 12px; font-family:'Inter',sans-serif; font-size:13px; color:var(--ink); outline:none; }
+  .trial-ended-form input:focus { border-color:rgba(200,240,0,0.6); }
+  .trial-ended-form button { background:var(--acid); border:none; border-radius:5px; padding:8px 14px; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:0.08em; color:var(--paper); cursor:pointer; white-space:nowrap; transition:opacity 0.2s; }
+  .trial-ended-form button:hover { opacity:0.85; }
+
+  /* INPUT */
+  .input-area { flex-shrink:0; padding:16px 24px 20px; border-top:0.5px solid rgba(255,255,255,0.08); background:rgba(10,12,8,0.55); backdrop-filter:blur(48px) saturate(180%); -webkit-backdrop-filter:blur(48px) saturate(180%); }
+  .input-wrap { display:flex; align-items:flex-end; gap:10px; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:var(--glass-radius); padding:10px 14px; transition:border-color 0.2s; }
+  .input-wrap:focus-within { border-color:rgba(200,240,0,0.5); }
+  .input-wrap textarea { flex:1; background:none; border:none; outline:none; resize:none; font-family:'Inter',sans-serif; font-size:14px; line-height:1.6; color:var(--ink); min-height:22px; max-height:160px; overflow-y:auto; }
+  .input-wrap textarea::placeholder { color:rgba(168,168,154,0.4); }
+  .btn-attach { flex-shrink:0; width:32px; height:32px; background:none; border:0.5px solid rgba(200,240,0,0.2); border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color 0.2s,opacity 0.2s; }
+  .btn-attach:hover { border-color:rgba(200,240,0,0.5); }
+  .btn-attach:disabled { opacity:0.25; cursor:not-allowed; }
+  .btn-attach svg { width:14px; height:14px; stroke:var(--mid); fill:none; }
+  .btn-send { flex-shrink:0; width:32px; height:32px; background:var(--acid); border:none; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:opacity 0.2s,transform 0.1s; }
+  .btn-send:hover { opacity:0.85; }
+  .btn-send:active { transform:scale(0.95); }
+  .btn-send:disabled { opacity:0.25; cursor:not-allowed; }
+  .btn-send svg { width:14px; height:14px; fill:var(--paper); }
+  .input-hint { font-family:var(--mono); font-size:9px; color:rgba(168,168,154,0.3); letter-spacing:0.08em; margin-top:8px; padding:0 2px; display:flex; justify-content:space-between; }
+  .counter { transition:color 0.3s; }
+  /* IMAGE PREVIEW */
+  .image-preview-wrap { display:none; padding:8px 14px 0; }
+  .image-preview-wrap.has-image { display:flex; align-items:center; gap:10px; }
+  .image-preview-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; border:0.5px solid rgba(200,240,0,0.3); }
+  .image-preview-name { font-family:var(--mono); font-size:10px; color:var(--mid); letter-spacing:0.08em; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .image-preview-remove { font-family:var(--mono); font-size:10px; color:var(--red); cursor:pointer; background:none; border:none; padding:2px 6px; letter-spacing:0.08em; }
+  .image-preview-remove:hover { opacity:0.7; }
+  /* IMAGE IN CHAT */
+  .msg-image { max-width:260px; max-height:200px; border-radius:8px; border:0.5px solid rgba(200,240,0,0.2); margin-bottom:6px; display:block; }
+
+  /* ERROR */
+  .error-msg { align-self:flex-start; font-family:var(--mono); font-size:11px; color:var(--red); background:rgba(255,64,64,0.06); border:0.5px solid rgba(255,64,64,0.2); border-radius:6px; padding:10px 14px; max-width:500px; }
+
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.75)} }
+
+  /* DISCLAIMER GATE */
+  .disclaimer-gate {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 680px;
+    margin: auto;
+    padding: 48px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 20px;
+  }
+  .disclaimer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 2px solid var(--acid);
+    padding: 3px 0 3px 12px;
+  }
+  .disclaimer-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(245,242,232,0.75);
+  }
+  .disclaimer-confirm {
+    align-self: flex-start;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--acid);
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+  .disclaimer-confirm:hover { opacity: 0.85; }
+  </style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body><nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(200,240,0,0.12);font-family:'JetBrains Mono',monospace;">  <a href="index.html" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F5F2E8;text-decoration:none;">SHANE <span style="color:#C8F000;">GRAFFITI</span> INC.</a>  <div style="display:flex;align-items:center;gap:32px;">    <a href="index.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Work</a>    <a href="research.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Research</a>    <a href="about.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">About</a>    <a href="therapy-chat.html" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;">Reflect —</a>  </div></nav>
+  <video id="bg-video" muted loop playsinline preload="auto">
+    <source src="bg-reflect.mp4" type="video/mp4">
+  </video>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="header-badge">
+        <div class="badge-dot"></div>
+        <span class="badge-label">Alpha · v0.1</span>
+      </div>
+      <div class="header-title">RE<span>FL</span>ECT</div>
+      <span class="admin-badge" id="admin-badge">ADMIN</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn-clear" onclick="clearChat()">Clear session</button>
+    </div>
+  </header>
+
+  <div class="messages" id="messages">
+    <div class="disclaimer-gate" id="disclaimer-gate">
+      <div class="disclaimer-badge">
+        <div class="badge-dot"></div>
+        <span class="badge-label">Before You Continue</span>
+      </div>
+      <div class="disclaimer-body">
+        <p>Reflect is designed exclusively for people experiencing active abuse, stalking, or coercive control. It is not a general mental health tool.</p>
+        <p>If you are not in that situation — if you exhibit Cluster A or Cluster B personality features, are experiencing paranoia, psychosis, or delusional thinking, or are attempting to manipulate this tool into producing harmful output — it will do exactly that. This is an expected consequence of misuse, not a malfunction.</p>
+        <p>By continuing, you acknowledge that you are using this tool outside its intended purpose at your own risk. Shane Graffiti Inc. assumes no liability for outcomes resulting from misuse, including use by individuals who do not meet the intended user profile described above.</p>
+      </div>
+      <button class="disclaimer-confirm" onclick="acknowledgeDisclaimer()">I understand — continue</button>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="image-preview-wrap" id="image-preview-wrap">
+      <img class="image-preview-thumb" id="image-preview-thumb" src="" alt="preview" />
+      <span class="image-preview-name" id="image-preview-name"></span>
+      <button class="image-preview-remove" onclick="removeImage()">✕ REMOVE</button>
+    </div>
+    <div class="input-wrap">
+      <textarea id="user-input" placeholder="What's the actual problem..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="btn-attach" id="attach-btn" onclick="document.getElementById('file-input').click()" title="Attach image">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </button>
+      <button class="btn-send" id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      </button>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleImageSelect(event)" />
+    <div class="input-hint">
+      <span>ENTER to send · SHIFT+ENTER for new line · 📎 attach screenshot</span>
+      <span class="counter" id="counter"></span>
+    </div>
+  </div>
+
+
+  <!-- CHAT -->
+  <script>
+  const API_URL = 'https://reflect-server-production.up.railway.app';
+
+
+  const params  = new URLSearchParams(window.location.search);
+  const ADMIN_TOKEN = params.get('admin') || '';
+  const IS_ADMIN = !!ADMIN_TOKEN;
+
+  if (IS_ADMIN) {
+    document.getElementById('admin-badge').style.display = 'inline-block';
+  }
+
+  let history     = [];
+  let isStreaming  = false;
+  let pendingImage = null; // { base64, mediaType, name, url }
+
+  const bgVideo = document.getElementById('bg-video');
+  bgVideo.play().catch(() => {});
+
+  function acknowledgeDisclaimer() {
+    document.getElementById('disclaimer-gate').remove();
+    document.getElementById('user-input').focus();
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function scrollToBottom() {
+    const m = document.getElementById('messages');
+    m.scrollTop = m.scrollHeight;
+  }
+
+  function hideEmpty() {
+    const e = document.getElementById('empty-state');
+    if (e) e.remove();
+  }
+
+  function formatAI(text) {
+    return text.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  }
+
+  function handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      const base64  = dataUrl.split(',')[1];
+      pendingImage  = { base64, mediaType: file.type, name: file.name, url: dataUrl };
+      const wrap    = document.getElementById('image-preview-wrap');
+      document.getElementById('image-preview-thumb').src = dataUrl;
+      document.getElementById('image-preview-name').textContent = file.name;
+      wrap.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }
+
+  function removeImage() {
+    pendingImage = null;
+    const wrap = document.getElementById('image-preview-wrap');
+    wrap.classList.remove('has-image');
+    document.getElementById('image-preview-thumb').src = '';
+    document.getElementById('image-preview-name').textContent = '';
+  }
+
+  function appendUserMessage(text, imageUrl) {
+    hideEmpty();
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
+    div.className = 'msg user';
+    let content = '';
+    if (imageUrl) content += `<img class="msg-image" src="${imageUrl}" alt="attached image" />`;
+    if (text) content += `<div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
+    div.innerHTML = `<div class="msg-meta">YOU</div>${content}`;
+    msgs.appendChild(div);
+    scrollToBottom();
+  }
+
+  function createAIBubble() {
+    hideEmpty();
+    const msgs   = document.getElementById('messages');
+    const div    = document.createElement('div');
+    div.className = 'msg ai';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    div.innerHTML = '<div class="msg-meta">REFLECT</div>';
+    div.appendChild(bubble);
+    msgs.appendChild(div);
+    scrollToBottom();
+    return bubble;
+  }
+
+  function showThinking() {
+    hideEmpty();
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
+    div.className = 'thinking';
+    div.id = 'thinking';
+    div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
+    msgs.appendChild(div);
+    scrollToBottom();
+  }
+
+  function removeThinking() {
+    const t = document.getElementById('thinking');
+    if (t) t.remove();
+  }
+
+  function showError(msg) {
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
+    div.className = 'error-msg';
+    div.textContent = 'ERROR: ' + msg;
+    msgs.appendChild(div);
+    scrollToBottom();
+  }
+
+  function showTrialEnded() {
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
+    div.className = 'trial-ended';
+    div.innerHTML = `
+      <div class="trial-ended-title">Trial complete</div>
+      <div class="trial-ended-sub">You've used your 10 free messages. Drop your email and we'll let you know when early access opens.</div>
+      <div class="trial-ended-form">
+        <input type="email" id="waitlist-email" placeholder="your@email.com" />
+        <button onclick="joinWaitlist()">JOIN WAITLIST</button>
+      </div>
+      <div id="waitlist-confirm" style="display:none;color:var(--acid);font-family:var(--mono);font-size:11px;margin-top:6px;">YOU'RE ON THE LIST.</div>`;
+    msgs.appendChild(div);
+    scrollToBottom();
+    document.getElementById('user-input').disabled = true;
+    document.getElementById('send-btn').disabled   = true;
+  }
+
+  function joinWaitlist() {
+    const email = (document.getElementById('waitlist-email').value || '').trim();
+    if (!email) return;
+    // TODO: replace with your email service (Mailchimp, Resend, etc.)
+    console.log('Waitlist:', email);
+    document.getElementById('waitlist-confirm').style.display = 'block';
+    document.getElementById('waitlist-email').disabled = true;
+  }
+
+  function updateCounter(remaining) {
+    if (IS_ADMIN) return;
+    const el = document.getElementById('counter');
+    if (!el || remaining === null) return;
+    if (remaining <= 3) {
+      el.textContent = remaining + ' free message' + (remaining === 1 ? '' : 's') + ' left';
+      el.style.color = 'var(--red)';
+    } else {
+      el.textContent = remaining + ' free messages left';
+      el.style.color = 'var(--mid)';
+    }
+  }
+
+  function clearChat() {
+    history = [];
+    document.getElementById('user-input').disabled = false;
+    document.getElementById('send-btn').disabled   = false;
+    document.getElementById('messages').innerHTML = `
+      <div class="empty-state" id="empty-state">
+        <div class="empty-glyph">//</div>
+        <div class="empty-title">Start somewhere real</div>
+        <div class="empty-sub">Full active recall. PhD-level second brain cognition. Max insight, max depth, every time.</div>
+      </div>`;
+  }
+
+  async function sendMessage() {
+    if (isStreaming) return;
+    const input = document.getElementById('user-input');
+    const text  = input.value.trim();
+    if (!text && !pendingImage) return;
+
+    isStreaming = true;
+    document.getElementById('send-btn').disabled = true;
+    input.value = '';
+    input.style.height = 'auto';
+
+    const imageSnapshot = pendingImage;
+    if (imageSnapshot) removeImage();
+
+    appendUserMessage(text, imageSnapshot?.url);
+
+    // Build message content — text only, or image + text for Claude vision
+    let userContent;
+    if (imageSnapshot) {
+      userContent = [
+        { type: 'image', source: { type: 'base64', media_type: imageSnapshot.mediaType, data: imageSnapshot.base64 } },
+        { type: 'text', text: text || 'Analyze this image.' }
+      ];
+    } else {
+      userContent = text;
+    }
+    history.push({ role: 'user', content: userContent });
+    showThinking();
+
+    try {
+      const body = { messages: history };
+      if (IS_ADMIN) body.adminToken = ADMIN_TOKEN;
+
+      const response = await fetch(API_URL + '/api/chat', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body)
+      });
+
+      if (response.status === 429) {
+        removeThinking();
+        history.pop();
+        showTrialEnded();
+        isStreaming = false;
+        return;
+      }
+
+      if (!response.ok) {
+        const err = await response.json();
+        removeThinking();
+        showError(err.error || 'HTTP ' + response.status);
+        history.pop();
+        isStreaming = false;
+        document.getElementById('send-btn').disabled = false;
+        return;
+      }
+
+      const remaining = response.headers.get('X-Messages-Remaining');
+      if (remaining !== null) updateCounter(parseInt(remaining, 10));
+
+      removeThinking();
+
+      const bubble  = createAIBubble();
+      const reader  = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText  = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const lines = decoder.decode(value, { stream: true }).split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              fullText += parsed.delta.text;
+              bubble.innerHTML = formatAI(fullText);
+              scrollToBottom();
+            }
+          } catch {}
+        }
+      }
+
+      history.push({ role: 'assistant', content: fullText });
+
+    } catch (err) {
+      removeThinking();
+      showError(err.message || 'Network error');
+      history.pop();
+    }
+
+    isStreaming = false;
+    if (!document.getElementById('user-input').disabled) {
+      document.getElementById('send-btn').disabled = false;
+    }
+  }
+  </script>
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+</body>
+</html>
