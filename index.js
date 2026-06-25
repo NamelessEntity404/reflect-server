@@ -132,7 +132,7 @@ const server = http.createServer(async (req, res) => {
       max_tokens: 8096,
       temperature: 0.8,
       system: SYSTEM_PROMPT,
-      messages: [...messagesWithReminder, { role: 'assistant', content: 'The non-obvious variable here is' }],
+      messages: messagesWithReminder,
       stream: true
     })
   });
