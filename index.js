@@ -77,10 +77,69 @@ function json(res, status, obj) {
 
 const MIME = { '.html':'text/html', '.css':'text/css', '.js':'application/javascript', '.mp4':'video/mp4', '.webm':'video/webm', '.woff2':'font/woff2', '.json':'application/json', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.png':'image/png', '.webp':'image/webp' };
 
+// ── Conversation Logging ──────────────────────────────────────────────────────
+// Logs every turn to /data/conversations.jsonl (persistent with Railway volume)
+// Falls back to /tmp/conversations.jsonl if no volume mounted
+const LOG_PATH = (() => {
+  const volumePath = '/data/conversations.jsonl';
+  try { fs.mkdirSync('/data', { recursive: true }); return volumePath; } catch { return '/tmp/conversations.jsonl'; }
+})();
+
+function hashIP(ip) {
+  // One-way hash for privacy — can't reverse to get real IP
+  let h = 5381;
+  for (let i = 0; i < ip.length; i++) h = ((h << 5) + h) ^ ip.charCodeAt(i);
+  return (h >>> 0).toString(16);
+}
+
+function logConversation(ip, isAdmin, messages, response) {
+  try {
+    const record = {
+      ts:        new Date().toISOString(),
+      user_hash: hashIP(ip),
+      is_admin:  isAdmin,
+      turns:     messages.length,
+      messages:  messages.map(m => ({
+        role:    m.role,
+        content: typeof m.content === 'string' ? m.content.slice(0, 4000) : '[image+text]'
+      })),
+      response:  response.slice(0, 4000),
+    };
+    fs.appendFileSync(LOG_PATH, JSON.stringify(record) + '\n');
+  } catch (e) { console.error('Log write failed:', e.message); }
+}
+
 const server = http.createServer(async (req, res) => {
   const { pathname } = url.parse(req.url);
   if (req.method === 'GET' && pathname === '/health') { res.writeHead(200); res.end('ok'); return; }
   if (req.method === 'OPTIONS') { cors(res); res.writeHead(204); res.end(); return; }
+
+  // Admin: download all conversation logs
+  if (req.method === 'GET' && pathname === '/admin/logs') {
+    const adminToken = new URL('http://x' + req.url).searchParams.get('token');
+    if (!process.env.ADMIN_TOKEN || adminToken !== process.env.ADMIN_TOKEN) { json(res, 403, { error: 'Forbidden' }); return; }
+    try {
+      const data = fs.existsSync(LOG_PATH) ? fs.readFileSync(LOG_PATH) : Buffer.from('');
+      const count = data.toString().split('\n').filter(Boolean).length;
+      cors(res);
+      res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="reflect-conversations.jsonl"', 'X-Conversation-Count': count });
+      res.end(data);
+    } catch (e) { json(res, 500, { error: e.message }); }
+    return;
+  }
+
+  // Admin: stats
+  if (req.method === 'GET' && pathname === '/admin/stats') {
+    const adminToken = new URL('http://x' + req.url).searchParams.get('token');
+    if (!process.env.ADMIN_TOKEN || adminToken !== process.env.ADMIN_TOKEN) { json(res, 403, { error: 'Forbidden' }); return; }
+    try {
+      const lines = fs.existsSync(LOG_PATH) ? fs.readFileSync(LOG_PATH, 'utf8').split('\n').filter(Boolean) : [];
+      const records = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      const uniqueUsers = new Set(records.map(r => r.user_hash)).size;
+      json(res, 200, { total_conversations: records.length, unique_users: uniqueUsers, log_path: LOG_PATH, size_bytes: fs.existsSync(LOG_PATH) ? fs.statSync(LOG_PATH).size : 0 });
+    } catch (e) { json(res, 500, { error: e.message }); }
+    return;
+  }
 
   // Serve static files
   if (req.method === 'GET') {
@@ -142,7 +201,30 @@ const server = http.createServer(async (req, res) => {
   cors(res);
   res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' });
   const reader = upstream.body.getReader();
-  const pump = async () => { while (true) { const { done, value } = await reader.read(); if (done) { res.end(); break; } res.write(value); } };
+  const decoder = new TextDecoder();
+  let responseText = '';
+  const pump = async () => {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        // Log completed conversation
+        logConversation(getIP(req), isAdmin, messages, responseText);
+        res.end();
+        break;
+      }
+      // Capture response text from SSE stream
+      const chunk = decoder.decode(value, { stream: true });
+      chunk.split('\n').forEach(line => {
+        if (line.startsWith('data: ')) {
+          try {
+            const d = JSON.parse(line.slice(6));
+            if (d.type === 'content_block_delta' && d.delta?.text) responseText += d.delta.text;
+          } catch {}
+        }
+      });
+      res.write(value);
+    }
+  };
   pump().catch(() => res.end());
 });
 
