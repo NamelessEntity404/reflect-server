@@ -91,34 +91,43 @@
     text-align: center;
     width: 100%;
   }
-  /* YOU — acid green glass */
-  .msg.user .msg-meta { color: #C8F000; letter-spacing:0.18em; }
-  /* PERSPECTIVE — electric blue glass */
-  .msg.ai   .msg-meta { color: #00C8FF; letter-spacing:0.18em; }
+  /* YOU — white label */
+  .msg.user .msg-meta { color: rgba(255,255,255,0.5); letter-spacing:0.18em; }
+  /* PERSPECTIVE — dark label */
+  .msg.ai   .msg-meta { color: rgba(0,0,0,0.45); letter-spacing:0.18em; }
 
   .msg-bubble {
     padding: 20px 26px;
-    border-radius: 18px;
+    border-radius: 20px;
     font-size: 15px;
     line-height: 1.8;
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    box-shadow: var(--glass-shadow);
     width: 100%;
     text-align: left;
   }
-  /* YOU — acid green tinted card */
+  /* YOU — white frosted glass: light, luminous, Apple-style */
   .msg.user .msg-bubble {
-    background: rgba(200,240,0,0.08);
-    border: 1px solid rgba(200,240,0,0.3);
-    border-radius: 18px;
-    color: #F5F2E8;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+    border: 0.5px solid rgba(255,255,255,0.45);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.3),
+      inset 0 0.5px 0 rgba(255,255,255,0.7),
+      inset 0 -0.5px 0 rgba(0,0,0,0.1);
+    border-radius: 20px;
+    color: #ffffff;
   }
-  /* PERSPECTIVE — electric blue tinted card */
+  /* PERSPECTIVE — dark frosted glass: deep, rich, Apple dark mode */
   .msg.ai .msg-bubble {
-    background: rgba(0,140,200,0.1);
-    border: 1px solid rgba(0,200,255,0.2);
-    border-radius: 18px;
+    background: rgba(10,10,10,0.72);
+    backdrop-filter: blur(48px) saturate(180%) brightness(0.9);
+    -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.9);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    box-shadow:
+      0 8px 40px rgba(0,0,0,0.55),
+      inset 0 0.5px 0 rgba(255,255,255,0.15),
+      inset 0 -0.5px 0 rgba(0,0,0,0.4);
+    border-radius: 20px;
     color: #F5F2E8;
   }
   .msg.ai .msg-bubble p + p { margin-top:12px; }
