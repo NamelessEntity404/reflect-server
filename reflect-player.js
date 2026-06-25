@@ -1,21 +1,30 @@
-// Reflect background player — plays always, pauses only when typing
+// Perspective background player
+// Capped canvas resolution, fixed-interval RAF, typing pause only
 
 (function() {
   var TOTAL  = 300;
   var FPS    = 25;
-  var CHUNK  = 16;
+  var CHUNK  = 32; // bigger chunks = faster load
   var BASE   = '/_frames_reflect/';
+  var DPR    = Math.min(window.devicePixelRatio || 1, 1.5); // cap at 1.5x
 
   var canvas  = document.getElementById('bg-canvas');
-  var ctx     = canvas.getContext('2d', { alpha: false });
+  var ctx     = canvas.getContext('2d', { alpha: false, desynchronized: true });
   var inputEl = document.getElementById('user-input');
 
   function setSize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    // Cap canvas at 1920px wide to prevent Retina overdraw killing performance
+    var maxW = Math.min(w * DPR, 1920);
+    var scale = maxW / (w * DPR);
+    canvas.width  = Math.round(w * DPR * scale);
+    canvas.height = Math.round(h * DPR * scale);
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
   }
   setSize();
-  window.addEventListener('resize', function() { setSize(); draw(playHead); }, { passive: true });
+  window.addEventListener('resize', function() { setSize(); if(bitmaps[playHead]) draw(playHead); }, { passive: true });
 
   var bitmaps  = new Array(TOTAL).fill(null);
   var loaded   = 0;
@@ -29,27 +38,32 @@
   var overlay = document.getElementById('reflect-load-overlay');
 
   function draw(idx) {
-    var i = ((Math.round(idx) % TOTAL) + TOTAL) % TOTAL;
+    var i = ((idx % TOTAL) + TOTAL) % TOTAL;
     var bmp = bitmaps[i];
     if (!bmp) return;
-    var scale = Math.max(canvas.width / bmp.width, canvas.height / bmp.height);
+    // Cover fill
+    var sw = canvas.width, sh = canvas.height;
+    var scale = Math.max(sw / bmp.width, sh / bmp.height);
     var dw = bmp.width * scale, dh = bmp.height * scale;
-    ctx.drawImage(bmp, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
+    ctx.drawImage(bmp, (sw - dw) / 2, (sh - dh) / 2, dw, dh);
     playHead = i;
   }
 
-  // Loop — always plays, stops only when typing
-  var lastTs = 0;
+  // Fixed-interval RAF — avoids drift
+  var interval = 1000 / FPS;
+  var lastTs   = 0;
   function loop(ts) {
     requestAnimationFrame(loop);
     if (!ready || isTyping) return;
-    if (ts - lastTs < 1000 / FPS) return;
-    lastTs = ts;
+    var elapsed = ts - lastTs;
+    if (elapsed < interval) return;
+    // Use fixed steps to avoid drift
+    lastTs = ts - (elapsed % interval);
     draw((playHead + 1) % TOTAL);
   }
   requestAnimationFrame(loop);
 
-  // Only rule: pause while typing
+  // Pause while typing
   inputEl.addEventListener('input', function() {
     isTyping = true;
     clearTimeout(typingTimer);
@@ -60,16 +74,21 @@
     isTyping = false;
   });
 
-  // Frame loading — 4 parallel streams
+  // Load frames — large chunks in parallel
+  var inFlight = 0;
+  var MAX_STREAMS = 6;
+
   function loadChunk(start) {
+    if (start >= TOTAL) return;
     var end = Math.min(start + CHUNK, TOTAL);
+    inFlight++;
     var pending = end - start;
     for (var i = start; i < end; i++) {
       (function(idx) {
         var img = new Image();
         img.src = BASE + 'f' + String(idx + 1).padStart(4, '0') + '.jpg';
         img.onload = function() {
-          createImageBitmap(img).then(function(bmp) {
+          createImageBitmap(img, { resizeWidth: 1280, resizeHeight: 720, resizeQuality: 'medium' }).then(function(bmp) {
             bitmaps[idx] = bmp;
             loaded++;
             var pct = Math.round(loaded / TOTAL * 100);
@@ -77,29 +96,30 @@
             if (loadPct) loadPct.textContent = pct + '%';
             if (loaded === 1) draw(0);
             pending--;
-            if (loaded === TOTAL) {
-              ready = true;
-              if (overlay) {
-                overlay.style.transition = 'opacity 0.5s';
-                overlay.style.opacity = '0';
-                setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 500);
+            if (pending === 0) {
+              inFlight--;
+              if (loaded === TOTAL) {
+                ready = true;
+                if (overlay) {
+                  overlay.style.transition = 'opacity 0.4s';
+                  overlay.style.opacity = '0';
+                  setTimeout(function() { overlay && overlay.parentNode && overlay.parentNode.removeChild(overlay); }, 400);
+                }
               }
             }
-            if (pending === 0 && end < TOTAL) loadChunk(end);
           });
         };
         img.onerror = function() {
           loaded++; pending--;
-          if (pending === 0 && end < TOTAL) loadChunk(end);
-          if (loaded === TOTAL) { ready = true; if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }
+          if (pending === 0) { inFlight--; if (loaded === TOTAL) { ready = true; overlay && overlay.parentNode && overlay.parentNode.removeChild(overlay); } }
         };
       })(i);
     }
   }
 
-  loadChunk(0);
-  loadChunk(CHUNK);
-  loadChunk(CHUNK * 2);
-  loadChunk(CHUNK * 3);
+  // 6 parallel streams
+  for (var s = 0; s < MAX_STREAMS; s++) {
+    loadChunk(s * CHUNK);
+  }
 
 })();
