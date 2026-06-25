@@ -196,11 +196,21 @@ const server = http.createServer(async (req, res) => {
     res.setHeader('X-Messages-Remaining', String(FREE_LIMIT - (count + 1)));
   }
 
-  const messagesWithReminder = messages.map((m, i) =>
-    i === messages.length - 1 && m.role === 'user'
-      ? { ...m, content: m.content + '\n\n[SYSTEM REMINDER: Maximum length response. No echoing. No summarizing what I said. Net new clinical insight only. Apply full frameworks from Durvasula, Vaknin, Navarro, Hughes, Hare, Biderman as relevant. Calibrate threat severity accurately — never soften.]' }
-      : m
-  );
+  const REMINDER = '\n\n[SYSTEM REMINDER: Maximum length response. No echoing. No summarizing what I said. Net new clinical insight only. Apply full frameworks from Durvasula, Vaknin, Navarro, Hughes, Hare, Biderman as relevant. Calibrate threat severity accurately — never soften.]';
+  const messagesWithReminder = messages.map((m, i) => {
+    if (i !== messages.length - 1 || m.role !== 'user') return m;
+    // Handle both string content and array content (vision messages)
+    if (typeof m.content === 'string') {
+      return { ...m, content: m.content + REMINDER };
+    } else if (Array.isArray(m.content)) {
+      // Find the text block and append reminder to it
+      const updated = m.content.map(block =>
+        block.type === 'text' ? { ...block, text: block.text + REMINDER } : block
+      );
+      return { ...m, content: updated };
+    }
+    return m;
+  });
 
   const upstream = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
