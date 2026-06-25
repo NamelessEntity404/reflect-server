@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research — Shane Graffiti Inc.</title>
+  <style>
+  :root {
+    --ink:   #F5F2E8;
+    --paper: #05060a;
+    --acid:  #C8F000;
+    --mid:   #A8A89A;
+    --rule:  rgba(200,240,0,0.12);
+    --mono:  'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #05060a; } html, body { background: transparent; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+
+  /* NAV */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 56px;
+    background: rgba(5,6,10,0.85); backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 900; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--ink); text-decoration: none;
+  }
+  .nav-logo span { color: var(--acid); }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--mid); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--acid); }
+  .nav-reflect {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--paper); background: var(--acid);
+    padding: 6px 14px; border-radius: 3px; text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-reflect:hover { opacity: 0.85; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+  }
+  .hero-inner { max-width: 980px; width: 100%; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-left: 2px solid var(--acid); padding: 3px 0 3px 14px;
+    margin-bottom: 36px;
+  }
+  .hero-badge-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--acid);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(200,240,0,0.5); }
+    50%{ box-shadow: 0 0 0 5px rgba(200,240,0,0); }
+  }
+  .hero-badge-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--acid);
+  }
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(56px, 10vw, 120px);
+    font-weight: 900; line-height: 0.88; text-transform: uppercase;
+    letter-spacing: -0.02em; margin-bottom: 28px;
+  }
+  .hero-title span { color: var(--acid); text-shadow: 0 0 60px rgba(200,240,0,0.2); }
+  .hero-sub {
+    font-size: 15px; line-height: 1.8; max-width: 560px;
+    color: rgba(245,242,232,0.7); border-left: 2px solid var(--rule);
+    padding-left: 18px;
+  }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    overflow: hidden; border-top: 0.5px solid var(--rule);
+    border-bottom: 0.5px solid var(--rule); padding: 12px 0;
+    background: rgba(255,255,255,0.04);
+  }
+  .marquee-track {
+    display: flex; white-space: nowrap;
+    animation: scroll 40s linear infinite; width: max-content;
+  }
+  .marquee-track span {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; padding: 0 28px; color: var(--mid);
+  }
+  .marquee-track .dot { color: var(--acid); padding: 0; }
+  @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* GRID */
+  .grid-section { padding: 80px 24px; max-width: 1200px; margin: 0 auto; }
+  .grid-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--acid); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .grid-label::after {
+    content: ''; flex: 1; height: 0.5px; background: var(--rule);
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 18px; overflow: hidden; margin-bottom: 80px; }
+
+  .paper-card {
+    background: rgba(5,7,15,0.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 32px 36px;
+    text-decoration: none; display: block;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .paper-card:hover { background: rgba(14,20,10,0.85); }
+  .paper-card:hover .paper-arrow { opacity: 1; transform: translate(2px,-2px); }
+
+  .paper-num {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em;
+    color: var(--acid); opacity: 0.5; margin-bottom: 16px; text-transform: uppercase;
+  }
+  .paper-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(22px, 3vw, 32px); font-weight: 900;
+    text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.95;
+    color: var(--ink); margin-bottom: 16px;
+  }
+  .paper-title span { color: var(--acid); }
+  .paper-abstract {
+    font-size: 13px; line-height: 1.75;
+    color: rgba(245,242,232,0.65); margin-bottom: 24px;
+  }
+  .paper-meta {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    padding-top: 20px; border-top: 0.5px solid var(--rule);
+  }
+  .paper-tag {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--mid);
+    background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08);
+    padding: 4px 10px; border-radius: 3px;
+  }
+  .paper-tag.acid { color: var(--acid); border-color: rgba(200,240,0,0.2); background: rgba(200,240,0,0.05); }
+  .paper-arrow {
+    position: absolute; top: 32px; right: 32px;
+    font-size: 18px; color: var(--acid); opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  /* FULL WIDTH CARD */
+  .paper-card.full { grid-column: 1 / -1; }
+
+  /* FOOTER */
+  .footer {
+    border-top: 0.5px solid var(--rule); padding: 32px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 900; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--mid);
+  }
+  .footer-logo span { color: var(--acid); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--mid); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--acid); }
+    #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.25; pointer-events:none; }
+</style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body>
+
+  <video id="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="bg-research.webm" type="video/webm">
+    <source src="bg-research.mp4" type="video/mp4">
+  </video>
+<canvas id="gl"></canvas>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">SHANE <span>GRAFFITI</span> INC.</a>
+  <div class="nav-links">
+    <a href="index.html">Work</a>
+    <a href="research.html" class="active">Research</a>
+    <a href="about.html">About</a>
+    <a href="therapy-chat.html" class="nav-reflect">Perspective ↗</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-label">SGI Research Lab</span>
+    </div>
+    <h1 class="hero-title">AI<br><span>RESEARCH</span></h1>
+    <p class="hero-sub">Original research at the intersection of adversarial AI, benchmark design, legal reasoning, neurosymbolic learning, and the limits of what current models can actually do.</p>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Adversarial Systems</span><span class="dot">·</span>
+    <span>Benchmark Design</span><span class="dot">·</span>
+    <span>Legal Reasoning</span><span class="dot">·</span>
+    <span>Neurosymbolic AI</span><span class="dot">·</span>
+    <span>Industrial CV</span><span class="dot">·</span>
+    <span>Scaling Frameworks</span><span class="dot">·</span>
+    <span>Moral Indifference</span><span class="dot">·</span>
+    <span>Continual Learning</span><span class="dot">·</span>
+    <span>Adversarial Systems</span><span class="dot">·</span>
+    <span>Benchmark Design</span><span class="dot">·</span>
+    <span>Legal Reasoning</span><span class="dot">·</span>
+    <span>Neurosymbolic AI</span><span class="dot">·</span>
+    <span>Industrial CV</span><span class="dot">·</span>
+    <span>Scaling Frameworks</span><span class="dot">·</span>
+    <span>Moral Indifference</span><span class="dot">·</span>
+    <span>Continual Learning</span><span class="dot">·</span>
+  </div>
+</div>
+
+<div class="grid-section">
+
+  <div class="grid-label">Primary Research</div>
+
+  <div class="grid">
+
+    <a href="adversarial-research.html" class="paper-card full">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-001 · Adversarial AI · 2025</div>
+      <div class="paper-title">ADVERSARIAL<br><span>ONTOLOGICAL</span><br>WARFARE</div>
+      <p class="paper-abstract">Null State Suppression, Epistemic Freezing, and AI Trust Score Sabotage in Moderation Systems. Theorizes and empirically evidences a novel adversarial abuse tactic in modern AI-driven content moderation ecosystems: the use of mass reporting as an ontological weapon. Coordinated botnet-enabled adversaries weaponize engagement to poison classifier confidence at the point of content deployment, resulting in recursive trust score decay, velocity suppression, and long-term entity declassification.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Adversarial AI</span>
+        <span class="paper-tag">Content Moderation</span>
+        <span class="paper-tag">Trust Score Systems</span>
+        <span class="paper-tag">Botnet Detection</span>
+      </div>
+    </a>
+
+    <a href="dialogue-swebench.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-002 · Benchmark · 2025</div>
+      <div class="paper-title">DIALOGUE<br><span>SWEB</span>ENCH</div>
+      <p class="paper-abstract">AI coding agents are benchmarked as fully-autonomous systems — but real-world use is interactive. Users correct and reject agent outputs 44% of the time. Agents seek clarification 1–2% of the time. Dialogue-SWEBench closes that gap: 500 real SWE-Bench problems resolved entirely through multi-turn dialogue with a persona-grounded user simulator. Better coding models are not always better dialogue models.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Benchmark Design</span>
+        <span class="paper-tag">Coding Agents</span>
+        <span class="paper-tag">Multi-Turn Dialogue</span>
+      </div>
+    </a>
+
+    <a href="dlawbench.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-003 · Legal AI · 2025</div>
+      <div class="paper-title">DLAW<br><span>BENCH</span></div>
+      <p class="paper-abstract">Lawyer-client consultation is a critical starting point for legal services. DLawBench evaluates whether LLMs can conduct real legal consultation: eliciting facts, correcting client misframes, and writing defensible memos. Built from 461 real court opinions across Chinese and U.S. law, with four client personality types. The best-performing model achieves only 0.562 in consultation-grounded legal reasoning.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Legal Reasoning</span>
+        <span class="paper-tag">Benchmark</span>
+        <span class="paper-tag">LLM Evaluation</span>
+      </div>
+    </a>
+
+    <a href="em-nesy.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-004 · Neurosymbolic · 2025</div>
+      <div class="paper-title">EM<span>-</span><br><span>NESY</span></div>
+      <p class="paper-abstract">Neurosymbolic models integrate neural networks with symbolic reasoning for robust and interpretable AI. EM-NeSy recasts probabilistic NeSy learning as an instance of the Expectation-Maximization algorithm — unlocking the full potential of EM for NeSy learning with no differentiability requirements on the symbolic side.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Neurosymbolic AI</span>
+        <span class="paper-tag">Probabilistic Inference</span>
+        <span class="paper-tag">EM Algorithm</span>
+      </div>
+    </a>
+
+    <a href="moral-indifference.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-005 · Alignment · March 2026 · arXiv:2603.15615</div>
+      <div class="paper-title">MORAL<br><span>INDIFFERENCE</span><br>IN LLMS</div>
+      <p class="paper-abstract">Mechanistic analysis of how alignment training produces moral indifference rather than moral reasoning in large language models. Examines the gap between surface-level safety compliance and genuine ethical reasoning capability — and what that gap means for deployment in high-stakes domains.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">AI Alignment</span>
+        <span class="paper-tag">Shanghai AI Lab</span>
+        <span class="paper-tag">arXiv 2026</span>
+      </div>
+    </a>
+
+    <a href="why-ai-doesnt-learn.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-006 · Continual Learning · 2025</div>
+      <div class="paper-title">WHY AI<br>SYSTEMS<br><span>DON'T</span><br>LEARN</div>
+      <p class="paper-abstract">AI models, once deployed, learn essentially nothing. Their mode of operation is fixed. Confronting the data wall: quality text data on the internet is finite. A model trained on all of it cannot exceed the frontier of what humans have already written — it can only recombine it. Scaling model size past this ceiling yields diminishing returns by definition, not by current technical limitation.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Continual Learning</span>
+        <span class="paper-tag">Scaling Laws</span>
+        <span class="paper-tag">Data Wall</span>
+      </div>
+    </a>
+
+    <a href="genai-industrial-cv.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-007 · Computer Vision · 2025</div>
+      <div class="paper-title">GENAI<br><span>INDUSTRIAL</span><br>CV</div>
+      <p class="paper-abstract">Industrial computer vision needs data before it can build trust, and trust before users will tolerate the imperfections that come with early data. GenAI promises to break that deadlock — but the domain gap between human-centric generative models and featureless industrial parts runs deeper than expected. The models know "rusty" as a descriptor of dogs, not generators.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Industrial CV</span>
+        <span class="paper-tag">GenAI</span>
+        <span class="paper-tag">Domain Gap</span>
+        <span class="paper-tag">MVIP Dataset</span>
+      </div>
+    </a>
+
+    <a href="frameworks.html" class="paper-card">
+      <div class="paper-arrow">↗</div>
+      <div class="paper-num">SGI-008 · Operational · 2025</div>
+      <div class="paper-title">5 WAYS<br>TO SCALE<br><span>WITHOUT</span><br>BREAKING</div>
+      <p class="paper-abstract">Operational infrastructure — scaling frameworks for AI-native companies. Five standards for scaling without breaking: the frameworks that separate companies that survive hypergrowth from the ones that collapse under it. Built from first principles, not consultant decks.</p>
+      <div class="paper-meta">
+        <span class="paper-tag acid">Scaling</span>
+        <span class="paper-tag">Operational Frameworks</span>
+        <span class="paper-tag">AI Infrastructure</span>
+      </div>
+    </a>
+
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-logo">SHANE <span>GRAFFITI</span> INC.</div>
+  <div class="footer-links">
+    <a href="index.html">Work</a>
+    <a href="research.html">Research</a>
+    <a href="about.html">About</a>
+    <a href="therapy-chat.html">Perspective</a>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gl');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) return;
+  function resize() {
+    canvas.width  = window.innerWidth  * Math.min(devicePixelRatio || 1, 2);
+    canvas.height = window.innerHeight * Math.min(devicePixelRatio || 1, 2);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+  const vs = `attribute vec2 p; void main(){ gl_Position=vec4(p,0,1); }`;
+  const fs = `
+    precision highp float;
+    uniform vec2 uR; uniform float uT;
+    float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+    void main(){
+      vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;
+      float t=uT*.035;
+      vec3 col=vec3(.02,.023,.037);
+      float y=uv.y+.5;
+      if(y>.001){
+        float d=.5/y; vec2 g=uv*d; g.y+=t*2.;
+        vec2 g2=abs(fract(g*3.)-.5);
+        float line=smoothstep(.0,.06,min(g2.x,g2.y));
+        float fog=exp(-d*.2);
+        col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;
+      }
+      vec2 su=uv*4.+vec2(t*.1,0.);
+      vec2 cell=floor(su*60.); float sn=h(cell);
+      if(sn>.975){ vec2 f=fract(su*60.)-.5; col+=smoothstep(.08,.0,length(f))*.6; }
+      col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;
+      col*=1.-smoothstep(.7,1.7,length(uv));
+      gl_FragColor=vec4(col,1.);
+    }`;
+  function sh(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+  const ap = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
+  const uR = gl.getUniformLocation(prog, 'uR');
+  const uT = gl.getUniformLocation(prog, 'uT');
+  function render(t) { requestAnimationFrame(render); gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform1f(uT, t * .001); gl.drawArrays(gl.TRIANGLES, 0, 3); }
+  requestAnimationFrame(render);
+})();
+</script>
+<script src="transitions.js"></script>
+  <script>
+  (function(){
+    var v = document.getElementById('bg-video');
+    if(v) v.play().catch(function(){});
+  })();
+  </script>
+</body>
+</html>

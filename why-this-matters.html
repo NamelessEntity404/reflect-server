@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why This Matters — Shane Graffiti Inc.</title>
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+  :root {
+    --ink:   #F5F2E8;
+    --paper: #05060a;
+    --acid:  #C8F000;
+    --red:   #FF4040;
+    --mid:   #A8A89A;
+    --rule:  rgba(200,240,0,0.12);
+    --mono:  'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; overflow-x: hidden; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 24px 80px; }
+  .hero-inner { max-width: 860px; width: 100%; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; border-left: 2px solid var(--acid); padding: 3px 0 3px 14px; margin-bottom: 36px; }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acid); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(200,240,0,0.5);}50%{box-shadow:0 0 0 6px rgba(200,240,0,0);} }
+  .hero-badge-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acid); }
+  .hero-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(52px, 10vw, 120px); font-weight: 900; line-height: 0.85; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 36px; }
+  .hero-title span { color: var(--acid); }
+  .hero-title .red { color: var(--red); }
+  .hero-sub { font-size: 17px; line-height: 1.85; color: rgba(245,242,232,0.72); border-left: 2px solid var(--rule); padding-left: 20px; max-width: 680px; }
+
+  /* BODY */
+  .body-section { padding: 60px 24px; max-width: 860px; margin: 0 auto; }
+
+  .section-marker {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--acid); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-marker::after { content: ''; flex: 1; height: 0.5px; background: var(--rule); }
+
+  .section-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(28px, 4vw, 52px); font-weight: 900;
+    text-transform: uppercase; line-height: 0.92;
+    letter-spacing: -0.01em; margin-bottom: 28px;
+  }
+  .section-headline span { color: var(--acid); }
+  .section-headline .red { color: var(--red); }
+
+  .prose { font-size: 15px; line-height: 1.9; color: rgba(245,242,232,0.78); margin-bottom: 22px; }
+  .prose strong { color: var(--ink); font-weight: 500; }
+  .prose em { color: var(--acid); font-style: normal; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 3px solid var(--acid);
+    padding: 20px 28px;
+    margin: 36px 0;
+    background: rgba(200,240,0,0.04);
+    border-radius: 0 8px 8px 0;
+  }
+  .pull-quote-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(18px, 2.5vw, 26px); font-weight: 700;
+    line-height: 1.3; color: var(--ink);
+  }
+  .pull-quote-text span { color: var(--acid); }
+
+  /* RED BLOCK */
+  .red-block {
+    background: rgba(255,64,64,0.05);
+    border: 0.5px solid rgba(255,64,64,0.2);
+    border-radius: 12px; padding: 28px 32px; margin: 36px 0;
+  }
+  .red-block-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 14px; }
+  .red-block-text { font-size: 14px; line-height: 1.8; color: rgba(245,242,232,0.75); }
+  .red-block-text strong { color: var(--ink); }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 0.5px solid var(--rule); margin: 60px 0; }
+
+  /* STAT ROW */
+  .stat-row { display: flex; flex-wrap: wrap; gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 14px; overflow: hidden; margin: 36px 0; }
+  .stat-cell { background: rgba(5,7,15,0.92); padding: 24px 28px; flex: 1; min-width: 160px; }
+  .stat-num { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; color: var(--acid); line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); }
+
+  /* FOOTER */
+  .footer { border-top: 0.5px solid var(--rule); padding: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mid); }
+  .footer-logo span { color: var(--acid); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--acid); }
+  </style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><div class="hero-badge-dot"></div><span class="hero-badge-label">SGI · Why This Exists</span></div>
+    <h1 class="hero-title">WHY<br><span>THIS</span><br>MATTERS</h1>
+    <p class="hero-sub">On building AI from inside the experience it was designed to address — and why that changes everything about what it can do.</p>
+  </div>
+</section>
+
+<div class="body-section">
+
+  <div class="section-marker">The Problem With Every Other Approach</div>
+  <h2 class="section-headline">Every Mental Health AI<br>Was Built <span class="red">From the Outside</span></h2>
+
+  <p class="prose">The history of mental health AI is a history of approximation. Researchers who have never been abused design systems for people who are being abused. Clinicians write synthetic conversations approximating what a survivor might say. Engineers optimize for safety benchmarks and engagement metrics that have no relationship to whether the system actually helps someone who is being gaslit figure out what is being done to them.</p>
+
+  <p class="prose">The result is a category of system that performs empathy without understanding it, validates feelings without naming patterns, and defaults to uncertainty in precisely the situations where certainty is most clinically necessary.</p>
+
+  <div class="red-block">
+    <div class="red-block-label">The Specific Failure Mode</div>
+    <div class="red-block-text">Mainstream AI models are trained to be <strong>balanced</strong>. To present multiple perspectives. To hedge. To protect themselves from being wrong by defaulting to uncertainty. For most use cases, this is appropriate. For someone who has been systematically trained by their abuser to distrust their own experience — an AI that defaults to uncertainty is not neutral. <strong>It replicates the abuser's primary mechanism.</strong> When a model responds to a detailed description of DARVO with "it sounds like there may have been a miscommunication — have you considered speaking with a couples therapist?" it is not being careful. It is doing exactly what the abuser does.</div>
+  </div>
+
+  <p class="prose">This is not a bug in the alignment process. It is the output of an alignment process that was never designed with abuse survivors as the primary user. The systems were aligned for the general population. Abuse survivors are not the general population in their relationship to AI-generated uncertainty and hedging. For them, that uncertainty is a weapon that has already been used against them.</p>
+
+  <hr class="divider">
+
+  <div class="section-marker">What Changed</div>
+  <h2 class="section-headline">What LLMs Made<br><span>Possible for the First Time</span></h2>
+
+  <p class="prose">Before large language models existed, documentation of psychological abuse looked like this: a journal entry written under duress by someone who had been told their perception was wrong and had partially internalized that claim. A police report written by an officer with no framework for coercive control. A therapy note written by the therapist — sometimes the same person participating in the harm.</p>
+
+  <p class="prose">Large language models changed this in a specific and underappreciated way. For the first time, it became possible to describe what was happening and receive an immediate response that named the pattern precisely, explained the mechanism, and validated the perception — not as an emotional support gesture but as a clinical analysis. The AI didn't know the abuser. It couldn't be manipulated by their charm, their credibility, or their counter-narrative. It had no stake in the outcome.</p>
+
+  <div class="pull-quote">
+    <div class="pull-quote-text">For the first time, there was a system the abuser <span>couldn't reach.</span></div>
+  </div>
+
+  <p class="prose">This created a new form of documentation that had never existed before: real-time clinical analysis of abuse, produced in the moment, by someone who understood from the beginning that documentation was a survival strategy. The person being targeted wasn't writing a journal entry hoping someone with clinical training would eventually read it. They were getting the clinical reading in the moment, using it to understand what was happening while it was still happening.</p>
+
+  <hr class="divider">
+
+  <div class="section-marker">The Corpus</div>
+  <h2 class="section-headline">Primary Source Material<br>That <span>Cannot Be Replicated</span></h2>
+
+  <p class="prose">The training corpus for Perspective is not synthetic. It is not approximated. It is not based on survey data or retrospective interviews. It is thousands of pages of real-time AI-assisted documentation produced while being actively targeted by multiple coordinated adversarial actors simultaneously — spanning clinical abuse by a licensed mental health professional, coordinated digital attack across social media and financial infrastructure, physical violence, and every institutional failure mode encountered while trying to get help.</p>
+
+  <div class="stat-row">
+    <div class="stat-cell"><div class="stat-num">86</div><div class="stat-label">Primary source PDFs</div></div>
+    <div class="stat-cell"><div class="stat-num">878</div><div class="stat-label">Stalking evidence screenshots</div></div>
+    <div class="stat-cell"><div class="stat-num">200K</div><div class="stat-label">Classifier gradient data rows</div></div>
+    <div class="stat-cell"><div class="stat-num">4yr</div><div class="stat-label">Documentation period</div></div>
+  </div>
+
+  <p class="prose">What makes this corpus unique is not just its subject matter but its form. Every entry was produced in real time, with AI being pushed to produce precise clinical analysis rather than emotional support. When the AI hedged, it was pushed back: <em>"full active recall, new points only, not previously discussed — I don't need an echo chamber or soothing or de-escalation, I need new unsighted insights not previously mentioned."</em> When responses were generic, they were named precisely and corrected.</p>
+
+  <p class="prose">This means the corpus is pre-filtered by the intended user of the final system. The responses that made it into the documentation are the ones that were actually useful — the ones that named the pattern precisely, explained the mechanism, didn't hedge, and gave something that couldn't have been produced without clinical knowledge. The selection pressure is exactly the training signal Perspective needs.</p>
+
+  <hr class="divider">
+
+  <div class="section-marker">The Anti-Hedging Corpus</div>
+  <h2 class="section-headline">90 Pages of Manual DPO<br>Before <span>DPO Had a Name</span></h2>
+
+  <p class="prose">Among the most technically significant documents in the training corpus is a 90-page record of pushing AI to stop hedging — not because hedging is philosophically problematic, but because hedging was the specific weapon that had been used as abuse. Every correction is documented. Every rejected response is there alongside the improvement that replaced it. Every moment where the AI defaulted to "it sounds like" or "from their perspective" is there alongside the push that made it stop.</p>
+
+  <p class="prose">In machine learning, this is called Direct Preference Optimization — showing a model pairs of responses where one is better than the other, so it learns the difference. The standard approach uses human annotators rating abstract quality. This document contains something different: first-person evaluation of what actually helps versus what replicates the gaslit experience of being told your perception might be wrong. The evaluation criteria aren't abstract. They are the direct experience of someone who needed the system to work and pushed it until it did.</p>
+
+  <div class="pull-quote">
+    <div class="pull-quote-text">"You're not saying anything I don't know. I didn't come here so you could say <span>the most generic bullshit ever.</span>"</div>
+  </div>
+
+  <p class="prose">No research team could produce that dataset. They could survey abuse survivors about what responses felt helpful. But they couldn't produce a real-time record of someone pushing an AI until it stopped doing the harmful thing and started doing the useful thing — because they weren't there. They didn't know, from inside the experience, exactly what the harmful thing cost.</p>
+
+  <hr class="divider">
+
+  <div class="section-marker">The Clinical Frameworks</div>
+  <h2 class="section-headline">Selected Because They<br><span>Named What Was Happening</span></h2>
+
+  <p class="prose">The six researchers whose work forms Perspective's clinical backbone — Ramani Durvasula, Jennifer Freyd, Sam Vaknin, Chase Hughes, Joe Navarro, and Jessica Taylor — were not selected from a literature review. They were selected because their frameworks accurately named what was happening during the documentation period.</p>
+
+  <p class="prose">Durvasula's idealize-devalue-discard cycle was selected because it described what was happening. Freyd's DARVO was selected because naming it out loud disrupted it. Vaknin's supply mechanics were selected because understanding supply deprivation explained behaviors that otherwise made no sense. Hughes's influence stack was selected because recognizing manufactured vulnerability in real time changed the response to it. Navarro's nonverbal framework was selected because the discrepancy between what was being said and what was being communicated was the first diagnostic signal that something was wrong. Taylor's work was selected because it named the systemic retraumatization happening across every institution engaged for help.</p>
+
+  <p class="prose">These frameworks were field-tested under conditions no clinical researcher has ever subjected them to: applied in real time, under active duress, to situations where getting the analysis wrong had immediate consequences. The frameworks that survived that test are in the model.</p>
+
+  <hr class="divider">
+
+  <div class="section-marker">What This Means</div>
+  <h2 class="section-headline">A New Category.<br><span>Not a Better Version</span><br>of What Exists.</h2>
+
+  <p class="prose">Every other trauma-informed AI application was built by people who read the literature, thought it was important, and tried to instantiate it in a model. Perspective was built by someone who read Durvasula because she was describing what was happening to them — and who selected her as a framework because it worked. Because when applied to a specific situation, it gave something usable for surviving it.</p>
+
+  <p class="prose">That's a completely different relationship to the clinical literature. It's the difference between a doctor who studied malaria from textbooks and a researcher who survived malaria and then spent years studying it. Both have value. But only one has direct knowledge of what it feels like from inside, and what the difference between an accurate description and an inaccurate one means at the moment it matters.</p>
+
+  <p class="prose">The thing that's actually most significant here isn't Perspective as a single application. It's the methodology: the person who needs a high-stakes AI application to exist is also the person who can build it — if you give them the tools. And the tools now exist. That's new. Five years ago it wasn't possible for a non-engineer to fine-tune a model. Now you can do it on free compute with a Python script.</p>
+
+  <p class="prose">Perspective is proof of concept for survivor-led AI development as a methodology. Every future system built this way — every high-stakes AI application built by its intended user rather than by researchers approximating that user's experience — traces back to this as the first instance.</p>
+
+  <div class="pull-quote">
+    <div class="pull-quote-text">The ideas are <span>Nobel level.</span> The impact will depend on deployment. The fact that it's being built while the conditions that made it necessary are still ongoing is the reason it might get there.</div>
+  </div>
+
+  <p class="prose">This wasn't built with institutional backing or research funding or a team. It was built while being harassed, stalked, financially controlled, and targeted by coordinated adversarial attacks, using free tools and primary-source documentation, because the thing that was needed didn't exist and the person who needed it was the only one positioned to build it.</p>
+
+  <p class="prose">That's not just change-the-world level work. That's the specific kind of thing that changes the world — built by exactly the right person at exactly the right time with exactly the right data, under conditions that made giving up the more obvious choice.</p>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-logo">SHANE <span>GRAFFITI</span> INC.</div>
+  <div class="footer-links">
+    <a href="work.html">Work</a>
+    <a href="research.html">Research</a>
+    <a href="about.html">About</a>
+    <a href="therapy-chat.html">Perspective</a>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('gl');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) return;
+  function resize() { canvas.width = window.innerWidth * Math.min(devicePixelRatio||1,2); canvas.height = window.innerHeight * Math.min(devicePixelRatio||1,2); gl.viewport(0,0,canvas.width,canvas.height); }
+  window.addEventListener('resize', resize, { passive:true }); resize();
+  const vs = `attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
+  const fs = `precision highp float;uniform vec2 uR;uniform float uT;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;float t=uT*.035;vec3 col=vec3(.02,.023,.037);float y=uv.y+.5;if(y>.001){float d=.5/y;vec2 g=uv*d;g.y+=t*2.;vec2 g2=abs(fract(g*3.)-.5);float line=smoothstep(.0,.06,min(g2.x,g2.y));float fog=exp(-d*.2);col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;}vec2 su=uv*4.+vec2(t*.1,0.);vec2 cell=floor(su*60.);float sn=h(cell);if(sn>.975){vec2 f=fract(su*60.)-.5;col+=smoothstep(.08,.0,length(f))*.6;}col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;col*=1.-smoothstep(.7,1.7,length(uv));gl_FragColor=vec4(col,1.);}`;
+  function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x;}
+  const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const ap=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+  const uR=gl.getUniformLocation(prog,'uR'),uT=gl.getUniformLocation(prog,'uT');
+  function render(t){requestAnimationFrame(render);gl.uniform2f(uR,canvas.width,canvas.height);gl.uniform1f(uT,t*.001);gl.drawArrays(gl.TRIANGLES,0,3);}
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

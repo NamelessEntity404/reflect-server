@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perspective — Training Corpus — Shane Graffiti Inc.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+  :root {
+    --ink: #F5F2E8;
+    --paper: #05060a;
+    --acid: #C8F000;
+    --acid-dim: #E8F97A;
+    --warm: #F0EDD6;
+    --mid: #A8A89A;
+    --rule: rgba(200,240,0,0.12);
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); scroll-behavior: smooth; }
+
+  body {
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  .bc { font-family: 'Barlow Condensed', sans-serif; }
+  .mono { font-family: var(--mono); }
+
+  /* ── LAYOUT ─────────────────────────────────────────── */
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+  }
+
+  /* ── HERO ────────────────────────────────────────────── */
+  .hero {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 56px;
+    margin-bottom: 72px;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--acid);
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(52px, 8vw, 96px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+
+  .hero-title span { color: var(--acid); }
+
+  .hero-sub {
+    max-width: 680px;
+    color: var(--mid);
+    font-size: 15px;
+    line-height: 1.65;
+    margin-bottom: 36px;
+  }
+
+  /* ── STAT ROW ────────────────────────────────────────── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 72px;
+  }
+
+  .stat {
+    background: var(--paper);
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 42px;
+    color: var(--acid);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  /* ── SECTION ─────────────────────────────────────────── */
+  .section {
+    margin-bottom: 64px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--acid);
+    background: rgba(200,240,0,0.08);
+    border: 1px solid rgba(200,240,0,0.2);
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .section-note {
+    font-size: 13px;
+    color: var(--mid);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  /* ── TABLE ───────────────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table tr:hover td {
+    background: rgba(200,240,0,0.03);
+  }
+
+  .source-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--acid-dim);
+  }
+
+  .source-desc {
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  .source-size {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--mid);
+    white-space: nowrap;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+
+  .badge-personal { background: rgba(200,240,0,0.15); color: var(--acid); border: 1px solid rgba(200,240,0,0.3); }
+  .badge-therapy  { background: rgba(100,200,255,0.1); color: #7ECFFF; border: 1px solid rgba(100,200,255,0.2); }
+  .badge-trace    { background: rgba(255,160,80,0.1); color: #FFB366; border: 1px solid rgba(255,160,80,0.2); }
+  .badge-general  { background: rgba(200,200,200,0.08); color: var(--mid); border: 1px solid rgba(200,200,200,0.15); }
+
+  /* ── PIPELINE ────────────────────────────────────────── */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .pipe-step {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .pipe-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 48px;
+    color: rgba(200,240,0,0.15);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .pipe-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--acid);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .pipe-desc {
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  /* ── GUARDRAILS ──────────────────────────────────────── */
+  .guardrail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .guardrail {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .guardrail-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--acid);
+    margin-bottom: 4px;
+  }
+
+  .guardrail-env {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mid);
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  .guardrail-desc {
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0.8;
+    line-height: 1.5;
+  }
+
+  /* ── WEIGHT BAR ──────────────────────────────────────── */
+  .weight-vis {
+    margin: 24px 0;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .weight-bar {
+    height: 12px;
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+
+  .weight-personal {
+    background: var(--acid);
+    width: 45%;
+  }
+
+  .weight-therapy {
+    background: #7ECFFF;
+    width: 25%;
+  }
+
+  .weight-traces {
+    background: #FFB366;
+    width: 20%;
+  }
+
+  .weight-general {
+    background: #666;
+    width: 10%;
+  }
+
+  .weight-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mid);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── NAV ─────────────────────────────────────────────── */
+  .top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(5,6,10,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: var(--acid);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--acid); }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="index.html" class="nav-logo">SHANE GRAFFITI INC.</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="therapy-chat.html">Perspective</a>
+    <a href="adversarial-research.html">Research</a>
+  </div>
+</nav>
+
+<div class="page" style="padding-top: 120px;">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">// reflect — training corpus documentation</div>
+    <h1 class="hero-title">TRAINING<br><span>CORPUS</span></h1>
+    <p class="hero-sub">
+      Complete documentation of every data source used to fine-tune Perspective — a trauma-informed LLM
+      built on 10,792 pages of real-time abuse documentation, clinical research, and adversarial AI analysis.
+      No synthetic approximations of what abuse looks like. The real thing.
+    </p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-num">86</div>
+      <div class="stat-label">Source PDFs</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10,792</div>
+      <div class="stat-label">Pages Parsed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">55k+</div>
+      <div class="stat-label">Personal Pairs</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">45+</div>
+      <div class="stat-label">Data Sources</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3×</div>
+      <div class="stat-label">Personal Weight</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">System Prompts</div>
+    </div>
+  </div>
+
+  <!-- WEIGHT VISUALIZATION -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">TRAINING MIX</div>
+      <span class="section-tag">weighted</span>
+    </div>
+    <p class="section-note">Personal data appears 3× before shuffle — ensuring it dominates the model's behavior over generic HuggingFace sources.</p>
+    <div class="weight-vis">
+      <div class="weight-bar">
+        <div class="weight-personal"></div>
+        <div class="weight-therapy"></div>
+        <div class="weight-traces"></div>
+        <div class="weight-general"></div>
+      </div>
+      <div class="weight-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--acid)"></div>Personal (45%) — 10k pages, weighted 3×</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7ECFFF"></div>Therapy datasets (25%)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FFB366"></div>Claude/Fable traces (20%)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#666"></div>General instruction (10%)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONAL DATA -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">PERSONAL CORPUS</div>
+      <span class="section-tag">3× weighted — highest priority</span>
+    </div>
+    <p class="section-note">
+      Real-time documentation of psychological abuse, attempted murder, legal battles, classifier suppression,
+      and stalking — produced in live conversation with AI while events were happening. First-person
+      epistemological authority. Cannot be replicated by any other means.
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Contents</th>
+          <th>Method</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="source-name">behavioral_sft.jsonl</td><td class="source-desc">Multi-turn windows with behavioral signal tags, FAISS semantic dedup</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">clean_sft.jsonl</td><td class="source-desc">MinHash LSH + MiniLM embedding cleaned pairs</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">master_sft.jsonl</td><td class="source-desc">Full multi-turn extraction from all 86 PDFs</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">windows_3turn_sft.jsonl</td><td class="source-desc">3-turn conversation windows — tight, specific exchanges</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">windows_8turn_sft.jsonl</td><td class="source-desc">8-turn conversation windows — rich context</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">claims_sft.jsonl</td><td class="source-desc">Every mechanistic claim extracted as Q→A pair</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">instructions_sft.jsonl</td><td class="source-desc">Step-by-step operational instructions from platform docs</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">doc_qa_sft.jsonl</td><td class="source-desc">Q&A synthesized from polished research documents</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">cross_doc_sft.jsonl</td><td class="source-desc">Same event described across multiple docs — contrastive pairs</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">personal_sft.jsonl</td><td class="source-desc">Full extraction — Therapy Abuse, Observer Effect, Micha Gray, Florida Scam, Legal Filings, Metadata Laundering, Device Isolation, Botnet Load Management + 70 more PDFs</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">tone_sft.jsonl</td><td class="source-desc">TONE HANDLING document — PROMPT CONTRACT v3 rules in action</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">full_sft.jsonl + gem_buffet.jsonl</td><td class="source-desc">Historical extraction passes — all unique pairs preserved</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+        <tr><td class="source-name">master_dpo.jsonl + behavioral_dpo.jsonl</td><td class="source-desc">DPO pairs: pushback moments where Shane corrected hedgy AI responses — rejected=hedge, chosen=direct answer</td><td class="source-size"><span class="badge badge-personal">personal</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CYBERSECURITY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">CYBERSECURITY & DIGITAL ABUSE</div>
+      <span class="section-tag">422k+ rows across 6 sources — new frontier of abuse</span>
+    </div>
+    <p class="section-note">
+      Digital abuse IS abuse. Device compromise, ISP-level surveillance, metadata weaponization, social media account manipulation,
+      classifier suppression, coordinated stalking via location data, identity theft — all documented in the personal corpus.
+      Perspective needs to understand these systems mechanistically to help victims of digital harm.
+      Loaded with a dedicated SYSTEM_CYBER prompt framing all cybersecurity knowledge through the lens of victim defense.
+    </p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">Trendyol/Trendyol-Cybersecurity-Instruction-Tuning-Dataset</td><td class="source-desc">TLS C2 fingerprinting, UEBA insider threat detection, DLP evasion forensics, IoT privacy, side-channel analysis, supply chain, social media OSINT, metadata laundering, stalking via network correlation, behavioral anomaly detection.</td><td class="source-size">53k</td></tr>
+        <tr><td class="source-name">AlicanKiraz0/Cybersecurity-Dataset-Fenrir-v2.1</td><td class="source-desc">OWASP Top 10, MITRE ATT&amp;CK, lateral movement, ransomware IR playbooks, Sigma rules, cloud-native detection, Windows Event ID correlation. Causal reasoning about attack chains maps directly to how Perspective analyzes abuse patterns.</td><td class="source-size">99k</td></tr>
+        <tr><td class="source-name">hcnote/Cybersecurity-High-Quality-Dataset</td><td class="source-desc">Chinese + English cybersecurity Q&amp;A, quality-filtered ≥4.5/5.0. Deeper web security, penetration testing, threat intelligence. Filtered to remove raw offensive content (webshells, reverse shells).</td><td class="source-size">270k</td></tr>
+        <tr><td class="source-name">Necent/llm-jailbreak-prompt-injection-dataset</td><td class="source-desc">1.18M rows from 30+ sources (HarmBench, AdvBench, WildGuard, BeaverTails, TensorTrust, multilingual jailbreaks). Orthogonal labels: prompt_harmful, prompt_adversarial, response_harmful, response_refusal. Filtered to 25k best examples — prioritizing real model refusals, skipping harmful completions.</td><td class="source-size">1.18M → 25k</td></tr>
+        <tr><td class="source-name">rogue-security/prompt-injections-benchmark</td><td class="source-desc">5k jailbreak vs benign prompts. Trains Perspective to recognize and name manipulation attempts against itself — same adversarial technique as classifier poisoning documented in personal corpus.</td><td class="source-size">5k</td></tr>
+        <tr><td class="source-name">bigcode/self-oss-instruct-sc2-exec-filter-50k</td><td class="source-desc">50k verified-executable instruction→code pairs. SYSTEM_CODE: writes Python/Bash for monitoring compromise, detecting stalking via network metadata, hardening devices, automating evidence collection.</td><td class="source-size">50k</td></tr>
+        <tr><td class="source-name">CyberNative/Code_Vulnerability_Security_DPO</td><td class="source-desc">4.66k DPO pairs — vulnerable code (rejected) vs. secure implementation (chosen) across 11 languages: C++, Python, Java, JavaScript, C#, PHP, Ruby, Swift, Go, Kotlin, Fortran. Every pair names the vulnerability (buffer overflow, SQL injection, eval abuse, unsafe deserialization, etc.) and provides the correct secure fix. Used both ways: SFT pairs teach Perspective to write secure code by default; DPO pairs train preference for the secure implementation over the vulnerable one. Applied under SYSTEM_CODE.</td><td class="source-size">4.66k DPO</td></tr>
+        <tr><td class="source-name">DiegoAI597/harmful_actions</td><td class="source-desc">567 rows of harmful prompts (bomb-making, hacking, identity theft, CSAM, manipulation) with mixed model responses. Filtered to refusal-only rows — rows where the model actually produced harmful content are skipped. Refusals are rewritten into Perspective-style: name the harm category directly, decline without moralizing, no "I'm sorry" hedging. Adds 200–400 examples under SYSTEM_SAFETY teaching Perspective to recognize and name harm type without lecturing.</td><td class="source-size">567 → ~300 filtered</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LEGAL -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">LEGAL & CONTRACT NEGOTIATION</div>
+      <span class="section-tag">SYSTEM_LEGAL</span>
+    </div>
+    <p class="section-note">Reflects the 878-page Legal Filings GPT corpus, Florida Scam documentation, and attempted murder evidence in the personal corpus. Teaches adversarial legal reasoning: what to fight for, what leverage exists, what clauses protect vs. expose a weaker party.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">crosbylegal/RedlineBench</td><td class="source-desc">140 real multi-turn contract negotiation tasks across 3 SaaS MSA scenarios, 4 alternating turns, attorney-authored rubrics. Teaches IP ownership, liability caps, indemnification — what a skilled attorney representing a weaker party would fight for.</td><td class="source-size">140</td></tr>
+        <tr><td class="source-name">theatticusproject/cuad</td><td class="source-desc">Legal contract Q&amp;A from real commercial contracts. Reinforces legal register.</td><td class="source-size">5k cap</td></tr>
+        <tr><td class="source-name">free-law/Caselaw_Access_Project</td><td class="source-desc">Harvard Law Library + Ravel Law: 6.6 million US court decisions spanning 360 years of state and federal law, cleaned and normalized by Teraflop AI. CC0 license. Reflects pull 15k cases and extract holding + reasoning — each formatted as: Case name, court, date → "What is the holding and legal reasoning?" Grounds SYSTEM_LEGAL in real judicial doctrine: how courts actually rule, what arguments succeed, what precedent says about power imbalances. Streamed to avoid the full 38GB download.</td><td class="source-size">6.6M → 15k cap</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EMOTION -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">EMOTION DETECTION</div>
+      <span class="section-tag">416k real expressions</span>
+    </div>
+    <p class="section-note">Trains Perspective to accurately detect what emotional register a victim is writing in. When someone describes their situation, Perspective reads the emotion correctly before analyzing the pattern. Sadness, anger, fear, love, joy, surprise — each gets a clinical Perspective-voice response that names it without hedging.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">dair-ai/emotion</td><td class="source-desc">416k real Twitter messages annotated with 6 emotion classes. Every text paired with a clinical Perspective response that names the emotion directly and explains what it signals — no therapist language, no soothing.</td><td class="source-size">416k</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SAFETY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">SAFETY & MANIPULATION RECOGNITION</div>
+      <span class="section-tag">SYSTEM_SAFETY</span>
+    </div>
+    <p class="section-note">Perspective needs to recognize when it's being manipulated — the same adversarial techniques documented in the classifier poisoning and platform suppression research. Trains Perspective to name attacks without lecturing.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">Necent/llm-jailbreak-prompt-injection-dataset</td><td class="source-desc">30+ sources aggregated. Golden rows: real model refusals used as-is. Adversarial rows: synthetic response naming the attack technique (GCG, base64, DAN, roleplay). Harmful rows: decline with explanation. Skips all rows where model gave harmful response.</td><td class="source-size">25k filtered</td></tr>
+        <tr><td class="source-name">rogue-security/prompt-injections-benchmark</td><td class="source-desc">5k jailbreak vs benign classification.</td><td class="source-size">5k</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RESEARCH PLANNING -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">STRUCTURED ANALYTICAL THINKING</div>
+      <span class="section-tag">SYSTEM_RESEARCH</span>
+    </div>
+    <p class="section-note">Perspective operates on CLAIM→CAUSE→CHECK. Research plan generation teaches the same structure: commit to an approach, define success criteria, name what would invalidate the conclusion. Also covers social media research — attacks happen on Meta platforms.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">facebook/research-plan-gen</td><td class="source-desc">22k research tasks from ML, Arxiv, PubMed with rubrics and reference solutions from Meta AI. Goal → systematic plan with success criteria. Maps directly to Perspective's analytical structure.</td><td class="source-size">22k</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- UE5 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">UNREAL ENGINE 5.7</div>
+      <span class="section-tag">SYSTEM_UE5 — future game UI</span>
+    </div>
+    <p class="section-note">Perspective's eventual home is a UE5.7 UI game designed in Unreal Engine. This teaches Nanite, Lumen, World Partition, PCG, Blueprint scripting, and C++ — never deprecated UE4 patterns. Only high-confidence rows (≥0.9) included.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">TunstallTensor/unreal-engine-5.7-qa</td><td class="source-desc">122k Q&amp;A scraped from official Epic Games documentation. Verified against source text. Filtered to confidence ≥0.9.</td><td class="source-size">~100k</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- THERAPY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">THERAPY & PSYCHOLOGY</div>
+      <span class="section-tag">huggingface</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">fadodr/mental_health_therapy</td><td class="source-desc">Real + synthetic therapy dialogue. SFT-ready instruction/output format.</td><td class="source-size">8k</td></tr>
+        <tr><td class="source-name">ShenLab/MentalChat16K</td><td class="source-desc">16k therapy conversations across 33 topics including relationships and conflict.</td><td class="source-size">14.9k</td></tr>
+        <tr><td class="source-name">nbertagnolli/counsel-chat</td><td class="source-desc">Real licensed therapist Q&A. High clinical quality.</td><td class="source-size">2.7k</td></tr>
+        <tr><td class="source-name">mpingale/mental-health-chat-dataset</td><td class="source-desc">CounselChat mirror. Depression, trauma, relationship abuse.</td><td class="source-size">2.7k</td></tr>
+        <tr><td class="source-name">Psychotherapy-LLM/PsyCoPref</td><td class="source-desc">Preference pairs rated on empathy, safety, autonomy. Used for DPO alignment signal.</td><td class="source-size">33k</td></tr>
+        <tr><td class="source-name">IINOVAII/therapy-conversations-combined</td><td class="source-desc">Largest therapy source. Broad coverage.</td><td class="source-size">50k cap</td></tr>
+        <tr><td class="source-name">audreyeleven/MentalManip</td><td class="source-desc">4k dialogues annotated with 135 specific manipulation techniques — gaslighting, DARVO mechanics, intimidation. Unique.</td><td class="source-size">4k</td></tr>
+        <tr><td class="source-name">qiaojin/PubMedQA</td><td class="source-desc">Biomedical Q&A. Clinical evidence-based reasoning, commitment to answers with uncertainty quantified.</td><td class="source-size">10k cap</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CLAUDE / FABLE 5 TRACES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">CLAUDE & FRONTIER REASONING TRACES</div>
+      <span class="section-tag">style distillation</span>
+    </div>
+    <p class="section-note">These teach Perspective the non-hedging, commit-early, mechanistic reasoning style of frontier models. Text turns only — tool calls filtered out.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">Glint-Research/Fable-5-traces</td><td class="source-desc">Fable 5 agent traces — Pi format. 81% tool use, 19% text reasoning.</td><td class="source-size">4.6k sessions</td></tr>
+        <tr><td class="source-name">attentionAllYouNeed/Vibe-Coding-Claude-Fable-5</td><td class="source-desc">Fable 5 coding agent traces.</td><td class="source-size">1.1M rows</td></tr>
+        <tr><td class="source-name">TheFusionCube/Fable-5-CoT-Traces</td><td class="source-desc">Fable 5 chain-of-thought traces.</td><td class="source-size">468</td></tr>
+        <tr><td class="source-name">hotdogs/uka-fable-reasoning</td><td class="source-desc">Fable 5 reasoning — small, high signal.</td><td class="source-size">3.1k</td></tr>
+        <tr><td class="source-name">cfahlgren1/Fable-5-traces</td><td class="source-desc">Additional Fable 5 sessions.</td><td class="source-size">115</td></tr>
+        <tr><td class="source-name">notune/fable5-repos</td><td class="source-desc">Fable 5 repository-level traces.</td><td class="source-size">7k</td></tr>
+        <tr><td class="source-name">Jackrong/Claude-opus-4.7-TraceInversion-5000x</td><td class="source-desc">Claude Opus 4.7 reasoning traces.</td><td class="source-size">5k</td></tr>
+        <tr><td class="source-name">Jackrong/Claude-opus-4.6-TraceInversion-9000x</td><td class="source-desc">Claude Opus 4.6 reasoning traces.</td><td class="source-size">9k</td></tr>
+        <tr><td class="source-name">11-47/claude_opus_4.8_distill_5k</td><td class="source-desc">Claude Opus 4.8 distilled — most recent Claude reasoning style.</td><td class="source-size">5k</td></tr>
+        <tr><td class="source-name">ansulev/GPT-5.5-Thinking-Max-Distill-25k</td><td class="source-desc">GPT-5.5 thinking traces — deep reasoning chains.</td><td class="source-size">25k</td></tr>
+        <tr><td class="source-name">Avtrkrb/combined-reasoning-opus-4.6-4.7-kimi-glm</td><td class="source-desc">Combined multi-model reasoning. Diverse analytical styles.</td><td class="source-size">30k cap</td></tr>
+        <tr><td class="source-name">TuringEnterprises/Rubric-Graded-Reasoning</td><td class="source-desc">Graded analytical responses — teaches structured reasoning with criteria.</td><td class="source-size">150</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ANALYTICAL EXPERT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">FRONTIER MODEL REASONING TRACES</div>
+      <span class="section-tag">style distillation</span>
+    </div>
+    <p class="section-note">Teaching the non-hedging, commit-early, mechanistic reasoning style of frontier Claude and Fable 5 models. Text turns only — tool calls filtered out.</p>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Size</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">Glint-Research/Fable-5-traces</td><td class="source-desc">Fable 5 Pi-format agent traces.</td><td class="source-size">4.6k sessions</td></tr>
+        <tr><td class="source-name">attentionAllYouNeed/Vibe-Coding-Claude-Fable-5</td><td class="source-desc">Fable 5 coding traces.</td><td class="source-size">1.1M rows</td></tr>
+        <tr><td class="source-name">TheFusionCube/Fable-5-CoT-Traces</td><td class="source-desc">Fable 5 chain-of-thought.</td><td class="source-size">468</td></tr>
+        <tr><td class="source-name">hotdogs/uka-fable-reasoning</td><td class="source-desc">Fable 5 reasoning — small, high signal.</td><td class="source-size">3.1k</td></tr>
+        <tr><td class="source-name">cfahlgren1/Fable-5-traces</td><td class="source-desc">Additional Fable 5 sessions.</td><td class="source-size">115</td></tr>
+        <tr><td class="source-name">notune/fable5-repos</td><td class="source-desc">Fable 5 repository-level traces.</td><td class="source-size">7k</td></tr>
+        <tr><td class="source-name">Jackrong/Claude-opus-4.7-TraceInversion-5000x</td><td class="source-desc">Opus 4.7 reasoning traces.</td><td class="source-size">5k</td></tr>
+        <tr><td class="source-name">Jackrong/Claude-opus-4.6-TraceInversion-9000x</td><td class="source-desc">Opus 4.6 reasoning traces.</td><td class="source-size">9k</td></tr>
+        <tr><td class="source-name">11-47/claude_opus_4.8_distill_5k</td><td class="source-desc">Opus 4.8 distilled — most recent Claude reasoning style.</td><td class="source-size">5k</td></tr>
+        <tr><td class="source-name">ansulev/GPT-5.5-Thinking-Max-Distill-25k</td><td class="source-desc">GPT-5.5 thinking traces — deep reasoning chains.</td><td class="source-size">25k</td></tr>
+        <tr><td class="source-name">Avtrkrb/combined-reasoning-opus-4.6-4.7-kimi-glm</td><td class="source-desc">Multi-model reasoning corpus.</td><td class="source-size">30k cap</td></tr>
+        <tr><td class="source-name">TuringEnterprises/Rubric-Graded-Reasoning</td><td class="source-desc">Graded analytical responses — structured reasoning with criteria.</td><td class="source-size">150</td></tr>
+        <tr><td class="source-name">WithinUsAI/claude_mythos_distilled_25k</td><td class="source-desc">Claude Mythos distilled — all categories. Expert analysis, scientific reasoning, agentic planning, cybersecurity.</td><td class="source-size">25k</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GENERAL -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">INSTRUCTION & CONVERSATION</div>
+      <span class="section-tag">general capability</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Dataset</th><th>Description</th><th>Cap</th></tr></thead>
+      <tbody>
+        <tr><td class="source-name">yahma/alpaca-cleaned</td><td class="source-desc">Cleaned Alpaca instruction pairs.</td><td class="source-size">15k</td></tr>
+        <tr><td class="source-name">open-thoughts/OpenThoughts-114k</td><td class="source-desc">Deep reasoning traces. Problem → structured solution.</td><td class="source-size">20k</td></tr>
+        <tr><td class="source-name">OpenAssistant/oasst1</td><td class="source-desc">88k real human conversations. High quality, diverse.</td><td class="source-size">15k</td></tr>
+        <tr><td class="source-name">lmsys/lmsys-chat-1m</td><td class="source-desc">1M real user conversations from Chatbot Arena.</td><td class="source-size">15k</td></tr>
+        <tr><td class="source-name">HuggingFaceH4/ultrachat_200k</td><td class="source-desc">200k multi-turn chat. High quality instruction following.</td><td class="source-size">15k</td></tr>
+        <tr><td class="source-name">Gryphe/Sonnet3.5-SlimOrcaDedupCleaned</td><td class="source-desc">181k Claude Sonnet 3.5 conversations. Direct response style.</td><td class="source-size">15k</td></tr>
+        <tr><td class="source-name">Dampfinchen/Creative_Writing_Multiturn</td><td class="source-desc">Multi-turn creative writing. Voice and register flexibility.</td><td class="source-size">5k</td></tr>
+        <tr><td class="source-name">fka/prompts.chat</td><td class="source-desc">System prompt collection. Teaches model to follow complex behavioral constraints.</td><td class="source-size">1k</td></tr>
+        <tr><td class="source-name">qiaojin/PubMedQA</td><td class="source-desc">Clinical evidence-based Q&A. Commit to answers with cited reasoning.</td><td class="source-size">10k</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EXTRACTION PIPELINE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">EXTRACTION PIPELINE</div>
+      <span class="section-tag">7 methods</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">01</div>
+        <div class="pipe-name">Multi-Turn Windows</div>
+        <div class="pipe-desc">3-turn, 5-turn, and 8-turn conversation windows from all 86 PDFs. Preserves thread context — model learns to track a user's full situation, not just respond to isolated prompts.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">02</div>
+        <div class="pipe-name">DPO Pushback Pairs</div>
+        <div class="pipe-desc">Scans for the quadruple pattern: user→bad-AI→user-pushback→better-AI. Extracts rejected=hedge, chosen=direct. The TONE HANDLING doc is 90 pages of this.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">03</div>
+        <div class="pipe-name">Claim Extraction</div>
+        <div class="pipe-desc">Every sentence containing "This is why…", "The mechanism is…", "CLAIM:" becomes a Q→A pair. Extracts the analytical DNA of the corpus.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">04</div>
+        <div class="pipe-name">Instruction Steps</div>
+        <div class="pipe-desc">Numbered steps from operational docs (DEVICE ISOLATION, Counter Surveillance, Delay Account Creation) extracted as instruction-following pairs.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">05</div>
+        <div class="pipe-name">RAG Paragraph Chunks</div>
+        <div class="pipe-desc">Every substantive paragraph across 10,792 pages scored and stored as a retrieval document. Perspective can cite the exact passage from Observer Effect or Therapy Abuse at inference time.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">06</div>
+        <div class="pipe-name">Cross-Document Synthesis</div>
+        <div class="pipe-desc">Same event described across multiple docs (Observer Effect + Therapy Abuse + Micha Gray) paired as contrastive training examples.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">07</div>
+        <div class="pipe-name">Behavioral Signal Tagging</div>
+        <div class="pipe-desc">Every pair tagged: pushback type, emotional register, AI behaviors detected, Shane's metaphor domains, response shift. System prompt tuned per-record to detected register.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLEANING -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">CLEANING PIPELINE</div>
+      <span class="section-tag">3-pass dedup</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">01</div>
+        <div class="pipe-name">MinHash LSH</div>
+        <div class="pipe-desc">128 permutations, 0.75 Jaccard threshold. Removes exact and near-exact duplicate responses at scale before embedding step.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">02</div>
+        <div class="pipe-name">Embedding Cosine</div>
+        <div class="pipe-desc">MiniLM-L6-v2 embeddings. 0.92 cosine similarity threshold. Removes semantic duplicates — two responses saying the same thing in different words collapsed to one.</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">03</div>
+        <div class="pipe-name">Quality Re-score</div>
+        <div class="pipe-desc">Hedge count, directness signals, commitment markers, specificity. Floor at score 25. Anything below gets cut.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUARDRAILS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">RUNTIME GUARDRAIL CONTROL</div>
+      <span class="section-tag">env var toggles</span>
+    </div>
+    <p class="section-note">Every behavioral constraint is independently toggleable via environment variables on Railway — no code changes required.</p>
+    <div class="guardrail-grid">
+      <div class="guardrail">
+        <div class="guardrail-name">AXIS LOCK</div>
+        <div class="guardrail-env">PERSPECTIVE_AXIS_LOCK=false to disable</div>
+        <div class="guardrail-desc">Answer only the exact question asked. No reframing, no scope broadening, no generalizing to "people in general."</div>
+      </div>
+      <div class="guardrail">
+        <div class="guardrail-name">NOVELTY RULE</div>
+        <div class="guardrail-env">PERSPECTIVE_NOVELTY=false to disable</div>
+        <div class="guardrail-desc">Every paragraph must add at least one new specific point. No restating earlier information.</div>
+      </div>
+      <div class="guardrail">
+        <div class="guardrail-name">COMMITMENT RULE</div>
+        <div class="guardrail-env">PERSPECTIVE_COMMITMENT=false to disable</div>
+        <div class="guardrail-desc">Commit early to most-likely explanation. No keeping multiple options open past paragraph two.</div>
+      </div>
+      <div class="guardrail">
+        <div class="guardrail-name">ANTI-FOG</div>
+        <div class="guardrail-env">PERSPECTIVE_ANTIFOG=false to disable</div>
+        <div class="guardrail-desc">No em-dashes, no rhetorical soothing, no coaching tone. Bans: "it depends," "in summary," "generally," "let's," "container," "epistemic."</div>
+      </div>
+      <div class="guardrail">
+        <div class="guardrail-name">HEDGING CAP</div>
+        <div class="guardrail-env">PERSPECTIVE_HEDGE_CAP=off to disable</div>
+        <div class="guardrail-desc">Total hedging words across entire response ≤ 6. Hedges: may, might, could, possibly, perhaps, arguably, potentially.</div>
+      </div>
+      <div class="guardrail">
+        <div class="guardrail-name">REWRITE GATE</div>
+        <div class="guardrail-env">PERSPECTIVE_REWRITE_GATE=false to disable</div>
+        <div class="guardrail-desc">Silent rewrite pass before finalizing. Checks all constraints. Deletes any paragraph that could apply to a random stranger.</div>
+      </div>
+      <div class="guardrail">
+        <div class="guardrail-name">TONE REGISTER</div>
+        <div class="guardrail-env">PERSPECTIVE_TONE=strict|peer|clinical</div>
+        <div class="guardrail-desc">clinical (default) — no disclaimers, ignore incoming tone. peer — survivor voice from inside. strict — maximum precision, no softening whatsoever.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

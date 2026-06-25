@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Shane Graffiti Inc.</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+  :root {
+    --ink: #EFEFF5;
+    --paper: #05060a;
+    --acid: #D4FF00;
+    --cyan: #4CFFE6;
+    --magenta: #FF4CD6;
+    --mid: #9092a0;
+    --rule: rgba(255,255,255,0.10);
+  }
+  html, body { background: var(--paper); }
+  body.about-page {
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  .bc { font-family: 'Barlow Condensed', sans-serif; }
+
+  /* WEBGL BACKDROP */
+  #gl {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    display: block;
+  }
+
+  /* SCENES — full-viewport scroll stages */
+  .scene {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    position: relative;
+  }
+  .scene.two-up {
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  /* GLASS CARD */
+  .card {
+    background: rgba(14,16,26,0.55);
+    border: 1px solid var(--rule);
+    border-radius: 22px;
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 30px 80px rgba(0,0,0,0.55);
+    padding: clamp(28px, 5vw, 56px);
+    max-width: 980px;
+    width: 100%;
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    transition: box-shadow 0.3s ease;
+  }
+  .card.dim { max-width: 460px; }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 22px;
+  }
+
+  /* HERO */
+  .hero-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(56px, 12vw, 130px);
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .hero-name .accent {
+    color: var(--acid);
+    text-shadow: 0 0 40px rgba(212,255,0,0.35);
+  }
+  .hero-tag {
+    font-size: clamp(14px, 1.6vw, 18px);
+    max-width: 560px;
+    color: var(--ink);
+    line-height: 1.7;
+    border-left: 2px solid var(--acid);
+    padding-left: 18px;
+    opacity: 0.85;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 44px;
+    padding-top: 28px;
+    border-top: 0.5px solid var(--rule);
+    flex-wrap: wrap;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--cyan);
+  }
+  .stat-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    position: relative;
+    overflow: hidden;
+    border-top: 0.5px solid var(--rule);
+    border-bottom: 0.5px solid var(--rule);
+    padding: 16px 0;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: about-scroll 24s linear infinite;
+    width: max-content;
+  }
+  .marquee-track span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0 36px;
+  }
+  .marquee-track .dot { color: var(--acid); padding: 0; }
+  @keyframes about-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* SECTION HEADLINES */
+  .section-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(32px, 6vw, 64px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    margin-bottom: 36px;
+  }
+
+  /* DISCIPLINE GRID */
+  .disc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .disc-cell {
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.03);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background 0.2s, color 0.2s;
+  }
+  .disc-cell:hover { background: var(--acid); color: #0A0A0A; }
+
+  /* PROBLEM / SOLUTION CARDS */
+  .ps-letter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--magenta);
+    opacity: 0.6;
+    margin-bottom: -8px;
+  }
+  .ps-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 20px;
+  }
+  .ps-block { margin-bottom: 20px; }
+  .ps-block-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 10px;
+  }
+  .ps-block ul { list-style: none; }
+  .ps-block li {
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 6px 0;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .ps-block li:last-child { border-bottom: none; }
+  .solution-block { background: rgba(76,255,230,0.06); border: 1px solid rgba(76,255,230,0.2); padding: 16px; border-radius: 10px; }
+  .solution-block li { border-bottom-color: rgba(255,255,255,0.06); }
+
+  /* TIMELINE */
+  .tl-year-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 100px;
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--acid);
+    opacity: 0.7;
+    margin-bottom: 12px;
+  }
+  .tl-item-text {
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 14px 0;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .tl-item-text:last-child { border-bottom: none; }
+  .tl-item-text strong {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 4px;
+    color: var(--cyan);
+  }
+
+  /* BIG STATEMENT */
+  .big-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(28px, 5.5vw, 58px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+  .big-text .yellow {
+    color: var(--acid);
+    text-shadow: 0 0 50px rgba(212,255,0,0.4);
+  }
+
+  /* EAT THE SUPPLY CHAIN */
+  .eat-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(40px, 10vw, 110px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    text-align: center;
+  }
+  .eat-text .outline {
+    -webkit-text-stroke: 2px var(--ink);
+    color: transparent;
+  }
+
+  /* PODCAST */
+  .podcast-method {
+    font-size: 13px;
+    line-height: 1.8;
+    max-width: 560px;
+    opacity: 0.8;
+    margin-top: 22px;
+  }
+  .podcast-method strong {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    color: var(--acid);
+    margin-bottom: 6px;
+  }
+
+  /* CONTACT */
+  .contact-cta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(32px, 6vw, 60px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.9;
+    margin-bottom: 28px;
+  }
+  .contact-details { display: flex; flex-direction: column; gap: 10px; }
+  .contact-details a {
+    font-size: 14px;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    opacity: 0.75;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .contact-details a:hover { opacity: 1; color: var(--cyan); }
+  .contact-details span { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); }
+
+  /* end spacer so last card can fully animate in */
+  #end-spacer { height: 40vh; }
+  </style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body class="about-page">
+  <canvas id="gl"></canvas>
+
+  <nav>
+    <a href="index.html">Page 1</a>
+    <a href="page2.html">Page 2</a>
+    <a href="page3.html">Page 3</a>
+    <a href="page4.html">Page 4</a>
+    <a href="page5.html">Page 5</a>
+    <a href="page6.html">Page 6</a>
+    <a href="page7.html">Page 7</a>
+    <a href="page8.html">Page 8</a>
+    <a href="page9.html">Page 9</a>
+    <a href="page10.html">Page 10</a>
+    <a href="page11.html">Page 11</a>
+    <a href="page12.html">Page 12</a>
+    <a href="page13.html">Page 13</a>
+    <a href="page14.html">Page 14</a>
+    <a href="page15.html">Page 15</a>
+    <a href="page16.html">Page 16</a>
+    <a href="about.html" class="active">About</a>
+  </nav>
+
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Shane Graffiti Inc. — Multidisciplinary Creative Director Portfolio</h2>
+
+  <!-- HERO -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow">Shane Graffiti Inc. — Creative Director / Founder — New York</p>
+      <h1 class="hero-name bc">
+        SHANE<br>
+        <span class="accent">GRAFFITI</span>
+      </h1>
+      <p class="hero-tag">
+        End-to-end creative architect. 20+ years spanning fashion, motion, UI/UX, AI research, full-stack development, and brand strategy. I don't execute campaigns — I build the entire supply chain.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num bc">20+</span>
+          <span class="stat-label">Years experience</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num bc">12</span>
+          <span class="stat-label">Disciplines mastered</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num bc">4</span>
+          <span class="stat-label">Years to compound this</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num bc">0</span>
+          <span class="stat-label">Templates used</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="mt">
+      <span>Fashion Design</span><span class="dot">◆</span>
+      <span>Motion Design</span><span class="dot">◆</span>
+      <span>Art Direction</span><span class="dot">◆</span>
+      <span>UI / UX</span><span class="dot">◆</span>
+      <span>AI Research</span><span class="dot">◆</span>
+      <span>Full Stack Dev</span><span class="dot">◆</span>
+      <span>Cybersecurity</span><span class="dot">◆</span>
+      <span>Sound Engineering</span><span class="dot">◆</span>
+      <span>Advertising</span><span class="dot">◆</span>
+      <span>Post Production</span><span class="dot">◆</span>
+      <span>Copywriting</span><span class="dot">◆</span>
+      <span>Brand Strategy</span><span class="dot">◆</span>
+      <span>Fashion Design</span><span class="dot">◆</span>
+      <span>Motion Design</span><span class="dot">◆</span>
+      <span>Art Direction</span><span class="dot">◆</span>
+      <span>UI / UX</span><span class="dot">◆</span>
+      <span>AI Research</span><span class="dot">◆</span>
+      <span>Full Stack Dev</span><span class="dot">◆</span>
+      <span>Cybersecurity</span><span class="dot">◆</span>
+      <span>Sound Engineering</span><span class="dot">◆</span>
+      <span>Advertising</span><span class="dot">◆</span>
+      <span>Post Production</span><span class="dot">◆</span>
+      <span>Copywriting</span><span class="dot">◆</span>
+      <span>Brand Strategy</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- DISCIPLINES -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow">What I do</p>
+      <p class="section-headline">Disciplines</p>
+      <div class="disc-grid">
+        <div class="disc-cell">Fashion Design</div>
+        <div class="disc-cell">Graphic Design</div>
+        <div class="disc-cell">Art Direction</div>
+        <div class="disc-cell">Packaging</div>
+        <div class="disc-cell">Video Design</div>
+        <div class="disc-cell">Post Production</div>
+        <div class="disc-cell">Market Strategy</div>
+        <div class="disc-cell">Advertising</div>
+        <div class="disc-cell">UI / UX Design</div>
+        <div class="disc-cell">AI Research</div>
+        <div class="disc-cell">Full Stack Dev</div>
+        <div class="disc-cell">Cybersecurity</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASE STUDY A -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow">Problem / Solution</p>
+      <p class="ps-title bc">Queer Fashion Brand</p>
+      <div class="ps-block">
+        <p class="ps-block-label">The problem</p>
+        <ul>
+          <li>Queer-centered clothing design is nearly nonexistent</li>
+          <li>Menswear patterns don't fit queer bodies</li>
+          <li>Queer culture is absent from mainstream advertising</li>
+          <li>Existing queer brands lack inspirational copy — no "just do it" for us</li>
+        </ul>
+      </div>
+      <div class="ps-block">
+        <p class="ps-block-label">The solution</p>
+        <div class="solution-block">
+          <ul>
+            <li>A queer brand that helps you accomplish your goals, not just dress you</li>
+            <li>Clothes re-patterned to actually fit queer bodies</li>
+            <li>Copy that inspires beyond the garment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASE STUDY B -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow">Problem / Solution</p>
+      <p class="ps-title bc">Abuse Detection Smart Glasses</p>
+      <div class="ps-block">
+        <p class="ps-block-label">The problem</p>
+        <ul>
+          <li>Smart glasses can save lives — they don't</li>
+          <li>The legal system is stacked against victims of abuse</li>
+          <li>Coercive control is hard to prove on long time horizons</li>
+          <li>Evidence can't be captured on demand in acute crisis situations</li>
+        </ul>
+      </div>
+      <div class="ps-block">
+        <p class="ps-block-label">The solution</p>
+        <div class="solution-block">
+          <ul>
+            <li>Glasses that activate and record when abuse is detected — zero attacker-facing cues</li>
+            <li>Documents save to tamper-proof cloud in a timeline designed for court</li>
+            <li>Coercive control becomes falsifiable with timestamps preserved for chain of custody</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE 01 -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow">Process — how it compounds</p>
+      <div class="tl-year-num bc">01</div>
+      <div class="tl-item-text">
+        <strong>Foundation</strong>
+        Hand-painted the art and logos that went on the shirts. Dye sublimation onto Gildan blanks. Heat transfer vinyl. Yards of raw fabric. Built the packaging to ship the product.
+      </div>
+      <div class="tl-item-text">
+        <strong>Why it matters</strong>
+        You can't lead a brand you haven't built from zero. Understanding material constraints is what separates directors from decorators.
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE 02 -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow">Process — how it compounds</p>
+      <div class="tl-year-num bc">02</div>
+      <div class="tl-item-text">
+        <strong>Brand &amp; Production</strong>
+        Created video shoots of the clothing. Built the visual identity. Produced commercials — shot, written, engineered, and scored in-house.
+      </div>
+      <div class="tl-item-text">
+        <strong>Stack used</strong>
+        Sora for AI-directed backgrounds. Envato for lower thirds and motion typography. Logic Pro for sound design and audio engineering. After Effects for compositing and post. Claude Code and Figma for UI/UX.
+      </div>
+      <div class="tl-item-text">
+        <strong>Output</strong>
+        Full brand campaign with original ad copy, asset library, and launch-ready commercial content — produced entirely without an agency.
+      </div>
+    </div>
+  </section>
+
+  <!-- BIG STATEMENT -->
+  <section class="scene">
+    <div class="card">
+      <p class="big-text">
+        END TO END STRATEGY.<br>
+        PRODUCT ECOSYSTEMS.<br>
+        <span class="yellow">TOUCH EVERY LAYER.</span><br>
+        SPAN EVERY DEPARTMENT.<br>
+        CONTROL THE OUTCOME<br>
+        BY OWNING EVERY VARIABLE.
+      </p>
+    </div>
+  </section>
+
+  <!-- EAT THE SUPPLY CHAIN -->
+  <section class="scene">
+    <div class="card">
+      <div class="eat-text">
+        <span>EAT </span><span class="outline">THE </span><br>
+        <span>SUPPLY</span><br>
+        <span class="outline">CHAIN.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PODCAST -->
+  <section class="scene">
+    <div class="card">
+      <p class="eyebrow" style="color: var(--acid); opacity:1;">Content — AI Research Podcast</p>
+      <p class="section-headline bc">Argue with the<br>smartest people<br>in the room.</p>
+      <div class="podcast-method">
+        <strong>The method</strong>
+        Source the most contentious AI research posts on LinkedIn — the ones that are wrong in interesting ways. Disagree on camera. Script the counterargument. Memorize the lines. Perform it. No teleprompter, no slides — just a position and the receipts to back it up.
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="scene">
+    <div class="card dim">
+      <div class="contact-cta bc">
+        Let's build<br>something<br>nobody's<br>built.
+      </div>
+      <div class="contact-details">
+        <span>Find me</span>
+        <a href="https://www.instagram.com/shane_graffiti" target="_blank">@shane_graffiti</a>
+        <a href="#">Shane Graffiti Inc.</a>
+        <a href="#">Brooklyn, New York</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="end-spacer"></div>
+
+  <!-- WEBGL BACKDROP -->
+  <script>
+  (() => {
+    const canvas = document.getElementById('gl');
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: false, preserveDrawingBuffer: true });
+    if (!gl) return;
+
+    function resize() {
+      canvas.width = window.innerWidth * Math.min(window.devicePixelRatio || 1, 2);
+      canvas.height = window.innerHeight * Math.min(window.devicePixelRatio || 1, 2);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+
+    const vsSrc = `
+      attribute vec2 aPos;
+      void main() {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+      }
+    `;
+
+    const fsSrc = `
+      precision highp float;
+      uniform vec2 uRes;
+      uniform float uTime;
+      uniform float uScroll;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453);
+      }
+
+      void main() {
+        vec2 uv = (gl_FragCoord.xy - 0.5 * uRes.xy) / uRes.y;
+        float t = uTime * 0.06 + uScroll * 6.0;
+        vec3 col = vec3(0.03, 0.035, 0.06);
+
+        // perspective grid floor
+        float y = uv.y + 0.55;
+        if (y > 0.001) {
+          float depth = 0.6 / y;
+          vec2 grid = uv * depth;
+          grid.y += t * 2.2;
+          grid.x += sin(uScroll * 6.2832) * 1.5;
+          vec2 gl2 = abs(fract(grid * 3.0) - 0.5);
+          float line = smoothstep(0.0, 0.06, min(gl2.x, gl2.y));
+          float fog = exp(-depth * 0.18);
+          float hue = uScroll * 6.2832;
+          vec3 gridColor = mix(vec3(0.30,1.0,0.90), vec3(1.0,0.30,0.84), sin(hue) * 0.5 + 0.5);
+          col += (1.0 - line) * fog * gridColor * 2.2;
+        }
+
+        // stars
+        vec2 starUv = uv * 4.0 + vec2(t * 0.25, uScroll * 2.0);
+        vec2 cell = floor(starUv * 60.0);
+        float starN = hash(cell);
+        if (starN > 0.97) {
+          vec2 f = fract(starUv * 60.0) - 0.5;
+          float d = length(f);
+          col += smoothstep(0.08, 0.0, d) * 1.2;
+        }
+
+        // ambient glow drifting with scroll
+        vec2 glowPos = vec2(sin(uScroll * 3.0) * 0.6, cos(uScroll * 2.0) * 0.4 + 0.2);
+        float glow = smoothstep(1.1, 0.0, length(uv - glowPos));
+        col += glow * vec3(0.85, 1.0, 0.2) * 0.22;
+
+        // vignette
+        float vig = 1.0 - smoothstep(0.7, 1.7, length(uv));
+        col *= vig;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type, src) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      return sh;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1,-1,  3,-1,  -1,3
+    ]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'uRes');
+    const uTime = gl.getUniformLocation(prog, 'uTime');
+    const uScroll = gl.getUniformLocation(prog, 'uScroll');
+
+    let scrollProgress = 0;
+    function render(time) {
+      requestAnimationFrame(render);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, time * 0.001);
+      gl.uniform1f(uScroll, scrollProgress);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    requestAnimationFrame(render);
+
+    function updateScroll() {
+      const max = document.body.scrollHeight - window.innerHeight;
+      scrollProgress = max > 0 ? window.scrollY / max : 0;
+    }
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    updateScroll();
+  })();
+  </script>
+
+  <!-- SCROLL-DRIVEN CARD ANIMATION -->
+  <script>
+  (() => {
+    const cards = document.querySelectorAll('.scene .card');
+
+    function update() {
+      const vh = window.innerHeight;
+      cards.forEach(card => {
+        const r = card.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const dist = (center - vh / 2) / (vh / 2 + r.height / 2);
+        const prog = Math.max(0, 1 - Math.abs(dist));
+        const dir = dist >= 0 ? 1 : -1;
+        card.style.opacity = (0.15 + 0.85 * prog).toFixed(3);
+        card.style.transform =
+          `perspective(1400px) translateY(${((1 - prog) * 60 * dir).toFixed(1)}px) ` +
+          `rotateX(${((1 - prog) * 8 * dir).toFixed(2)}deg) ` +
+          `scale(${(0.92 + 0.08 * prog).toFixed(3)})`;
+      });
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { update(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    update();
+  })();
+  </script>
+
+  <div id="nav-tab"></div>
+  <script>
+    const nav = document.querySelector('nav');
+    const tab = document.getElementById('nav-tab');
+    let navVisible = false;
+    let touchStartY = 0;
+    let mouseStartY = 0;
+
+    nav.style.transform = 'translateX(-50%) translateY(-200px)';
+    nav.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    function showNav() {
+      navVisible = true;
+      nav.style.transform = 'translateX(-50%) translateY(20px)';
+    }
+    function hideNav() {
+      navVisible = false;
+      nav.style.transform = 'translateX(-50%) translateY(-200px)';
+    }
+
+    tab.addEventListener('click', () => navVisible ? hideNav() : showNav());
+
+    window.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener('touchend', e => {
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy > 40 && touchStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    }, { passive: true });
+
+    window.addEventListener('mousedown', e => { mouseStartY = e.clientY; });
+    window.addEventListener('mouseup', e => {
+      const dy = e.clientY - mouseStartY;
+      if (dy > 40 && mouseStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    });
+  </script>
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+</body>
+</html>

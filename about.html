@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Shane Graffiti Inc.</title>
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+  :root { --ink:#F5F2E8; --paper:#05060a; --acid:#C8F000; --mid:#A8A89A; --rule:rgba(200,240,0,0.12); --mono:'JetBrains Mono',monospace; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden;}
+  #gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;}
+  .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 24px 80px;}
+  .hero-inner{max-width:980px;width:100%;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;border-left:2px solid var(--acid);padding:3px 0 3px 14px;margin-bottom:36px;}
+  .hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--acid);animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,240,0,0.5);}50%{box-shadow:0 0 0 6px rgba(200,240,0,0);}}
+  .hero-badge-label{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--acid);}
+  .hero-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(56px,11vw,130px);font-weight:900;line-height:0.85;text-transform:uppercase;letter-spacing:-0.02em;margin-bottom:32px;}
+  .hero-title span{color:var(--acid);text-shadow:0 0 80px rgba(200,240,0,0.2);}
+  .hero-sub{font-size:16px;line-height:1.85;max-width:600px;color:rgba(245,242,232,0.65);border-left:2px solid var(--rule);padding-left:18px;}
+  .marquee-wrap{overflow:hidden;border-top:0.5px solid var(--rule);border-bottom:0.5px solid var(--rule);padding:12px 0;background:rgba(255,255,255,0.02);}
+  .marquee-track{display:flex;white-space:nowrap;animation:scroll 30s linear infinite;width:max-content;}
+  .marquee-track span{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;padding:0 28px;color:var(--mid);}
+  .marquee-track .dot{color:var(--acid);padding:0;}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .grid-section{padding:80px 24px 120px;max-width:980px;margin:0 auto;}
+  .grid-label{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--acid);margin-bottom:24px;display:flex;align-items:center;gap:14px;}
+  .grid-label::after{content:'';flex:1;height:0.5px;background:var(--rule);}
+  .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+  .about-card{position:relative;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;text-decoration:none;overflow:hidden;transition:background 0.2s,border-color 0.2s;}
+  .about-card:hover{background:rgba(14,22,6,0.97);border-color:rgba(200,240,0,0.2);}
+  .about-card:hover .card-arrow{opacity:1;transform:translate(0,0);}
+  .card-ghost{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:80px;color:rgba(200,240,0,0.1);line-height:1;margin-bottom:4px;letter-spacing:-0.02em;}
+  .card-num{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--acid);margin-bottom:6px;}
+  .card-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(22px,3vw,32px);font-weight:900;text-transform:uppercase;letter-spacing:-0.01em;color:var(--ink);line-height:0.95;margin-bottom:12px;}
+  .card-title span{color:var(--acid);}
+  .card-desc{font-size:12.5px;line-height:1.65;color:rgba(245,242,232,0.5);}
+  .card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .card-tag{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--acid);background:rgba(200,240,0,0.06);border:0.5px solid rgba(200,240,0,0.18);padding:3px 8px;border-radius:3px;}
+  .card-arrow{position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--acid);padding:7px 14px;border-radius:4px;white-space:nowrap;opacity:0;transform:translate(4px,0);transition:opacity 0.2s,transform 0.2s;}
+  .footer{border-top:0.5px solid var(--rule);padding:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .footer-logo{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:var(--mid);}
+  .footer-logo span{color:var(--acid);}
+  .footer-links{display:flex;gap:24px;}
+  .footer-links a{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mid);text-decoration:none;transition:color 0.2s;}
+  .footer-links a:hover{color:var(--acid);}
+  </style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><div class="hero-badge-dot"></div><span class="hero-badge-label">Shane Graffiti Inc.</span></div>
+    <h1 class="hero-title">ABOUT<br><span>SGI</span></h1>
+    <p class="hero-sub">The person, the technical infrastructure, and the tools built from scratch — including a trauma-informed AI trained specifically for abuse victims.</p>
+  </div>
+</section>
+<div class="marquee-wrap"><div class="marquee-track">
+  <span>UX · UI · Motion Design</span><span class="dot">·</span><span>WebGL</span><span class="dot">·</span><span>AI Research</span><span class="dot">·</span><span>LLM Fine-Tuning</span><span class="dot">·</span><span>After Effects</span><span class="dot">·</span><span>Trauma-Informed AI</span><span class="dot">·</span>
+  <span>UX · UI · Motion Design</span><span class="dot">·</span><span>WebGL</span><span class="dot">·</span><span>AI Research</span><span class="dot">·</span><span>LLM Fine-Tuning</span><span class="dot">·</span><span>After Effects</span><span class="dot">·</span><span>Trauma-Informed AI</span><span class="dot">·</span>
+</div></div>
+<div class="grid-section">
+  <div class="grid-label">About</div>
+  <div class="about-grid">
+
+    <a href="bio.html" class="about-card">
+      <div class="card-ghost">SG</div>
+      <div class="card-num">Background</div>
+      <div class="card-title">SHANE<br><span>GRAFFITI</span></div>
+      <div class="card-desc">UX/UI designer, motion designer, AI researcher, and builder. The background, the discipline stack, the case studies, and the through-line connecting 3D motion design to trauma-informed AI.</div>
+      <div class="card-tags"><span class="card-tag">UX · UI</span><span class="card-tag">Motion Design</span><span class="card-tag">After Effects</span><span class="card-tag">AI Research</span></div>
+      <div class="card-arrow">View →</div>
+    </a>
+
+    <a href="stack.html" class="about-card">
+      <div class="card-ghost">11</div>
+      <div class="card-num">Technical Specification</div>
+      <div class="card-title">THE<br><span>STACK</span></div>
+      <div class="card-desc">What this site actually is under the hood. Custom WebGL shaders, GPU-resident image sequences, automated build systems, zero-lag cursor, page transitions. 11 hand-built systems. Not a template. Every line written from scratch.</div>
+      <div class="card-tags"><span class="card-tag">WebGL · GLSL</span><span class="card-tag">ImageBitmap · RAF</span><span class="card-tag">ffmpeg · bash</span><span class="card-tag">Zero dependencies</span></div>
+      <div class="card-arrow">View →</div>
+    </a>
+
+    <a href="why-this-matters.html" class="about-card">
+      <div class="card-ghost">WHY</div>
+      <div class="card-num">Origin</div>
+      <div class="card-title">WHY THIS<br><span>MATTERS</span></div>
+      <div class="card-desc">On building AI from inside the experience it was designed to address. Why every mental health AI was built from the outside. What changed when documentation of abuse became possible in real time. And why this is a new category.</div>
+      <div class="card-tags"><span class="card-tag">First-Person AI</span><span class="card-tag">Survivor-Led</span><span class="card-tag">Primary Source</span><span class="card-tag">New Category</span></div>
+      <div class="card-arrow">View →</div>
+    </a>
+
+    <a href="reflect-build.html" class="about-card">
+      <div class="card-ghost">AI</div>
+      <div class="card-num">AI Architecture</div>
+      <div class="card-title">BUILDING<br><span>PERSPECTIVE</span></div>
+      <div class="card-desc">Why every mainstream AI model gaslights abuse victims. The full architecture of Perspective — LLaMA 3 8B, QLoRA fine-tuning, DPO alignment, RAG over a clinical research corpus, and the specific failure mode this tool was built to eliminate.</div>
+      <div class="card-tags"><span class="card-tag">LLaMA 3 · QLoRA</span><span class="card-tag">DPO · RAG</span><span class="card-tag">120K training pairs</span><span class="card-tag">Trauma-Informed</span></div>
+      <div class="card-arrow">View →</div>
+    </a>
+
+    <a href="reflect-training.html" class="about-card">
+      <div class="card-ghost">86</div>
+      <div class="card-num">Training Corpus</div>
+      <div class="card-title">TRAINING<br><span>CORPUS</span></div>
+      <div class="card-desc">45+ data sources across 8 system prompts — trauma analysis, digital abuse defense, legal negotiation, defensive code, safety recognition, UE5 game engine, research planning, forensic analysis. 153k cybersecurity pairs. 416k emotion detection. 1.18M safety examples. Claude Opus 4.6/4.7/4.8, Fable 5, GPT-5.5 traces. Personal 10,792-page corpus weighted 3× over everything.</div>
+      <div class="card-tags"><span class="card-tag">45+ sources</span><span class="card-tag">8 system prompts</span><span class="card-tag">1.18M safety rows</span><span class="card-tag">3× personal weight</span></div>
+      <div class="card-arrow">View →</div>
+    </a>
+
+  </div>
+</div>
+<footer class="footer">
+  <div class="footer-logo">SHANE <span>GRAFFITI</span> INC.</div>
+  <div class="footer-links"><a href="work.html">Work</a><a href="research.html">Research</a><a href="about.html">About</a><a href="therapy-chat.html">Perspective</a></div>
+</footer>
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+<script>
+(() => {
+  const canvas=document.getElementById('gl');
+  const gl=canvas.getContext('webgl',{antialias:true,alpha:false});
+  if(!gl)return;
+  function resize(){canvas.width=window.innerWidth*Math.min(devicePixelRatio||1,2);canvas.height=window.innerHeight*Math.min(devicePixelRatio||1,2);gl.viewport(0,0,canvas.width,canvas.height);}
+  window.addEventListener('resize',resize,{passive:true});resize();
+  const vs='attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}';
+  const fs='precision highp float;uniform vec2 uR;uniform float uT;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;float t=uT*.035;vec3 col=vec3(.02,.023,.037);float y=uv.y+.5;if(y>.001){float d=.5/y;vec2 g=uv*d;g.y+=t*2.;vec2 g2=abs(fract(g*3.)-.5);float line=smoothstep(.0,.06,min(g2.x,g2.y));float fog=exp(-d*.2);col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;}vec2 su=uv*4.+vec2(t*.1,0.);vec2 cell=floor(su*60.);float sn=h(cell);if(sn>.975){vec2 f=fract(su*60.)-.5;col+=smoothstep(.08,.0,length(f))*.6;}col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;col*=1.-smoothstep(.7,1.7,length(uv));gl_FragColor=vec4(col,1.);}';
+  function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x;}
+  const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const ap=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+  const uR=gl.getUniformLocation(prog,'uR'),uT=gl.getUniformLocation(prog,'uT');
+  function render(t){requestAnimationFrame(render);gl.uniform2f(uR,canvas.width,canvas.height);gl.uniform1f(uT,t*.001);gl.drawArrays(gl.TRIANGLES,0,3);}
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

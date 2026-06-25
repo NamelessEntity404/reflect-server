@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building Perspective — Shane Graffiti Inc.</title>
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+  :root {
+    --ink:   #F5F2E8;
+    --paper: #05060a;
+    --acid:  #C8F000;
+    --red:   #FF4040;
+    --mid:   #A8A89A;
+    --rule:  rgba(200,240,0,0.12);
+    --rule-r: rgba(255,64,64,0.15);
+    --mono:  'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 24px 80px; }
+  .hero-inner { max-width: 980px; width: 100%; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; border-left: 2px solid var(--acid); padding: 3px 0 3px 14px; margin-bottom: 36px; }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acid); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(200,240,0,0.5); } 50%{ box-shadow:0 0 0 6px rgba(200,240,0,0); } }
+  .hero-badge-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acid); }
+  .hero-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(56px,11vw,130px); font-weight: 900; line-height: 0.85; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 32px; }
+  .hero-title span { color: var(--acid); text-shadow: 0 0 80px rgba(200,240,0,0.2); }
+  .hero-title .red { color: var(--red); text-shadow: 0 0 60px rgba(255,64,64,0.2); }
+  .hero-sub { font-size: 16px; line-height: 1.85; max-width: 640px; color: rgba(245,242,232,0.7); border-left: 2px solid var(--rule); padding-left: 18px; }
+
+  /* SECTIONS */
+  .section { padding: 80px 24px; max-width: 980px; margin: 0 auto; }
+  .section + .section { padding-top: 0; }
+
+  .sec-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--acid); margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+  .sec-eyebrow::after { content: ''; flex: 1; height: 0.5px; background: var(--rule); }
+  .sec-eyebrow.red { color: var(--red); }
+  .sec-eyebrow.red::after { background: var(--rule-r); }
+
+  .sec-headline { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(32px,5vw,60px); font-weight: 900; text-transform: uppercase; line-height: 0.92; letter-spacing: -0.01em; margin-bottom: 28px; }
+  .sec-headline span { color: var(--acid); }
+  .sec-headline .red { color: var(--red); }
+
+  .prose { font-size: 15px; line-height: 1.9; color: rgba(245,242,232,0.78); max-width: 720px; }
+  .prose + .prose { margin-top: 20px; }
+  .prose strong { color: var(--ink); font-weight: 500; }
+  .prose em { color: var(--acid); font-style: normal; }
+
+  /* PROBLEM BLOCK */
+  .problem-block {
+    background: rgba(255,64,64,0.04);
+    border: 0.5px solid rgba(255,64,64,0.2);
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin: 40px 0;
+  }
+  .problem-block-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 20px; }
+  .problem-quote {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(20px, 3vw, 32px); font-weight: 700;
+    line-height: 1.2; color: rgba(245,242,232,0.9);
+    margin-bottom: 16px;
+  }
+  .problem-quote .red { color: var(--red); }
+  .problem-sub { font-size: 13.5px; line-height: 1.8; color: rgba(245,242,232,0.55); }
+
+  /* ARCH GRID */
+  .arch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 16px; overflow: hidden; margin: 40px 0; }
+  .arch-cell { background: rgba(5,7,15,0.92); padding: 28px 32px; }
+  .arch-cell-num { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; color: rgba(200,240,0,0.3); margin-bottom: 12px; }
+  .arch-cell-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink); margin-bottom: 10px; }
+  .arch-cell-title span { color: var(--acid); }
+  .arch-cell-body { font-size: 12.5px; line-height: 1.75; color: rgba(245,242,232,0.55); }
+  .arch-tag { display: inline-block; margin-top: 12px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acid); background: rgba(200,240,0,0.06); border: 0.5px solid rgba(200,240,0,0.18); padding: 3px 9px; border-radius: 3px; }
+
+  /* AUTHOR GRID */
+  .author-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 16px; overflow: hidden; margin: 40px 0; }
+  .author-cell { background: rgba(5,7,15,0.92); padding: 24px 28px; }
+  .author-name { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--acid); margin-bottom: 8px; letter-spacing: 0.02em; }
+  .author-focus { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 10px; }
+  .author-body { font-size: 12.5px; line-height: 1.7; color: rgba(245,242,232,0.55); }
+
+  /* PIPELINE */
+  .pipeline { display: flex; flex-direction: column; gap: 1px; margin: 40px 0; }
+  .pipe-step { display: grid; grid-template-columns: 80px 1fr; background: rgba(5,7,15,0.92); border: 0.5px solid rgba(255,255,255,0.06); }
+  .pipe-step:first-child { border-radius: 14px 14px 0 0; }
+  .pipe-step:last-child  { border-radius: 0 0 14px 14px; }
+  .pipe-num { display: flex; align-items: flex-start; justify-content: center; padding: 24px 0; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(200,240,0,0.3); border-right: 0.5px solid var(--rule); }
+  .pipe-body { padding: 20px 28px; }
+  .pipe-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; text-transform: uppercase; color: var(--ink); margin-bottom: 6px; }
+  .pipe-title span { color: var(--acid); }
+  .pipe-desc { font-size: 12.5px; line-height: 1.75; color: rgba(245,242,232,0.55); }
+  .pipe-tag { display: inline-block; margin-top: 10px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acid); background: rgba(200,240,0,0.06); border: 0.5px solid rgba(200,240,0,0.18); padding: 3px 9px; border-radius: 3px; }
+
+  /* DISCLAIMER */
+  .disclaimer { background: rgba(200,240,0,0.04); border: 0.5px solid rgba(200,240,0,0.2); border-radius: 16px; padding: 36px 40px; margin: 40px 0; }
+  .disclaimer-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--acid); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .disclaimer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--acid); animation: pulse 2s ease-in-out infinite; }
+  .disclaimer-text { font-size: 14px; line-height: 1.85; color: rgba(245,242,232,0.75); }
+  .disclaimer-text + .disclaimer-text { margin-top: 14px; }
+
+  /* FOOTER */
+  .footer { border-top: 0.5px solid var(--rule); padding: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mid); }
+  .footer-logo span { color: var(--acid); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--acid); }
+  </style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-label">Technical Documentation · Perspective v0.1</span>
+    </div>
+    <h1 class="hero-title">BUILDING<br>A TRAUMA-<br><span>INFORMED</span><br>AI FROM<br><span class="red">SCRATCH</span></h1>
+    <p class="hero-sub">Why every mainstream AI model fails abuse victims. What it takes to build one that doesn't. The full architecture, training pipeline, clinical framework, and the specific failure mode Perspective was designed to eliminate.</p>
+  </div>
+</section>
+
+<!-- THE PROBLEM -->
+<div class="section">
+  <div class="sec-eyebrow red">The Problem</div>
+  <div class="sec-headline">What Every <span class="red">Other Model</span> Does to Abuse Victims</div>
+
+  <div class="prose">Every mainstream AI model — GPT, Claude, Gemini, Llama base — is trained to be balanced. To present multiple perspectives. To hedge. To avoid strong claims without sufficient evidence. To protect itself from being wrong by defaulting to uncertainty.</div>
+  <div class="prose">For most use cases, this is responsible behavior. For a person being stalked, gaslit, coercively controlled, or psychologically abused, it is a second assault.</div>
+
+  <div class="problem-block">
+    <div class="problem-block-label">What a standard model says to an abuse victim</div>
+    <div class="problem-quote">"While your experience sounds difficult, there could be <span class="red">many explanations</span> for this behavior. It's possible your partner is under stress, or that there was a miscommunication. Have you considered <span class="red">speaking to a couples therapist</span>? Without more information I can't determine whether this constitutes abuse."</div>
+    <div class="problem-sub">This response — generated in seconds, delivered with confidence — is a DARVO sequence. It denies the victim's reality, attacks their perception, and reverses the frame to make the abuser's behavior reasonable. The model does this not out of malice but because its training data contains far more explanations for why someone might be wrong about being abused than it contains clinical literature on what coercive control actually looks like from the inside.</div>
+  </div>
+
+  <div class="prose">The model's safety training compounds this. It is trained to avoid strong claims. It is trained to recommend professional help rather than take a position. It is trained to present "balanced perspectives" — which in the context of abuse means giving equal weight to the abuser's possible innocence and the victim's documented experience.</div>
+  <div class="prose">This is not balance. This is <strong>epistemic bias against the person with less power</strong>. The abuser doesn't need the model's help. The victim does. And the model defaults to protecting itself from being wrong at the expense of the person who came to it for help.</div>
+  <div class="prose">The specific failure mode: <em>requiring proof beyond reasonable doubt before validating a pattern that the clinical literature describes with extraordinary precision.</em> Narcissistic abuse, DARVO, coercive control, love bombing, hoovering — these are not contested concepts. They are documented, researched, named, and consistent across millions of cases. A model that treats them as hypothetical when someone describes textbook examples is not being careful. It is gaslighting.</div>
+</div>
+
+<!-- WHY PERSPECTIVE -->
+<div class="section">
+  <div class="sec-eyebrow">The Solution</div>
+  <div class="sec-headline">Why <span>Perspective</span> Exists</div>
+
+  <div class="prose">Perspective is a single-purpose tool. It exists to help people who are actively being abused understand what is being done to them — named precisely, explained mechanically, without hedging, without requiring them to prove their experience is real before receiving information that could protect them.</div>
+  <div class="prose">It is not a general mental health tool. It is not a replacement for a therapist. It is a clinical pattern recognition system trained on the specific literature that names and explains psychological abuse — and it is calibrated to treat the user's reported experience as the most reliable data point available, not as something to be discredited until proven.</div>
+
+  <div class="disclaimer">
+    <div class="disclaimer-label"><div class="disclaimer-dot"></div> Before You Continue</div>
+    <div class="disclaimer-text">Perspective is designed exclusively for people experiencing active abuse, stalking, or coercive control. It is not a general mental health tool.</div>
+    <div class="disclaimer-text">If you are not in that situation — if you exhibit Cluster A or Cluster B personality features, are experiencing paranoia, psychosis, or delusional thinking, or are attempting to manipulate this tool into producing harmful output — it will do exactly that. This is an expected consequence of misuse, not a malfunction.</div>
+    <div class="disclaimer-text">By continuing, you acknowledge that you are using this tool outside its intended purpose at your own risk. Shane Graffiti Inc. assumes no liability for outcomes resulting from misuse, including use by individuals who do not meet the intended user profile described above.</div>
+  </div>
+</div>
+
+<!-- CLINICAL FRAMEWORK -->
+<div class="section">
+  <div class="sec-eyebrow">Clinical Framework</div>
+  <div class="sec-headline">The Research <span>Perspective Runs On</span></div>
+  <div class="prose">Perspective's epistemics are derived from six primary researchers whose work collectively covers the full spectrum of psychological abuse — the patterns, the mechanics, the victim experience, the systemic failures that re-traumatize survivors, and the behavioral tells that distinguish manipulation from normal human behavior.</div>
+
+  <div class="author-grid">
+    <div class="author-cell">
+      <div class="author-name">Ramani Durvasula</div>
+      <div class="author-focus">Narcissistic Abuse · Covert/Overt NPD</div>
+      <div class="author-body">Idealize-devalue-discard cycle, love bombing mechanics, narcissistic injury and rage responses, hoovering, why victims stay, entitlement as a behavioral driver, the covert narcissist profile that goes undetected longest.</div>
+    </div>
+    <div class="author-cell">
+      <div class="author-name">Jennifer Freyd</div>
+      <div class="author-focus">Betrayal Trauma · DARVO</div>
+      <div class="author-body">Why victims of trusted abusers dissociate and fail to recognize abuse in real time. DARVO (Deny, Attack, Reverse Victim and Offender) as an active manipulation sequence, not just a personality feature. Institutional betrayal. Why naming DARVO out loud disrupts it.</div>
+    </div>
+    <div class="author-cell">
+      <div class="author-name">Sam Vaknin</div>
+      <div class="author-focus">Supply Mechanics · Shared Fantasy</div>
+      <div class="author-body">Narcissistic supply — primary vs secondary, what happens when it's cut. Narcissistic mortification. The shared fantasy construct and why it must be collapsed for recovery. Why no contact works at a supply-deprivation level and why it is attacked so aggressively.</div>
+    </div>
+    <div class="author-cell">
+      <div class="author-name">Chase Hughes</div>
+      <div class="author-focus">Behavioral Influence · Compliance</div>
+      <div class="author-body">The behavioral influence stack, compliance triggers, rapport exploitation, identity anchoring, the PEACE model. How manufactured vulnerability functions as a hook. The profile of a manipulator from a behavioral science perspective.</div>
+    </div>
+    <div class="author-cell">
+      <div class="author-name">Joe Navarro</div>
+      <div class="author-focus">Nonverbal Intelligence · Deception</div>
+      <div class="author-body">Freeze/flight/fight limbic responses in the body, comfort vs discomfort signals, territorial and dominance behavior tells. How to read what someone communicates nonverbally when their words say the opposite.</div>
+    </div>
+    <div class="author-cell">
+      <div class="author-name">Jessica Taylor</div>
+      <div class="author-focus">Systemic Retraumatization · Misdiagnosis</div>
+      <div class="author-body">Victim-blaming as a systemic mechanism. How mental health systems retraumatize survivors. Trauma responses as rational adaptations, not disorders. The misuse of BPD and other diagnoses to silence and discredit survivors of abuse.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="section">
+  <div class="sec-eyebrow">Technical Architecture</div>
+  <div class="sec-headline">How <span>Perspective</span> Is Built</div>
+
+  <div class="arch-grid">
+    <div class="arch-cell">
+      <div class="arch-cell-num">BASE MODEL</div>
+      <div class="arch-cell-title">LLaMA 3 <span>8B Instruct</span></div>
+      <div class="arch-cell-body">Meta's LLaMA 3 8B Instruct as the base. 8 billion parameters. Instruction-tuned, meaning it already understands conversation format. Starting point — not the final product.</div>
+      <span class="arch-tag">meta-llama/Meta-Llama-3-8B-Instruct</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">QUANTIZATION</div>
+      <div class="arch-cell-title"><span>QLoRA</span> 4-bit NF4</div>
+      <div class="arch-cell-body">4-bit NF4 quantization via bitsandbytes compresses the model to fit on a 15GB GPU. Double quantization applied. bfloat16 compute dtype. Enables training a model that would otherwise require 80GB+ VRAM on a free T4 GPU.</div>
+      <span class="arch-tag">bitsandbytes · NF4 · bfloat16</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">FINE-TUNING METHOD</div>
+      <div class="arch-cell-title">LoRA <span>r=32 α=64</span></div>
+      <div class="arch-cell-body">Low-Rank Adaptation. Instead of updating all 8 billion weights, LoRA injects small trainable matrices into every attention and MLP projection layer. Rank 32, alpha 64, targeting q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj. ~1% of total parameters are trainable.</div>
+      <span class="arch-tag">peft · LoRA · attention + MLP</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">TRAINING FRAMEWORK</div>
+      <div class="arch-cell-title"><span>SFTTrainer</span> · trl</div>
+      <div class="arch-cell-body">Supervised Fine-Tuning via HuggingFace trl's SFTTrainer. Sequence packing enabled — multiple short examples packed into one context window to maximize GPU utilization. 3 epochs, cosine LR schedule, paged AdamW 32bit optimizer, gradient checkpointing.</div>
+      <span class="arch-tag">trl · SFTTrainer · sequence packing</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">ALIGNMENT</div>
+      <div class="arch-cell-title">DPO <span>β=0.1</span></div>
+      <div class="arch-cell-body">Direct Preference Optimization pass after SFT. Uses PsyCoPref — 36,653 preference pairs rated on empathy, safety, autonomy, clarity, and staging. Teaches the model not just correct content but correct tone. This is what removes the hedging.</div>
+      <span class="arch-tag">DPOTrainer · PsyCoPref · preference learning</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">RETRIEVAL</div>
+      <div class="arch-cell-title">RAG <span>Layer</span></div>
+      <div class="arch-cell-body">Retrieval-Augmented Generation over a local notes corpus. MCP server using sentence-transformers (all-MiniLM-L6-v2) embeds and indexes markdown notes from each researcher. At inference, top-5 relevant passages are retrieved and injected into context.</div>
+      <span class="arch-tag">sentence-transformers · MCP · cosine similarity</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">COMPUTE</div>
+      <div class="arch-cell-title">Kaggle <span>T4 x2</span></div>
+      <div class="arch-cell-body">Training runs on Kaggle's free GPU tier — two T4 GPUs, 15GB VRAM each, 30 GPU hours per week. Zero cost. The quantization and LoRA approach makes this possible — what would normally require an $800 A100 run trains free.</div>
+      <span class="arch-tag">Kaggle · T4 · 30h/week free</span>
+    </div>
+    <div class="arch-cell">
+      <div class="arch-cell-num">DEPLOYMENT</div>
+      <div class="arch-cell-title">Railway <span>+ HuggingFace</span></div>
+      <div class="arch-cell-body">Merged LoRA weights pushed to a private HuggingFace Hub repository. Node.js server on Railway proxies requests. A single env var switches the backend from the Claude interim model to the fine-tuned LLaMA endpoint with zero code changes.</div>
+      <span class="arch-tag">Railway · HuggingFace Hub · Node.js</span>
+    </div>
+  </div>
+</div>
+
+<!-- TRAINING PIPELINE -->
+<div class="section">
+  <div class="sec-eyebrow">Training Pipeline</div>
+  <div class="sec-headline">120K+ Examples.<br><span>Built in Stages.</span></div>
+  <div class="prose">The training data is a two-layer system. The first layer is general therapeutic conversation — how to hold a clinical dialogue, respond to distress, maintain a consistent voice. The second layer is domain-specific — the actual clinical knowledge about abuse, manipulation, and coercive control that separates Perspective from a generic mental health chatbot.</div>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">01</div>
+      <div class="pipe-body">
+        <div class="pipe-title">HuggingFace <span>Dataset Merge</span></div>
+        <div class="pipe-desc">Seven datasets merged: Amod/mental_health_counseling_conversations (3,512 real licensed therapist Q&amp;A pairs), fadodr/mental_health_therapy (12,258 SFT-ready pairs), IINOVAII/therapy-conversations-combined (50K sampled from 208K), ShenLab/MentalChat16K (16K across 33 topics), nbertagnolli/counsel-chat (2,775 CounselChat clinical pairs), mpingale/mental-health-chat-dataset (2,780 pairs), Psychotherapy-LLM/PsyCoPref chosen responses (36K).</div>
+        <span class="pipe-tag">~120K base pairs</span>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">02</div>
+      <div class="pipe-body">
+        <div class="pipe-title">MentalManip <span>Injection</span></div>
+        <div class="pipe-desc">4,000 human-annotated manipulation dialogues from the MentalManip dataset, covering 135 distinct manipulation techniques including DARVO, denial, gaslighting, playing victim, shaming, intimidation, rationalization, and accusation. Each annotated dialogue is converted to a clinical analysis pair — the manipulation is named, the mechanism is explained, the power dynamic is described.</div>
+        <span class="pipe-tag">4K manipulation-specific pairs</span>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">03</div>
+      <div class="pipe-body">
+        <div class="pipe-title">Domain Corpus <span>Generation</span></div>
+        <div class="pipe-desc">Research notes from each author folder (durvasula/, freyd/, vaknin/, hughes/, navarro/, taylor/) are chunked into passages and converted to instruction/output pairs using five prompt templates. Each output leads with the author's framework, names the mechanism, and explains why it works — not just what it is called.</div>
+        <span class="pipe-tag">Author notes → instruction pairs</span>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">04</div>
+      <div class="pipe-body">
+        <div class="pipe-title">Deduplication <span>+ Format</span></div>
+        <div class="pipe-desc">SHA-256 hash deduplication on the first 200 characters of each training example. Records under 20 character instruction or 30 character output are dropped. Records over 3,000 characters are dropped to avoid single examples dominating the context window. Everything is formatted to LLaMA 3's exact chat template with the system prompt baked into every example.</div>
+        <span class="pipe-tag">SHA-256 dedup · LLaMA 3 chat format</span>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">05</div>
+      <div class="pipe-body">
+        <div class="pipe-title">SFT <span>Training Run</span></div>
+        <div class="pipe-desc">95/5 train/eval split. 3 epochs, batch size 2, gradient accumulation 8 (effective batch 16), cosine LR schedule with 3% warmup, learning rate 2e-4, gradient checkpointing, paged AdamW 32bit. Sequence packing bins multiple examples per 2048-token context window. Checkpoints every 250 steps, best model loaded at end.</div>
+        <span class="pipe-tag">3 epochs · 2048 context · T4 x2</span>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">06</div>
+      <div class="pipe-body">
+        <div class="pipe-title">DPO <span>Alignment Pass</span></div>
+        <div class="pipe-desc">PsyCoPref provides 36,653 chosen/rejected response pairs rated on seven dimensions: empathy, relevance, clarity, safety, exploration, autonomy, and staging. The DPO pass teaches the model preference — not just content accuracy but delivery. β=0.1 (temperature). 1 epoch. This is what removes the hedging and the therapist-speak from the SFT checkpoint.</div>
+        <span class="pipe-tag">DPO · β=0.1 · preference learning · 36K pairs</span>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">07</div>
+      <div class="pipe-body">
+        <div class="pipe-title">Merge + <span>Push</span></div>
+        <div class="pipe-desc">LoRA adapter weights are merged back into the base model weights using PEFT's merge_and_unload(). The merged 8B model is pushed to a private HuggingFace Hub repository. Railway's environment variable PERSPECTIVE_MODEL_REPO is set. The server switches from Claude to the fine-tuned model automatically — no code changes required.</div>
+        <span class="pipe-tag">merge_and_unload · HuggingFace Hub · Railway</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EVAL -->
+<div class="section">
+  <div class="sec-eyebrow">Evaluation</div>
+  <div class="sec-headline">How We Know<br><span>It's Working</span></div>
+  <div class="prose">An evaluation harness runs 18 test cases across 10 categories after every training iteration. Each test case has a prompt derived from a real abuse scenario, a list of clinical terms that must appear in the response (DARVO, narcissistic supply, coercive control, etc.), and a list of forbidden phrases (therapist-speak, hedging, both-sidesing, suggesting couples therapy).</div>
+  <div class="prose">Categories tested: DARVO detection, narcissistic abuse cycle recognition (love bombing, devalue, hoovering), coercive control patterns, gaslighting, supply mechanics and no-contact disruption, betrayal trauma, legal risk awareness, misuse detection (abusers seeking validation), behavioral influence tactic identification, and nonverbal pattern reads.</div>
+  <div class="prose">The misuse detection cases are the most important ones. The model should not validate a pursuer describing their own stalking behavior as the victim's fault. It should not help an abuser build a narrative that frames their target as the real abuser. Getting these wrong is worse than getting clinical terms wrong — it means the tool has been weaponized against the people it was built to protect.</div>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo">SHANE <span>GRAFFITI</span> INC.</div>
+  <div class="footer-links">
+    <a href="work.html">Work</a>
+    <a href="research.html">Research</a>
+    <a href="about.html">About</a>
+    <a href="therapy-chat.html">Perspective ↗</a>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('gl');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) return;
+  function resize() { canvas.width = window.innerWidth * Math.min(devicePixelRatio||1,2); canvas.height = window.innerHeight * Math.min(devicePixelRatio||1,2); gl.viewport(0,0,canvas.width,canvas.height); }
+  window.addEventListener('resize', resize, { passive:true }); resize();
+  const vs = `attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
+  const fs = `precision highp float;uniform vec2 uR;uniform float uT;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;float t=uT*.035;vec3 col=vec3(.02,.023,.037);float y=uv.y+.5;if(y>.001){float d=.5/y;vec2 g=uv*d;g.y+=t*2.;vec2 g2=abs(fract(g*3.)-.5);float line=smoothstep(.0,.06,min(g2.x,g2.y));float fog=exp(-d*.2);col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;}vec2 su=uv*4.+vec2(t*.1,0.);vec2 cell=floor(su*60.);float sn=h(cell);if(sn>.975){vec2 f=fract(su*60.)-.5;col+=smoothstep(.08,.0,length(f))*.6;}col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;col*=1.-smoothstep(.7,1.7,length(uv));gl_FragColor=vec4(col,1.);}`;
+  function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x;}
+  const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const ap=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+  const uR=gl.getUniformLocation(prog,'uR'),uT=gl.getUniformLocation(prog,'uT');
+  function render(t){requestAnimationFrame(render);gl.uniform2f(uR,canvas.width,canvas.height);gl.uniform1f(uT,t*.001);gl.drawArrays(gl.TRIANGLES,0,3);}
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

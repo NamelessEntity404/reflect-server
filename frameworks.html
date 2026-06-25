@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5 Scaling Frameworks — Shane Graffiti Inc.</title>
+  <style>
+  :root {
+    --ink: #EFEFF5;
+    --paper: #05060a;
+    --acid: #D4FF00;
+    --cyan: #4CFFE6;
+    --magenta: #FF4CD6;
+    --mid: #9092a0;
+    --rule: rgba(255,255,255,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #05060a; } html, body { background: transparent; scroll-behavior: smooth; }
+
+  body.fw-page {
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .bc { font-family: 'Barlow Condensed', sans-serif; }
+
+  #gl {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+  }
+
+  .scene {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    position: relative;
+  }
+
+  @keyframes card-float {
+    0%   { box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 28px 80px rgba(0,0,0,0.85), 0 0 0px rgba(76,255,230,0); }
+    50%  { box-shadow: 0 1px 0 rgba(255,255,255,0.11) inset, 0 44px 110px rgba(0,0,0,0.7), 0 0 70px rgba(76,255,230,0.05); }
+    100% { box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 28px 80px rgba(0,0,0,0.85), 0 0 0px rgba(76,255,230,0); }
+  }
+  .card {
+    background: rgba(5,7,15,0.97);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 22px;
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    padding: clamp(28px, 5vw, 56px);
+    max-width: 980px;
+    width: 100%;
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    animation: card-float 7s ease-in-out infinite;
+  }
+  .card.narrow { max-width: 620px; }
+  .card.wide { max-width: 1100px; }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 22px;
+  }
+
+  /* HERO */
+  .fw-hero-kicker {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 20px;
+  }
+  .fw-hero-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(48px, 10vw, 108px);
+    font-weight: 900;
+    line-height: 0.88;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+  .fw-hero-headline .slash {
+    color: var(--acid);
+    text-shadow: 0 0 40px rgba(212,255,0,0.3);
+  }
+  .fw-hero-body {
+    font-size: clamp(13px, 1.4vw, 16px);
+    max-width: 580px;
+    line-height: 1.75;
+    color: var(--ink);
+    opacity: 0.95;
+    margin-bottom: 44px;
+  }
+  .fw-index {
+    display: flex;
+    gap: 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    flex-wrap: wrap;
+    text-decoration: none;
+  }
+  .fw-index-item {
+    flex: 1 1 140px;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.025);
+    border-right: 0.5px solid var(--rule);
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: var(--ink);
+    display: block;
+  }
+  .fw-index-item:last-child { border-right: none; }
+  .fw-index-item:hover { background: rgba(212,255,0,0.08); }
+  .fw-index-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--acid);
+    opacity: 0.5;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .fw-index-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+  }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    position: relative;
+    overflow: hidden;
+    border-top: 0.5px solid var(--rule);
+    border-bottom: 0.5px solid var(--rule);
+    padding: 14px 0;
+    background: rgba(255,255,255,0.025);
+    backdrop-filter: blur(10px);
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: fw-scroll 30s linear infinite;
+    width: max-content;
+  }
+  .marquee-track span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0 30px;
+  }
+  .marquee-track .dot { color: var(--magenta); padding: 0; }
+  @keyframes fw-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* FRAMEWORK SECTION HEADER */
+  .fw-section-label {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .fw-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--acid);
+    opacity: 0.2;
+    flex-shrink: 0;
+  }
+  .fw-title-stack { display: flex; flex-direction: column; gap: 4px; }
+  .fw-category {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .fw-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+  .fw-why {
+    font-size: 14px;
+    line-height: 1.75;
+    opacity: 0.95;
+    max-width: 700px;
+    margin-bottom: 40px;
+    padding-bottom: 36px;
+    border-bottom: 0.5px solid var(--rule);
+  }
+
+  .fw-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 680px) { .fw-split { grid-template-columns: 1fr; } }
+
+  /* STAR GRID */
+  .star-diagram {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .star-point {
+    background: rgba(255,255,255,0.025);
+    padding: 20px;
+    transition: background 0.2s;
+  }
+  .star-point:hover { background: rgba(212,255,0,0.06); }
+  .star-point-letter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--acid);
+    opacity: 0.5;
+    margin-bottom: 4px;
+  }
+  .star-point-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .star-point-def {
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(239,239,245,0.88);
+  }
+  .star-point.full-width {
+    grid-column: 1 / -1;
+    background: rgba(76,255,230,0.04);
+    border-top: 0.5px solid rgba(76,255,230,0.18);
+  }
+  .star-point.full-width .star-point-letter { color: var(--cyan); }
+
+  /* SURVEY GRID */
+  .survey-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 32px;
+  }
+  .survey-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 60px;
+    align-items: center;
+    gap: 16px;
+    padding: 13px 18px;
+    background: rgba(255,255,255,0.025);
+  }
+  .survey-row.header-row { background: rgba(212,255,0,0.05); }
+  .survey-criterion {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .survey-question { font-size: 11.5px; line-height: 1.55; color: rgba(239,239,245,0.68); }
+  .survey-scale {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    text-align: right;
+  }
+
+  /* PENTAGON STEPS */
+  .pentagon-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pent-step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    background: rgba(255,255,255,0.025);
+    transition: background 0.2s;
+  }
+  .pent-step:hover { background: rgba(255,76,214,0.05); }
+  .pent-step-letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,76,214,0.08);
+    border-right: 0.5px solid var(--rule);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--magenta);
+    letter-spacing: 0.05em;
+    padding: 20px 10px;
+  }
+  .pent-step-body { padding: 20px 24px; }
+  .pent-step-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .pent-step-desc { font-size: 12.5px; line-height: 1.7; color: rgba(239,239,245,0.92); }
+
+  /* GAMETAPE TABLE */
+  .gametape-table {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .gt-col { background: rgba(255,255,255,0.025); padding: 20px; }
+  .gt-col-head {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid var(--rule);
+    color: var(--cyan);
+  }
+  .gt-q {
+    font-size: 12px;
+    line-height: 1.65;
+    padding: 8px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    color: rgba(239,239,245,0.75);
+  }
+  .gt-q:last-child { border-bottom: none; }
+  @media (max-width: 680px) { .gametape-table { grid-template-columns: 1fr; } }
+
+  /* COMMUNICATION FORMULA */
+  .formula-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    padding: 24px 28px;
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid var(--rule);
+    border-radius: 14px;
+  }
+  .formula-term {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(24px, 4vw, 40px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  .formula-term.e1 { color: var(--acid); }
+  .formula-term.e2 { color: var(--cyan); }
+  .formula-term.e3 { color: var(--magenta); }
+  .formula-op {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--mid);
+  }
+
+  .comm-pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  @media (max-width: 680px) { .comm-pillars { grid-template-columns: 1fr; } }
+  .comm-pillar { background: rgba(255,255,255,0.025); padding: 24px; }
+  .comm-pillar-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .comm-pillar:nth-child(1) .comm-pillar-label { color: var(--acid); }
+  .comm-pillar:nth-child(2) .comm-pillar-label { color: var(--cyan); }
+  .comm-pillar:nth-child(3) .comm-pillar-label { color: var(--magenta); }
+  .comm-pillar-def {
+    font-size: 12px;
+    line-height: 1.7;
+    color: rgba(239,239,245,0.92);
+    margin-bottom: 16px;
+  }
+  .comm-tactic {
+    font-size: 11.5px;
+    line-height: 1.65;
+    padding: 8px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    color: rgba(239,239,245,0.82);
+  }
+  .comm-tactic:last-child { border-bottom: none; }
+  .comm-tactic strong {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+
+  /* MONDAY HOUR ONE */
+  .mho-formula {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  @media (max-width: 600px) {
+    .mho-formula { grid-template-columns: 1fr; }
+    .mho-op { text-align: center; }
+  }
+  .mho-term {
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .mho-term-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--acid);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .mho-term-sub {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .mho-op {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    color: var(--mid);
+    text-align: center;
+  }
+  .mho-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .mho-step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    background: rgba(255,255,255,0.025);
+    transition: background 0.2s;
+  }
+  .mho-step:hover { background: rgba(212,255,0,0.04); }
+  .mho-step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(212,255,0,0.06);
+    border-right: 0.5px solid var(--rule);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--acid);
+    opacity: 0.7;
+  }
+  .mho-step-body { padding: 16px 20px; }
+  .mho-step-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .mho-step-desc { font-size: 12.5px; line-height: 1.65; color: rgba(239,239,245,0.92); }
+
+  .color-key {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  .ck-item {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ck-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .ck-label { font-size: 11.5px; color: rgba(239,239,245,0.7); }
+
+  /* PAY INCREASE */
+  .pay-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .pay-tier {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    background: rgba(255,255,255,0.025);
+    transition: background 0.2s;
+  }
+  .pay-tier:hover { background: rgba(255,255,255,0.04); }
+  .pay-pct {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 10px;
+    border-right: 0.5px solid var(--rule);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+  .pay-tier:nth-child(1) .pay-pct { color: var(--mid); }
+  .pay-tier:nth-child(2) .pay-pct { color: var(--ink); }
+  .pay-tier:nth-child(3) .pay-pct { color: var(--cyan); }
+  .pay-tier:nth-child(4) .pay-pct { color: var(--acid); }
+  .pay-tier-body { padding: 16px 20px; }
+  .pay-tier-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+  }
+  .pay-tier-desc { font-size: 12px; line-height: 1.6; color: rgba(239,239,245,0.88); }
+
+  .pay-ask {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  @media (max-width: 600px) { .pay-ask { grid-template-columns: 1fr; } }
+  .pay-ask-item { padding: 18px 20px; background: rgba(255,255,255,0.025); }
+  .pay-ask-step {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--magenta);
+    margin-bottom: 8px;
+  }
+  .pay-ask-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 7px;
+  }
+  .pay-ask-body { font-size: 12px; line-height: 1.65; color: rgba(239,239,245,0.88); }
+
+  /* CLOSER */
+  .big-closer {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(32px, 6vw, 68px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+  .big-closer .acid { color: var(--acid); text-shadow: 0 0 50px rgba(212,255,0,0.35); }
+  .big-closer .out { -webkit-text-stroke: 2px var(--ink); color: transparent; }
+
+  #end-spacer { height: 40vh; }
+    #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.25; pointer-events:none; }
+</style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body class="fw-page">
+    <video id="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="bg-research.webm" type="video/webm">
+    <source src="bg-research.mp4" type="video/mp4">
+  </video>
+<canvas id="gl"></canvas>
+
+  <nav>
+    <a href="index.html">Page 1</a>
+    <a href="page2.html">Page 2</a>
+    <a href="page3.html">Page 3</a>
+    <a href="page4.html">Page 4</a>
+    <a href="page5.html">Page 5</a>
+    <a href="page6.html">Page 6</a>
+    <a href="page7.html">Page 7</a>
+    <a href="page8.html">Page 8</a>
+    <a href="page9.html">Page 9</a>
+    <a href="page10.html">Page 10</a>
+    <a href="page11.html">Page 11</a>
+    <a href="page12.html">Page 12</a>
+    <a href="page13.html">Page 13</a>
+    <a href="page14.html">Page 14</a>
+    <a href="page15.html">Page 15</a>
+    <a href="page16.html">Page 16</a>
+    <a href="about.html">About</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="scene" id="s-hero">
+    <div class="card">
+      <p class="fw-hero-kicker">Operational infrastructure — scaling frameworks</p>
+      <h1 class="fw-hero-headline bc">
+        5 WAYS<br>TO SCALE<br><span class="slash">WITHOUT<br>BREAKING.</span>
+      </h1>
+      <p class="fw-hero-body">
+        Delivery breaks first. Then communication. Then management. Then compensation.
+        These five frameworks are the operational scaffolding that holds a company together
+        as it grows — deployed internally, battle-tested at scale, documented here exactly
+        as they're used in the field.
+      </p>
+      <div class="fw-index">
+        <a href="#s-5star" class="fw-index-item">
+          <span class="fw-index-num bc">01</span>
+          <span class="fw-index-name bc">5 Star Service</span>
+        </a>
+        <a href="#s-gametape" class="fw-index-item">
+          <span class="fw-index-num bc">02</span>
+          <span class="fw-index-name bc">Gametape Review</span>
+        </a>
+        <a href="#s-comms" class="fw-index-item">
+          <span class="fw-index-num bc">03</span>
+          <span class="fw-index-name bc">Hi-Perf Comms</span>
+        </a>
+        <a href="#s-mho" class="fw-index-item">
+          <span class="fw-index-num bc">04</span>
+          <span class="fw-index-name bc">Monday Hour One</span>
+        </a>
+        <a href="#s-pay" class="fw-index-item">
+          <span class="fw-index-num bc">05</span>
+          <span class="fw-index-name bc">Pay Increase</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>5 Star Service</span><span class="dot">◆</span>
+      <span>Gametape Review</span><span class="dot">◆</span>
+      <span>Hi-Perf Communication</span><span class="dot">◆</span>
+      <span>Monday Hour One</span><span class="dot">◆</span>
+      <span>Pay Increase Framework</span><span class="dot">◆</span>
+      <span>Concern</span><span class="dot">◆</span>
+      <span>Courtesy</span><span class="dot">◆</span>
+      <span>One &amp; Done</span><span class="dot">◆</span>
+      <span>Educate &amp; Empower</span><span class="dot">◆</span>
+      <span>Timeliness</span><span class="dot">◆</span>
+      <span>Energy</span><span class="dot">◆</span>
+      <span>Engagement</span><span class="dot">◆</span>
+      <span>Exploration</span><span class="dot">◆</span>
+      <span>5 Star Service</span><span class="dot">◆</span>
+      <span>Gametape Review</span><span class="dot">◆</span>
+      <span>Hi-Perf Communication</span><span class="dot">◆</span>
+      <span>Monday Hour One</span><span class="dot">◆</span>
+      <span>Pay Increase Framework</span><span class="dot">◆</span>
+      <span>Concern</span><span class="dot">◆</span>
+      <span>Courtesy</span><span class="dot">◆</span>
+      <span>One &amp; Done</span><span class="dot">◆</span>
+      <span>Educate &amp; Empower</span><span class="dot">◆</span>
+      <span>Timeliness</span><span class="dot">◆</span>
+      <span>Energy</span><span class="dot">◆</span>
+      <span>Engagement</span><span class="dot">◆</span>
+      <span>Exploration</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- 01 — 5 STAR SERVICE -->
+  <section class="scene" id="s-5star">
+    <div class="card wide">
+      <div class="fw-section-label">
+        <span class="fw-num bc">01</span>
+        <div class="fw-title-stack">
+          <span class="fw-category">Customer delivery</span>
+          <span class="fw-title bc">5 Star Service Framework</span>
+        </div>
+      </div>
+
+      <p class="fw-why">
+        Customers are more likely to leave over bad service than over price or product. Quality service builds trust, sets you apart, and keeps people referring others. Every interaction either strengthens or weakens the brand — this framework makes sure every customer touch moves things forward, not backward. The goal isn't just to satisfy — it's to impress.
+      </p>
+
+      <div class="fw-split">
+        <div>
+          <p class="eyebrow" style="margin-bottom:16px;">The five standards</p>
+          <div class="star-diagram">
+            <div class="star-point">
+              <div class="star-point-letter bc">C</div>
+              <div class="star-point-name">Concern</div>
+              <div class="star-point-def">Show genuine care for the customer's wellbeing, feelings, and circumstances. Thank them for reaching out, verify the issue, confirm resolution at close.</div>
+            </div>
+            <div class="star-point">
+              <div class="star-point-letter bc">C</div>
+              <div class="star-point-name">Courtesy</div>
+              <div class="star-point-def">Treat every customer with respect and professionalism. Active listening, using their name, building rapport, polite tone throughout.</div>
+            </div>
+            <div class="star-point">
+              <div class="star-point-letter bc">O</div>
+              <div class="star-point-name">One &amp; Done</div>
+              <div class="star-point-def">Resolve the issue and every dependency in a single interaction. No leftovers. Summarize the steps taken, offer additional help before closing.</div>
+            </div>
+            <div class="star-point">
+              <div class="star-point-letter bc">E</div>
+              <div class="star-point-name">Educate &amp; Empower</div>
+              <div class="star-point-def">Give them the answer first, then show where you found it. Explain what caused the issue and how to prevent it next time — so they don't have to come back for the same thing.</div>
+            </div>
+            <div class="star-point full-width">
+              <div class="star-point-letter bc">T</div>
+              <div class="star-point-name">Timeliness</div>
+              <div class="star-point-def">Respond immediately even if full resolution isn't possible yet. Finish one inquiry before opening another — undivided attention produces faster, cleaner resolutions. Impress, don't just satisfy.</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow" style="margin-bottom:10px;">How to grade each rep</p>
+          <p style="font-size:12.5px;line-height:1.7;color:rgba(239,239,245,0.72);margin-bottom:16px;">Send this 5-question survey after every interaction — rated 1–5 per criterion. Plug it into your CRM, email automation, or CS platform. Should take customers under 60 seconds.</p>
+          <div class="survey-grid">
+            <div class="survey-row header-row">
+              <div class="survey-criterion">Criterion</div>
+              <div class="survey-question">What the customer evaluates</div>
+              <div class="survey-scale">Score</div>
+            </div>
+            <div class="survey-row">
+              <div class="survey-criterion">Concern</div>
+              <div class="survey-question">Did the rep show empathy and genuine care? Did they acknowledge your feelings and demonstrate understanding of the issue?</div>
+              <div class="survey-scale">1–5</div>
+            </div>
+            <div class="survey-row">
+              <div class="survey-criterion">Courtesy</div>
+              <div class="survey-question">Was the rep polite, respectful, and professional throughout? Did they actively listen?</div>
+              <div class="survey-scale">1–5</div>
+            </div>
+            <div class="survey-row">
+              <div class="survey-criterion">Educate &amp; Empower</div>
+              <div class="survey-question">Did the rep provide accurate, helpful information and empower you with knowledge to handle it yourself next time?</div>
+              <div class="survey-scale">1–5</div>
+            </div>
+            <div class="survey-row">
+              <div class="survey-criterion">One &amp; Done</div>
+              <div class="survey-question">Was your issue fully resolved in a single interaction, or did it require further follow-up?</div>
+              <div class="survey-scale">1–5</div>
+            </div>
+            <div class="survey-row">
+              <div class="survey-criterion">Timeliness</div>
+              <div class="survey-question">How quickly was your issue resolved? Was the resolution completed within the expected timeframe?</div>
+              <div class="survey-scale">1–5</div>
+            </div>
+            <div class="survey-row" style="background:rgba(76,255,230,0.05);border-top:0.5px solid rgba(76,255,230,0.2);">
+              <div class="survey-criterion" style="color:var(--cyan);">Overall</div>
+              <div class="survey-question">Did the rep deliver a five-star experience across all five standards — concern, courtesy, knowledge, efficiency, and timeliness?</div>
+              <div class="survey-scale" style="color:var(--acid);">1–5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — GAMETAPE REVIEW -->
+  <section class="scene" id="s-gametape">
+    <div class="card wide">
+      <div class="fw-section-label">
+        <span class="fw-num bc">02</span>
+        <div class="fw-title-stack">
+          <span class="fw-category">Sales / CS alignment</span>
+          <span class="fw-title bc">Gametape Review Framework</span>
+        </div>
+      </div>
+
+      <p class="fw-why">
+        Most departments operate in silos. Your customer doesn't. When the teams touching the customer aren't aligned on what the journey actually looks like, you're leaving money on the table — or actively burning it. A weekly gametape session is among the highest-ROI meetings you can run. Marketing hears objections directly. Sales sees what CS can and can't deliver on. Product understands what features customers actually want versus what they were promised.
+      </p>
+
+      <div class="pentagon-steps">
+        <div class="pent-step">
+          <div class="pent-step-letter bc">ARRANGE</div>
+          <div class="pent-step-body">
+            <div class="pent-step-name">Set the recurring meeting</div>
+            <div class="pent-step-desc">60–90 minutes, weekly. Host: Head of Sales. Attendees: Heads of Marketing, Sales, and Customer Success. No rules on additions — if a specific team is struggling, pull more people from that team in until the constraint surfaces.</div>
+          </div>
+        </div>
+        <div class="pent-step">
+          <div class="pent-step-letter bc">ASSEMBLE</div>
+          <div class="pent-step-body">
+            <div class="pent-step-name">Select the call</div>
+            <div class="pent-step-desc">One day before the meeting, the Head of Sales chooses what to review — a sales call, onboarding call, or service call. If nothing is broken, rotate through all three. If one department has a constraint, run four consecutive weeks reviewing only calls from that department.</div>
+          </div>
+        </div>
+        <div class="pent-step">
+          <div class="pent-step-letter bc">ASSESS</div>
+          <div class="pent-step-body">
+            <div class="pent-step-name">Watch together, each with a different lens</div>
+            <div class="pent-step-desc">Host shares screen, plays the call at 1.5x speed. Every stakeholder watches simultaneously through their specific objective — see the breakdown below. Notes taken in real time.</div>
+          </div>
+        </div>
+        <div class="pent-step">
+          <div class="pent-step-letter bc">ANALYZE</div>
+          <div class="pent-step-body">
+            <div class="pent-step-name">Identify the one big domino</div>
+            <div class="pent-step-desc">All parties share feedback and commit to one action item — not five. Picking too many things at once kills execution quality even when all the changes are objectively right. The team doesn't have the bandwidth to execute them all well simultaneously.</div>
+          </div>
+        </div>
+        <div class="pent-step">
+          <div class="pent-step-letter bc">ACT</div>
+          <div class="pent-step-body">
+            <div class="pent-step-name">Document and monitor</div>
+            <div class="pent-step-desc">Record the action item and key observations in the shared table below. Monitor progress in subsequent reviews and adjust. The table becomes the artifact that travels meeting to meeting.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gametape-table">
+        <div class="gt-col">
+          <div class="gt-col-head">Sales Leader watches for</div>
+          <div class="gt-q">What went right on this call?</div>
+          <div class="gt-q">What should we improve?</div>
+        </div>
+        <div class="gt-col">
+          <div class="gt-col-head">Marketing Leader watches for</div>
+          <div class="gt-q">Which objections could be addressed in our marketing before the call even happens?</div>
+          <div class="gt-q">Which objections can't be overcome in marketing and need to be trained into the sales script?</div>
+        </div>
+        <div class="gt-col">
+          <div class="gt-col-head">CS Leader watches for</div>
+          <div class="gt-q">What was said here that needs to be handed off cleanly to the delivery team?</div>
+          <div class="gt-q">What was said here that we can't actually deliver on — meaning sales needs to update their script?</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — HIGH PERFORMANCE COMMUNICATION -->
+  <section class="scene" id="s-comms">
+    <div class="card wide">
+      <div class="fw-section-label">
+        <span class="fw-num bc">03</span>
+        <div class="fw-title-stack">
+          <span class="fw-category">Team dynamics</span>
+          <span class="fw-title bc">High Performance<br>Communication Framework</span>
+        </div>
+      </div>
+
+      <p class="fw-why">
+        An MIT study tracked communication behavior across industries — innovation teams, hospital post-op wards, bank customer-facing teams, backroom operations. Participants wore electronic badges capturing tone of voice, body language, and interaction frequency. The finding: communication patterns were a stronger predictor of team success than individual intelligence or skill level. Team energy and engagement outside of formal meetings explained 40% of the variance in dollar productivity between groups. Below is the operational version of that finding.
+      </p>
+
+      <div class="formula-bar">
+        <span class="formula-term e1 bc">Energy</span>
+        <span class="formula-op">+</span>
+        <span class="formula-term e2 bc">Engagement</span>
+        <span class="formula-op">×</span>
+        <span class="formula-term e3 bc">Exploration</span>
+        <span style="font-size:13px;color:var(--mid);margin-left:8px;">= High performance</span>
+      </div>
+
+      <div class="comm-pillars">
+        <div class="comm-pillar">
+          <div class="comm-pillar-label">Energy</div>
+          <p class="comm-pillar-def">The number and nature of interactions among team members — verbal and nonverbal. Speed of communication has the closest correlation to energy. Slow communicators degrade teams. Fast communicators elevate them.</p>
+          <div class="comm-tactic">
+            <strong>Become a fast communicator</strong>
+            Speed of response is the clearest signal of energy. High performers don't make people wait days.
+          </div>
+          <div class="comm-tactic">
+            <strong>If you see it, say it</strong>
+            A daily end-of-day "Praise" block on the calendar — reach out to anyone who did something impressive that day. Never let a good gesture go unnoticed.
+          </div>
+          <div class="comm-tactic">
+            <strong>Vary your medium</strong>
+            The best communicators don't have one channel. Zoom chat, Slack, direct messages, comments, even gifts. Different mediums signal different levels of attention. Use them.
+          </div>
+        </div>
+        <div class="comm-pillar">
+          <div class="comm-pillar-label">Engagement</div>
+          <p class="comm-pillar-def">The distribution of energy among team members. In a three-person team, engagement is the average interaction energy between every pair. The more people who speak up during decisions, the better those decisions get.</p>
+          <div class="comm-tactic">
+            <strong>Pull quiet people in</strong>
+            DM teammates who don't speak up during calls — encourage them privately, praise them publicly when they do. Feed lines through the private chat until they're comfortable doing it themselves.
+          </div>
+          <div class="comm-tactic">
+            <strong>Distribute talk time structurally</strong>
+            Give each team member something to present in the meeting. Talk time doesn't equalize on its own — build the distribution into the process.
+          </div>
+          <div class="comm-tactic">
+            <strong>Buddy up deliberately</strong>
+            When two teammates rarely interact, place them on a project together. Better communication between any two people reduces dependency on you.
+          </div>
+        </div>
+        <div class="comm-pillar">
+          <div class="comm-pillar-label">Exploration</div>
+          <p class="comm-pillar-def">Communication outside the core team — across departments. High-performing teams consistently show higher rates of cross-department collaboration. This is the multiplier: once energy and engagement are working, exploration compounds both.</p>
+          <div class="comm-tactic">
+            <strong>Cross-team projects</strong>
+            Set up special projects where people from different departments work together. You don't always need two departments on it — but you will benefit from having them there.
+          </div>
+          <div class="comm-tactic">
+            <strong>Rotate observers</strong>
+            Invite teammates from outside their usual function to sit on department calls once a month. Keeps communication channels open and prevents tunnel vision from calcifying.
+          </div>
+          <div class="comm-tactic">
+            <strong>Deliberate social mixing</strong>
+            Monthly game nights, luncheons, casual events. Annual full-team meetups with intentionally mixed seating — for two days, nobody sits with their usual team.
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:28px;padding:20px 24px;background:rgba(255,255,255,0.03);border:0.5px solid var(--rule);border-radius:12px;">
+        <p class="eyebrow" style="margin-bottom:10px;">How to deploy</p>
+        <p style="font-size:13px;line-height:1.75;color:rgba(239,239,245,0.75);">Share this with your leaders. Have each one grade their team on Energy, Engagement, and Exploration on a scale of 1–10. Then ask the team — not just leadership — how they want to act on it. Give them the framework, have them identify their lowest score, and ask them to commit to improving one area. One, not three.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — MONDAY HOUR ONE -->
+  <section class="scene" id="s-mho">
+    <div class="card wide">
+      <div class="fw-section-label">
+        <span class="fw-num bc">04</span>
+        <div class="fw-title-stack">
+          <span class="fw-category">Individual output</span>
+          <span class="fw-title bc">Monday Hour One Framework</span>
+        </div>
+      </div>
+
+      <p class="fw-why">
+        As you scale, every employee hits capacity. Distraction follows. Monday Hour One is one hour of planning — usually less — that saves 10–12 hours of wasted or misallocated time across the rest of the week. For management, it provides full real-time visibility into what each person is working on, how loaded they are, who needs help, and how aligned everyone is — at a glance. That's what lets you hire intelligently and redistribute work as headcount grows.
+      </p>
+
+      <div class="mho-formula">
+        <div class="mho-term">
+          <span class="mho-term-label bc">Look Back</span>
+          <span class="mho-term-sub">What's unresolved</span>
+        </div>
+        <div class="mho-op">+</div>
+        <div class="mho-term">
+          <span class="mho-term-label bc">Look Forward</span>
+          <span class="mho-term-sub">What's upcoming</span>
+        </div>
+        <div class="mho-op">+</div>
+        <div class="mho-term" style="border-color:rgba(212,255,0,0.25);background:rgba(212,255,0,0.04);">
+          <span class="mho-term-label bc">Prioritize + Schedule</span>
+          <span class="mho-term-sub">Everything blocked by name</span>
+        </div>
+      </div>
+
+      <div class="mho-steps">
+        <div class="mho-step">
+          <div class="mho-step-num bc">1</div>
+          <div class="mho-step-body">
+            <div class="mho-step-name">Look Back</div>
+            <div class="mho-step-desc">Review last week's calendar — what didn't get done, what's unresolved. Check all sent emails for anything unfollowed up. Review your communication platform for anything missed. Identify what constraints came up and ask: what process, communication, or document could prevent that constraint from recurring?</div>
+          </div>
+        </div>
+        <div class="mho-step">
+          <div class="mho-step-num bc">2</div>
+          <div class="mho-step-body">
+            <div class="mho-step-name">Look Forward</div>
+            <div class="mho-step-desc">Review the next 1–3 months. What do you need to start this week to hit targets later? Check your project management tool for upcoming deadlines. Review quarterly goals. Pull forward anything that needs runway now.</div>
+          </div>
+        </div>
+        <div class="mho-step">
+          <div class="mho-step-num bc">3</div>
+          <div class="mho-step-body">
+            <div class="mho-step-name">Prioritize</div>
+            <div class="mho-step-desc">From everything surfaced in steps 1 and 2, identify what moves you, your team, and the business forward the most. Those are your priorities. You don't schedule priorities around other things — you schedule everything else around your priorities.</div>
+          </div>
+        </div>
+        <div class="mho-step">
+          <div class="mho-step-num bc">4</div>
+          <div class="mho-step-body">
+            <div class="mho-step-name">Schedule Priorities First</div>
+            <div class="mho-step-desc">Block time for every priority. No block gets labeled "project work" — it carries the specific name of the project. Be realistic: include lunch, breaks, personal commitments. Delete or defer anything that doesn't serve your priorities where possible.</div>
+          </div>
+        </div>
+        <div class="mho-step">
+          <div class="mho-step-num bc">5</div>
+          <div class="mho-step-body">
+            <div class="mho-step-name">Schedule Overflow / Ad Hoc</div>
+            <div class="mho-step-desc">Reserve blocks for the unexpected — urgent customer requests, peer asks, follow-ups. Constraints on time actually compress work into less of it; open-ended blocks expand to fill whatever space you give them.</div>
+          </div>
+        </div>
+        <div class="mho-step">
+          <div class="mho-step-num bc">6</div>
+          <div class="mho-step-body">
+            <div class="mho-step-name">Color Code the Calendar</div>
+            <div class="mho-step-desc">Color coding gives you and your manager a visual read on where time is actually going. Pattern recognition at a glance — no audit required.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="color-key">
+        <div class="ck-item"><div class="ck-dot" style="background:#3B82F6;"></div><span class="ck-label">Recurring Meetings</span></div>
+        <div class="ck-item"><div class="ck-dot" style="background:#EF4444;"></div><span class="ck-label">Admin Tasks</span></div>
+        <div class="ck-item"><div class="ck-dot" style="background:#EAB308;"></div><span class="ck-label">One-off Meetings</span></div>
+        <div class="ck-item"><div class="ck-dot" style="background:#22C55E;"></div><span class="ck-label">Projects / Priorities</span></div>
+        <div class="ck-item"><div class="ck-dot" style="background:#A855F7;"></div><span class="ck-label">Break / Food</span></div>
+        <div class="ck-item"><div class="ck-dot" style="background:#F97316;"></div><span class="ck-label">Personal Time</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — PAY INCREASE -->
+  <section class="scene" id="s-pay">
+    <div class="card wide">
+      <div class="fw-section-label">
+        <span class="fw-num bc">05</span>
+        <div class="fw-title-stack">
+          <span class="fw-category">Compensation</span>
+          <span class="fw-title bc">Pay Increase Framework</span>
+        </div>
+      </div>
+
+      <p class="fw-why">
+        Companies without a clear pay philosophy lose good people — by overpaying the wrong ones, underpaying the right ones, or creating pay disparity that poisons the team. People share what they make more than you'd ever guess. Transparency is the only defense. Hand this to employees when they start so they know exactly what's rewarded, what each tier looks like, and how to ask for a raise the right way. Implement this before you grow — or implement it now.
+      </p>
+
+      <div class="fw-split">
+        <div>
+          <p class="eyebrow" style="margin-bottom:16px;">Raise tiers</p>
+          <div class="pay-tiers">
+            <div class="pay-tier">
+              <div class="pay-pct bc">1–3%</div>
+              <div class="pay-tier-body">
+                <div class="pay-tier-name">Standard Performance</div>
+                <div class="pay-tier-desc">Regular performance, no exceptional results. Meeting expectations and not much more.</div>
+              </div>
+            </div>
+            <div class="pay-tier">
+              <div class="pay-pct bc">4–5%</div>
+              <div class="pay-tier-body">
+                <div class="pay-tier-name">Consistent &amp; Reliable</div>
+                <div class="pay-tier-desc">Consistently meets expectations and is a dependable contributor. Shows up and delivers, every time.</div>
+              </div>
+            </div>
+            <div class="pay-tier">
+              <div class="pay-pct bc">5–10%</div>
+              <div class="pay-tier-body">
+                <div class="pay-tier-name">Excellence / High Performer</div>
+                <div class="pay-tier-desc">Consistently exceeds expectations, takes on additional responsibilities beyond original scope. Strong individual contributors are rewarded here equally with leaders — both are essential to performance.</div>
+              </div>
+            </div>
+            <div class="pay-tier">
+              <div class="pay-pct bc">10–20%</div>
+              <div class="pay-tier-body">
+                <div class="pay-tier-name">Promotion / New Skills / Load ↑↑</div>
+                <div class="pay-tier-desc">Recently promoted to management, acquired significant new skills, or taken on substantially expanded responsibilities — formally documented.</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:16px 20px;background:rgba(255,255,255,0.03);border:0.5px solid var(--rule);border-radius:10px;">
+            <p class="eyebrow" style="margin-bottom:10px;">Frequency rules</p>
+            <p style="font-size:12.5px;line-height:1.7;color:rgba(239,239,245,0.72);">Raises are evaluated individually — not on a schedule, not distributed equally across teams. As a general rule, unless there is a special circumstance like a promotion, raises are not awarded more than once within a calendar year.</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow" style="margin-bottom:16px;">How to ask for a raise</p>
+          <div class="pay-ask">
+            <div class="pay-ask-item">
+              <div class="pay-ask-step">Step 01</div>
+              <div class="pay-ask-title">Know your market rate</div>
+              <div class="pay-ask-body">Research average compensation for your role, experience level, and region. Glassdoor, Payscale, Bureau of Labor Statistics. Know where you stand before you open the conversation.</div>
+            </div>
+            <div class="pay-ask-item">
+              <div class="pay-ask-step">Step 02</div>
+              <div class="pay-ask-title">Quantify your contributions</div>
+              <div class="pay-ask-body">Identify completed projects, revenue generated, cost savings, or process improvements. Lead with data, not emotion. Specific numbers: "I'd like to request an increase of $5,000–$7,000 based on the following."</div>
+            </div>
+            <div class="pay-ask-item">
+              <div class="pay-ask-step">Step 03</div>
+              <div class="pay-ask-title">Approach professionally</div>
+              <div class="pay-ask-body">Start from genuine satisfaction with the role. Don't put your supervisor on the defensive. "I really enjoy working here. Over the past year the scope of my work has expanded significantly — I'd like to discuss reviewing my compensation."</div>
+            </div>
+            <div class="pay-ask-item">
+              <div class="pay-ask-step">Step 04</div>
+              <div class="pay-ask-title">Build the case</div>
+              <div class="pay-ask-body">Bring supporting documentation — industry salary reports, a list of achievements tied to company goals. The best raise requests come with a slide deck. Evidence first, always.</div>
+            </div>
+            <div class="pay-ask-item">
+              <div class="pay-ask-step">Step 05</div>
+              <div class="pay-ask-title">Practice patience</div>
+              <div class="pay-ask-body">Salary decisions require review and often multiple layers of leadership. Don't expect an immediate answer. Asking too frequently signals dissatisfaction rather than commitment to the role.</div>
+            </div>
+            <div class="pay-ask-item">
+              <div class="pay-ask-step">Step 06</div>
+              <div class="pay-ask-title">Follow up once</div>
+              <div class="pay-ask-body">After the conversation, send a brief email thanking your manager for their time, reiterating your commitment, and noting your request. Once. Then let it work.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSER -->
+  <section class="scene">
+    <div class="card narrow">
+      <p class="big-closer bc">
+        SYSTEMS<br>
+        <span class="out">DON'T</span><br>
+        <span class="acid">REPLACE</span><br>
+        JUDGMENT.<br>
+        <span class="out">THEY</span><br>
+        FREE IT.
+      </p>
+    </div>
+  </section>
+
+  <div id="end-spacer"></div>
+
+  <!-- WEBGL — perspective grid, exact shader from about.html -->
+  <script>
+  (() => {
+    const canvas = document.getElementById('gl');
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: false, preserveDrawingBuffer: true });
+    if (!gl) return;
+
+    function resize() {
+      canvas.width = window.innerWidth * Math.min(window.devicePixelRatio || 1, 2);
+      canvas.height = window.innerHeight * Math.min(window.devicePixelRatio || 1, 2);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+
+    const vsSrc = `
+      attribute vec2 aPos;
+      void main() {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+      }
+    `;
+
+    const fsSrc = `
+      precision highp float;
+      uniform vec2 uRes;
+      uniform float uTime;
+      uniform float uScroll;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453);
+      }
+
+      void main() {
+        vec2 uv = (gl_FragCoord.xy - 0.5 * uRes.xy) / uRes.y;
+        float t = uTime * 0.06 + uScroll * 6.0;
+        vec3 col = vec3(0.03, 0.035, 0.06);
+
+        // perspective grid floor
+        float y = uv.y + 0.55;
+        if (y > 0.001) {
+          float depth = 0.6 / y;
+          vec2 grid = uv * depth;
+          grid.y += t * 2.2;
+          grid.x += sin(uScroll * 6.2832) * 1.5;
+          vec2 gl2 = abs(fract(grid * 3.0) - 0.5);
+          float line = smoothstep(0.0, 0.06, min(gl2.x, gl2.y));
+          float fog = exp(-depth * 0.18);
+          float hue = uScroll * 6.2832;
+          vec3 gridColor = mix(vec3(0.30,1.0,0.90), vec3(1.0,0.30,0.84), sin(hue) * 0.5 + 0.5);
+          col += (1.0 - line) * fog * gridColor * 2.2;
+        }
+
+        // stars
+        vec2 starUv = uv * 4.0 + vec2(t * 0.25, uScroll * 2.0);
+        vec2 cell = floor(starUv * 60.0);
+        float starN = hash(cell);
+        if (starN > 0.97) {
+          vec2 f = fract(starUv * 60.0) - 0.5;
+          float d = length(f);
+          col += smoothstep(0.08, 0.0, d) * 1.2;
+        }
+
+        // ambient glow drifting with scroll
+        vec2 glowPos = vec2(sin(uScroll * 3.0) * 0.6, cos(uScroll * 2.0) * 0.4 + 0.2);
+        float glow = smoothstep(1.1, 0.0, length(uv - glowPos));
+        col += glow * vec3(0.85, 1.0, 0.2) * 0.22;
+
+        // vignette
+        float vig = 1.0 - smoothstep(0.7, 1.7, length(uv));
+        col *= vig;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type, src) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      return sh;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes    = gl.getUniformLocation(prog, 'uRes');
+    const uTime   = gl.getUniformLocation(prog, 'uTime');
+    const uScroll = gl.getUniformLocation(prog, 'uScroll');
+
+    let scrollProgress = 0;
+    function render(time) {
+      requestAnimationFrame(render);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, time * 0.001);
+      gl.uniform1f(uScroll, scrollProgress);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    requestAnimationFrame(render);
+
+    function updateScroll() {
+      const max = document.body.scrollHeight - window.innerHeight;
+      scrollProgress = max > 0 ? window.scrollY / max : 0;
+    }
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    updateScroll();
+  })();
+  </script>
+
+  <!-- SCROLL-DRIVEN CARD ANIMATION -->
+  <script>
+  (() => {
+    const cards = document.querySelectorAll('.scene .card');
+    function update() {
+      const vh = window.innerHeight;
+      cards.forEach((card, i) => {
+        const r = card.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const dist = (center - vh / 2) / (vh / 2 + r.height / 2);
+        const prog = Math.max(0, 1 - Math.abs(dist));
+        const dir = dist >= 0 ? 1 : -1;
+        // opacity: 0.82 floor so cards stay readable even when off-center
+        card.style.opacity = (0.82 + 0.18 * prog).toFixed(3);
+        // more kinetic: bigger translate, stronger X rotation, subtle Y tilt
+        const tY = (1 - prog) * 90 * dir;
+        const rX = (1 - prog) * 14 * dir;
+        const rY = dist * -4;
+        const sc = 0.90 + 0.10 * prog;
+        card.style.transform =
+          `perspective(1200px) translateY(${tY.toFixed(1)}px) ` +
+          `rotateX(${rX.toFixed(2)}deg) ` +
+          `rotateY(${rY.toFixed(2)}deg) ` +
+          `scale(${sc.toFixed(3)})`;
+      });
+    }
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { update(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+    update();
+  })();
+  </script>
+
+  <!-- NAV -->
+  <div id="nav-tab"></div>
+  <script>
+    const nav = document.querySelector('nav');
+    const tab = document.getElementById('nav-tab');
+    let navVisible = false;
+    let touchStartY = 0;
+    let mouseStartY = 0;
+
+    nav.style.transform = 'translateX(-50%) translateY(-200px)';
+    nav.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    function showNav() { navVisible = true; nav.style.transform = 'translateX(-50%) translateY(20px)'; }
+    function hideNav() { navVisible = false; nav.style.transform = 'translateX(-50%) translateY(-200px)'; }
+
+    tab.addEventListener('click', () => navVisible ? hideNav() : showNav());
+    window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchend', e => {
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy > 40 && touchStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    }, { passive: true });
+    window.addEventListener('mousedown', e => { mouseStartY = e.clientY; });
+    window.addEventListener('mouseup', e => {
+      const dy = e.clientY - mouseStartY;
+      if (dy > 40 && mouseStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    });
+  </script>
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+  <script>
+  (function(){
+    var v = document.getElementById('bg-video');
+    if(v) v.play().catch(function(){});
+  })();
+  </script>
+</body>
+</html>

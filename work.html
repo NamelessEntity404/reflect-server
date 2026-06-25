@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work — Shane Graffiti Inc.</title>
+  <style>
+  :root {
+    --ink:   #F5F2E8;
+    --paper: #05060a;
+    --acid:  #C8F000;
+    --mid:   #A8A89A;
+    --rule:  rgba(200,240,0,0.12);
+    --mono:  'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+  }
+  .hero-inner { max-width: 980px; width: 100%; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-left: 2px solid var(--acid); padding: 3px 0 3px 14px; margin-bottom: 36px;
+  }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acid); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{ box-shadow: 0 0 0 0 rgba(200,240,0,0.5); } 50%{ box-shadow: 0 0 0 5px rgba(200,240,0,0); } }
+  .hero-badge-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acid); }
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(56px, 10vw, 120px); font-weight: 900;
+    line-height: 0.88; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 28px;
+  }
+  .hero-title span { color: var(--acid); text-shadow: 0 0 60px rgba(200,240,0,0.2); }
+  .hero-sub {
+    font-size: 15px; line-height: 1.8; max-width: 560px;
+    color: rgba(245,242,232,0.7); border-left: 2px solid var(--rule); padding-left: 18px;
+  }
+
+  /* MARQUEE */
+  .marquee-wrap { overflow: hidden; border-top: 0.5px solid var(--rule); border-bottom: 0.5px solid var(--rule); padding: 12px 0; background: rgba(255,255,255,0.02); }
+  .marquee-track { display: flex; white-space: nowrap; animation: scroll 30s linear infinite; width: max-content; }
+  .marquee-track span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; padding: 0 28px; color: var(--mid); }
+  .marquee-track .dot { color: var(--acid); padding: 0; }
+  @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* GRID */
+  .grid-section { padding: 80px 24px; max-width: 1400px; margin: 0 auto; }
+  .grid-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--acid); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .grid-label::after { content: ''; flex: 1; height: 0.5px; background: var(--rule); }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .work-card {
+    background: rgba(5,7,15,0.95);
+    text-decoration: none;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    transition: transform 0.3s ease;
+  }
+  .work-card:hover { z-index: 2; transform: scale(1.02); }
+  .work-card:hover .work-overlay { opacity: 1; }
+  .work-card:hover .work-arrow { opacity: 1; transform: translate(0,0); }
+
+  .work-thumb {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.75);
+    transition: filter 0.3s;
+  }
+  .work-card:hover .work-thumb { filter: brightness(0.5); }
+
+  .work-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(5,6,10,0.9) 0%, transparent 60%);
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+
+  .work-num {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--acid); opacity: 0.7; margin-bottom: 6px;
+  }
+  .work-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.02em; color: var(--ink); line-height: 1;
+  }
+
+  .work-arrow {
+    position: absolute; top: 16px; right: 16px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--acid);
+    background: rgba(200,240,0,0.1); border: 0.5px solid rgba(200,240,0,0.3);
+    padding: 5px 10px; border-radius: 3px;
+    opacity: 0; transform: translate(4px,-4px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  /* INDEX PAGE CARD — full width hero */
+  .work-card.hero-card { grid-column: 1 / -1; aspect-ratio: 21/6; }
+  .work-card.hero-card .work-title { font-size: clamp(28px, 4vw, 48px); }
+
+  /* FOOTER */
+  .footer { border-top: 0.5px solid var(--rule); padding: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mid); }
+  .footer-logo span { color: var(--acid); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--acid); }
+  </style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-label">SGI Portfolio</span>
+    </div>
+    <h1 class="hero-title">THE<br><span>WORK</span></h1>
+    <p class="hero-sub">3D motion design, holographic systems, cinematic animation, and generative visual environments — built in After Effects, rendered in WebGL.</p>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>3D Motion</span><span class="dot">·</span>
+    <span>Holographic Systems</span><span class="dot">·</span>
+    <span>WebGL</span><span class="dot">·</span>
+    <span>Cinematic Animation</span><span class="dot">·</span>
+    <span>Scroll Design</span><span class="dot">·</span>
+    <span>After Effects</span><span class="dot">·</span>
+    <span>Generative Visual</span><span class="dot">·</span>
+    <span>3D Motion</span><span class="dot">·</span>
+    <span>Holographic Systems</span><span class="dot">·</span>
+    <span>WebGL</span><span class="dot">·</span>
+    <span>Cinematic Animation</span><span class="dot">·</span>
+    <span>Scroll Design</span><span class="dot">·</span>
+    <span>After Effects</span><span class="dot">·</span>
+    <span>Generative Visual</span><span class="dot">·</span>
+  </div>
+</div>
+
+<div class="grid-section">
+  <div class="grid-label">All Work — 16 Pieces</div>
+  <div class="work-grid">
+
+    <a href="index.html" class="work-card hero-card">
+      <img class="work-thumb" src="./_frames/page2/f0001.jpg" alt="Homepage" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W00 · Homepage</div>
+        <div class="work-title">Holograph — Entry Experience</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page2.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page2/f0001.jpg" alt="Page 2" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W01</div>
+        <div class="work-title">Round Holograph</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page3.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page3/f0001.jpg" alt="Page 3" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W02</div>
+        <div class="work-title">Futuristic Spaceship</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page4.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page4/f0001.jpg" alt="Page 4" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W03</div>
+        <div class="work-title">Future Technology</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page5.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page5/f0001.jpg" alt="Page 5" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W04</div>
+        <div class="work-title">Platform Floating</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page6.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page6/f0001.jpg" alt="Page 6" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W05</div>
+        <div class="work-title">Cyberpunk Slideshow</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page7.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page7/f0001.jpg" alt="Page 7" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W06</div>
+        <div class="work-title">Main Sequence</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page8.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page8/f0001.jpg" alt="Page 8" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W07</div>
+        <div class="work-title">Render Composition</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page9.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page9/f0001.jpg" alt="Page 9" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W08</div>
+        <div class="work-title">Test Sequence</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page10.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page10/f0001.jpg" alt="Page 10" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W09</div>
+        <div class="work-title">Futuristic Slideshow</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page11.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page11/f0001.jpg" alt="Page 11" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W10</div>
+        <div class="work-title">Game Carousels</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page12.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page12/f0001.jpg" alt="Page 12" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W11</div>
+        <div class="work-title">Game HUD</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page13.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page13/f0001.jpg" alt="Page 13" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W12</div>
+        <div class="work-title">Holograph — Product Designer</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page14.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page14/f0001.jpg" alt="Page 14" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W13</div>
+        <div class="work-title">Sci-Fi City</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page15.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page15/f0001.jpg" alt="Page 15" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W14</div>
+        <div class="work-title">Scifi Energy Logo</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+    <a href="page16.html" class="work-card">
+      <img class="work-thumb" src="./_frames/page16/f0001.jpg" alt="Page 16" loading="lazy">
+      <div class="work-overlay">
+        <div class="work-num">SGI-W15</div>
+        <div class="work-title">The Big Final</div>
+      </div>
+      <span class="work-arrow">View ↗</span>
+    </a>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo">SHANE <span>GRAFFITI</span> INC.</div>
+  <div class="footer-links">
+    <a href="work.html">Work</a>
+    <a href="research.html">Research</a>
+    <a href="about.html">About</a>
+    <a href="therapy-chat.html">Perspective</a>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gl');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) return;
+  function resize() {
+    canvas.width  = window.innerWidth  * Math.min(devicePixelRatio||1,2);
+    canvas.height = window.innerHeight * Math.min(devicePixelRatio||1,2);
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+  window.addEventListener('resize', resize, { passive:true }); resize();
+  const vs = `attribute vec2 p; void main(){ gl_Position=vec4(p,0,1); }`;
+  const fs = `
+    precision highp float;
+    uniform vec2 uR; uniform float uT;
+    float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+    void main(){
+      vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;
+      float t=uT*.035;
+      vec3 col=vec3(.02,.023,.037);
+      float y=uv.y+.5;
+      if(y>.001){
+        float d=.5/y; vec2 g=uv*d; g.y+=t*2.;
+        vec2 g2=abs(fract(g*3.)-.5);
+        float line=smoothstep(.0,.06,min(g2.x,g2.y));
+        float fog=exp(-d*.2);
+        col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;
+      }
+      vec2 su=uv*4.+vec2(t*.1,0.);
+      vec2 cell=floor(su*60.); float sn=h(cell);
+      if(sn>.975){ vec2 f=fract(su*60.)-.5; col+=smoothstep(.08,.0,length(f))*.6; }
+      col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;
+      col*=1.-smoothstep(.7,1.7,length(uv));
+      gl_FragColor=vec4(col,1.);
+    }`;
+  function sh(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s; }
+  const prog=gl.createProgram();
+  gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));
+  gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const ap=gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+  const uR=gl.getUniformLocation(prog,'uR'), uT=gl.getUniformLocation(prog,'uT');
+  function render(t){ requestAnimationFrame(render); gl.uniform2f(uR,canvas.width,canvas.height); gl.uniform1f(uT,t*.001); gl.drawArrays(gl.TRIANGLES,0,3); }
+  requestAnimationFrame(render);
+})();
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

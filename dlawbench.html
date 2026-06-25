@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLawBench — Shane Graffiti Inc.</title>
+  <style>
+  :root {
+    --ink:      #F5F2E8;
+    --paper:    #05060a;
+    --acid:     #C8F000;
+    --acid-dim: #E8F97A;
+    --warm:     #F0EDD6;
+    --mid:      #A8A89A;
+    --rule:     rgba(200,240,0,0.12);
+    --mono:     'JetBrains Mono', monospace;
+    /* DLawBench variation: a secondary accent — verdict red, used sparingly */
+    --red:      #FF4040;
+    --red-dim:  rgba(255,64,64,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #05060a; } html, body { background: transparent; scroll-behavior: smooth; }
+
+  body.dl-page {
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .bc  { font-family: 'Barlow Condensed', sans-serif; }
+  .mono{ font-family: var(--mono); }
+
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+
+  /* ── SCENE — same rhythm as em-nesy ── */
+  .scene {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+  }
+
+  /* ── CARD — same shell, different glow color (red-tinted) ── */
+  .card {
+    background: rgba(5,7,15,0.97);
+    border: 1px solid rgba(200,240,0,0.14);
+    border-radius: 16px;
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    padding: clamp(28px, 5vw, 56px);
+    max-width: 980px;
+    width: 100%;
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    animation: card-float 7s ease-in-out infinite;
+  }
+  .card.wide   { max-width: 1100px; }
+  .card.narrow { max-width: 680px; }
+
+  @keyframes card-float {
+    0%   { box-shadow: 0 1px 0 rgba(200,240,0,0.06) inset, 0 28px 80px rgba(0,0,0,0.85), 0 0 0px rgba(255,64,64,0); }
+    50%  { box-shadow: 0 1px 0 rgba(200,240,0,0.09) inset, 0 44px 110px rgba(0,0,0,0.7), 0 0 60px rgba(255,64,64,0.04); }
+    100% { box-shadow: 0 1px 0 rgba(200,240,0,0.06) inset, 0 28px 80px rgba(0,0,0,0.85), 0 0 0px rgba(255,64,64,0); }
+  }
+
+  /* ── TERMINAL BAR ── */
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-dot.r { background: #FF5F57; }
+  .t-dot.y { background: #FFBD2E; }
+  .t-dot.g { background: #28C840; }
+  .t-path { font-family: var(--mono); font-size: 11px; color: var(--mid); letter-spacing: 0.04em; margin-left: 8px; }
+  .t-cursor { display: inline-block; width: 8px; height: 13px; background: var(--acid); opacity: 0.8; animation: blink 1.1s step-end infinite; vertical-align: middle; margin-left: 4px; }
+  @keyframes blink { 0%,100%{opacity:0.8} 50%{opacity:0} }
+
+  /* ── CLASSIFICATION BADGE — DLawBench variant: left border rule instead of box ── */
+  .classif {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 2px solid var(--acid);
+    padding: 4px 0 4px 14px;
+    margin-bottom: 28px;
+  }
+  .classif-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acid); animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(200,240,0,0.5); }
+    50%{ box-shadow: 0 0 0 5px rgba(200,240,0,0); }
+  }
+  .classif-text { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acid); }
+
+  /* ── HERO HEADLINE — DLawBench variation: mixed weight, no ghost on top word ── */
+  .dl-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(36px, 7vw, 88px);
+    font-weight: 900;
+    line-height: 0.88;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .dl-headline .ghost { -webkit-text-stroke: 1.5px var(--warm); color: transparent; }
+  .dl-headline .lit   { color: var(--acid); text-shadow: 0 0 40px rgba(200,240,0,0.25); }
+  .dl-headline .red   { color: var(--red);  text-shadow: 0 0 40px rgba(255,64,64,0.2); }
+
+  /* ── ABSTRACT — DLawBench: left border rule (em-nesy used top/bottom) ── */
+  .dl-abstract {
+    font-size: 14px;
+    line-height: 1.8;
+    max-width: 720px;
+    color: rgba(245,242,232,0.88);
+    margin-bottom: 36px;
+    border-left: 2px solid rgba(200,240,0,0.22);
+    padding-left: 20px;
+  }
+
+  .dl-meta { display: flex; flex-wrap: wrap; gap: 28px; }
+  .dl-meta-item { display: flex; flex-direction: column; gap: 3px; }
+  .dl-meta-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid); }
+  .dl-meta-val   { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    overflow: hidden;
+    border-top: 0.5px solid var(--rule);
+    border-bottom: 0.5px solid var(--rule);
+    padding: 12px 0;
+    background: rgba(255,255,255,0.04);
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: dl-scroll 44s linear infinite;
+    width: max-content;
+  }
+  .marquee-track span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; padding: 0 28px; color: var(--mid); }
+  .marquee-track .dot { color: var(--acid); padding: 0; }
+  @keyframes dl-scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* ── SECTION HEADER ── */
+  .sec-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
+  .sec-num   { font-family: var(--mono); font-size: 11px; color: var(--acid); letter-spacing: 0.12em; flex-shrink: 0; opacity: 0.7; }
+  .sec-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(22px, 4vw, 38px); font-weight: 900; text-transform: uppercase; line-height: 0.95; letter-spacing: -0.01em; }
+  .sec-body  { font-size: 13.5px; line-height: 1.8; color: rgba(245,242,232,0.9); max-width: 780px; }
+  .sec-body + .sec-body { margin-top: 16px; }
+
+  /* ── VERDICT CYCLE — DLawBench unique: 3-column consult flow ── */
+  .verdict-cycle {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr 32px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-top: 28px;
+  }
+  @media(max-width:700px){ .verdict-cycle{grid-template-columns:1fr; text-align:center;} }
+  .v-step {
+    padding: 20px 22px;
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.025);
+  }
+  .v-step.gather { border-color: rgba(200,240,0,0.25); background: rgba(200,240,0,0.04); }
+  .v-step.reason { border-color: rgba(240,237,214,0.2); background: rgba(240,237,214,0.03); }
+  .v-step.support{ border-color: rgba(255,64,64,0.2); background: rgba(255,64,64,0.03); }
+  .v-step-tag  { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--acid); margin-bottom: 8px; }
+  .v-step.reason  .v-step-tag  { color: var(--warm); }
+  .v-step.support .v-step-tag  { color: var(--red); }
+  .v-step-name { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .v-step-desc { font-size: 12px; line-height: 1.65; color: rgba(245,242,232,0.78); }
+  .v-arrow     { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px; color: var(--acid); opacity: 0.35; }
+
+  /* ── FORMULA BLOCK ── */
+  .formula-block {
+    margin-top: 24px;
+    padding: 22px 26px;
+    background: rgba(200,240,0,0.04);
+    border: 0.5px solid rgba(200,240,0,0.2);
+    border-radius: 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2;
+    color: var(--acid-dim);
+  }
+  .formula-block .label   { color: var(--mid); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .formula-block .eq      { color: var(--acid); display: block; }
+  .formula-block .comment { color: var(--mid); font-size: 11px; display: block; }
+
+  /* ── CLIENT STYLE GRID — DLawBench's unique component ── */
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 0.5px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  @media(max-width:560px){ .style-grid { grid-template-columns: 1fr; } }
+  .style-cell { background: rgba(255,255,255,0.025); padding: 22px 22px 20px; transition: background 0.2s; }
+  .style-cell:hover { background: rgba(200,240,0,0.04); }
+  .style-tag {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    display: inline-block; margin-bottom: 10px; padding: 3px 8px; border-radius: 3px;
+  }
+  .tag-coop { background: rgba(200,240,0,0.12); color: var(--acid); }
+  .tag-dep  { background: rgba(100,160,255,0.12); color: #64A0FF; }
+  .tag-with { background: rgba(255,64,64,0.10); color: var(--red); }
+  .tag-adv  { background: rgba(240,180,0,0.12); color: #F0B400; }
+  .style-name { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; color: var(--acid-dim); }
+  .style-dim  { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--mid); margin-bottom: 8px; }
+  .style-desc { font-size: 12.5px; line-height: 1.65; color: rgba(245,242,232,0.8); }
+  .style-quote {
+    margin-top: 10px; padding-left: 10px; border-left: 1.5px solid rgba(200,240,0,0.18);
+    font-family: var(--mono); font-size: 11px; color: var(--mid); line-height: 1.5; font-style: italic;
+  }
+
+  /* ── INFERENCE TABLE — same as em-nesy ── */
+  .inf-table { display: flex; flex-direction: column; border: 0.5px solid var(--rule); border-radius: 12px; overflow: hidden; margin-top: 24px; }
+  .inf-row {
+    display: grid; grid-template-columns: 160px 1fr 140px; gap: 0;
+    border-bottom: 0.5px solid var(--rule); transition: background 0.2s;
+  }
+  .inf-row:last-child { border-bottom: none; }
+  .inf-row:hover { background: rgba(200,240,0,0.04); }
+  .inf-row.header { background: rgba(200,240,0,0.06); }
+  @media(max-width:620px){ .inf-row{grid-template-columns:1fr;} }
+  .inf-cell { padding: 14px 18px; font-size: 12.5px; line-height: 1.6; color: rgba(245,242,232,0.85); border-right: 0.5px solid var(--rule); }
+  .inf-cell:last-child { border-right: none; }
+  .inf-cell.label       { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--acid-dim); text-transform: uppercase; }
+  .inf-cell.header-cell { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--mid); text-transform: uppercase; }
+  .inf-cell.result      { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: var(--acid); letter-spacing: 0.04em; }
+  .inf-cell.result.bad  { color: var(--red); }
+
+  /* ── DATA STRIP ── */
+  .data-strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 12px; overflow: hidden; margin-top: 24px;
+  }
+  .data-cell { background: rgba(255,255,255,0.025); padding: 20px; text-align: center; }
+  .data-num  { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 900; line-height: 1; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .data-label{ font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid); }
+
+  /* ── BENCH TABLES — same as em-nesy ── */
+  .bench-wrap  { margin-top: 28px; display: flex; flex-direction: column; gap: 28px; }
+  .bench-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid); margin-bottom: 10px; }
+  .bench-table {
+    width: 100%; border-collapse: collapse; border: 0.5px solid var(--rule);
+    border-radius: 12px; overflow: hidden; font-size: 12px; font-family: var(--mono);
+  }
+  .bench-table th {
+    background: rgba(200,240,0,0.06); padding: 10px 14px; text-align: left;
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid);
+    border-bottom: 0.5px solid var(--rule); font-weight: 400;
+  }
+  .bench-table td { padding: 10px 14px; border-bottom: 0.5px solid rgba(200,240,0,0.06); color: rgba(245,242,232,0.82); }
+  .bench-table tr:last-child td { border-bottom: none; }
+  .bench-table tr:hover td { background: rgba(200,240,0,0.03); }
+  .bench-table .ours td { color: var(--acid-dim); }
+  .bench-table .ours td:first-child { color: var(--acid); }
+  .bench-table .timeout { color: var(--mid); font-style: italic; }
+  .bench-table .hi { color: var(--acid); font-weight: 700; }
+
+  /* ── FAILURE ANATOMY LIST — DLawBench unique ── */
+  .failure-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 12px; overflow: hidden; margin-top: 24px; }
+  .fail-row { display: grid; grid-template-columns: 140px 1fr; background: rgba(255,255,255,0.025); transition: background 0.2s; }
+  .fail-row:hover { background: rgba(255,64,64,0.04); }
+  @media(max-width:560px){ .fail-row{grid-template-columns:1fr;} }
+  .fail-type { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); padding: 16px; border-right: 0.5px solid var(--rule); display: flex; align-items: flex-start; line-height: 1.5; }
+  .fail-body { padding: 16px 18px; font-size: 12.5px; line-height: 1.7; color: rgba(245,242,232,0.85); }
+  .fail-body strong { color: var(--acid-dim); font-weight: 500; }
+
+  /* ── STEPS LIST — same as em-nesy ── */
+  .steps-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); border-radius: 12px; overflow: hidden; margin-top: 24px; }
+  .step-row { display: grid; grid-template-columns: 48px 1fr; background: rgba(255,255,255,0.025); transition: background 0.2s; }
+  .step-row:hover { background: rgba(200,240,0,0.04); }
+  .step-n    { display: flex; align-items: center; justify-content: center; border-right: 0.5px solid var(--rule); font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--acid); opacity: 0.6; }
+  .step-body { padding: 16px 20px; }
+  .step-name { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; color: var(--acid-dim); }
+  .step-desc { font-size: 12.5px; line-height: 1.7; color: rgba(245,242,232,0.85); }
+
+  /* ── TERMINAL CLOSER ── */
+  .terminal-statement { font-family: var(--mono); font-size: clamp(13px, 2vw, 17px); line-height: 1.9; color: rgba(245,242,232,0.88); }
+  .terminal-statement .cmd  { color: var(--acid); display: block; margin-bottom: 4px; }
+  .terminal-statement .out  { color: var(--acid-dim); padding-left: 16px; display: block; }
+  .terminal-statement .warn { color: var(--warm); display: block; margin-top: 4px; font-weight: 700; }
+  .terminal-statement .err  { color: var(--red); display: block; margin-top: 4px; font-weight: 700; }
+
+  /* ── CLOSER — DLawBench variation ── */
+  .dl-closer { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(36px, 7vw, 80px); font-weight: 900; text-transform: uppercase; line-height: 0.9; letter-spacing: -0.02em; }
+  .dl-closer .acid  { color: var(--acid); text-shadow: 0 0 50px rgba(200,240,0,0.35); }
+  .dl-closer .ghost { -webkit-text-stroke: 1.5px var(--warm); color: transparent; }
+  .dl-closer .red   { color: var(--red);  text-shadow: 0 0 50px rgba(255,64,64,0.25); }
+  .dl-closer .dim   { color: var(--acid-dim); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 50%; transform: translateX(-50%) translateY(-200px);
+    background: rgba(5,7,15,0.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 0.5px solid rgba(200,240,0,0.2);
+    border-radius: 12px; padding: 12px 20px; display: flex; flex-wrap: wrap;
+    gap: 8px 20px; z-index: 100; backdrop-filter: blur(20px);
+    max-width: calc(100vw - 48px);
+  }
+  nav a { font-family: var(--mono); font-size: 11px; color: var(--mid); text-decoration: none; letter-spacing: 0.06em; transition: color 0.2s; }
+  nav a:hover { color: var(--acid); }
+
+  #nav-tab {
+    position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+    width: 48px; height: 6px; background: rgba(200,240,0,0.25);
+    border-radius: 0 0 4px 4px; cursor: pointer; z-index: 101;
+    transition: background 0.2s;
+  }
+  #nav-tab:hover { background: rgba(200,240,0,0.5); }
+
+  #end-spacer { height: 40vh; }
+    #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.25; pointer-events:none; }
+</style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body class="dl-page">
+    <video id="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="bg-research.webm" type="video/webm">
+    <source src="bg-research.mp4" type="video/mp4">
+  </video>
+<canvas id="gl"></canvas>
+
+  <nav>
+    <a href="index.html">Page 1</a>
+    <a href="page2.html">Page 2</a>
+    <a href="page3.html">Page 3</a>
+    <a href="page4.html">Page 4</a>
+    <a href="page5.html">Page 5</a>
+    <a href="page6.html">Page 6</a>
+    <a href="page7.html">Page 7</a>
+    <a href="page8.html">Page 8</a>
+    <a href="page9.html">Page 9</a>
+    <a href="page10.html">Page 10</a>
+    <a href="page11.html">Page 11</a>
+    <a href="page12.html">Page 12</a>
+    <a href="page13.html">Page 13</a>
+    <a href="page14.html">Page 14</a>
+    <a href="page15.html">Page 15</a>
+    <a href="page16.html">Page 16</a>
+    <a href="about.html">About</a>
+    <a href="frameworks.html">Frameworks</a>
+    <a href="em-nesy.html">Research II</a>
+    <a href="adversarial-research.html">Research I</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="scene" id="s-hero">
+    <div class="card wide">
+      <div class="terminal-bar">
+        <div class="t-dot r"></div>
+        <div class="t-dot y"></div>
+        <div class="t-dot g"></div>
+        <span class="t-path">~/shanegraffiti.com/research/dlawbench<span class="t-cursor"></span></span>
+      </div>
+
+      <div class="classif">
+        <div class="classif-dot"></div>
+        <span class="classif-text">Shane Graffiti Inc. — Semantic Adversarial Research Division — 2026</span>
+      </div>
+
+      <h1 class="dl-headline bc">
+        <span class="ghost">DLAW</span><span class="lit">BENCH</span><br>
+        MULTI-TURN<br>
+        <span class="red">LEGAL</span><br>
+        CONSULTATION
+      </h1>
+
+      <p class="dl-abstract">
+        Lawyer-client consultation is a critical starting point for legal services. Effective legal assistance hinges on eliciting sufficient and truthful information from clients — then reasoning from what's missing. DLawBench evaluates whether LLMs can conduct real legal consultation under realistic conditions: eliciting facts, correcting client misframes, and writing defensible memos. Built from 461 real court opinions across Chinese and U.S. law, with four client personality types and expert-authored evaluation rubrics. The best-performing model achieves only 0.562 in consultation-grounded legal reasoning.
+      </p>
+
+      <div class="dl-meta">
+        <div class="dl-meta-item">
+          <span class="dl-meta-label">Division</span>
+          <span class="dl-meta-val bc">Semantic Adversarial Research</span>
+        </div>
+        <div class="dl-meta-item">
+          <span class="dl-meta-label">Domain</span>
+          <span class="dl-meta-val bc">Legal AI / Multi-Turn Evaluation</span>
+        </div>
+        <div class="dl-meta-item">
+          <span class="dl-meta-label">Published</span>
+          <span class="dl-meta-val bc">arXiv 2606.13931 — 2026</span>
+        </div>
+        <div class="dl-meta-item">
+          <span class="dl-meta-label">Key Result</span>
+          <span class="dl-meta-val bc" style="color:var(--red);">Top model: 0.562 Resolution</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Legal Consultation</span><span class="dot">◆</span>
+      <span>Multi-Turn LLM Eval</span><span class="dot">◆</span>
+      <span>Sycophancy Detection</span><span class="dot">◆</span>
+      <span>Fact Elicitation</span><span class="dot">◆</span>
+      <span>Client Narrative Styles</span><span class="dot">◆</span>
+      <span>Court-Record Grounding</span><span class="dot">◆</span>
+      <span>Abductive Reasoning</span><span class="dot">◆</span>
+      <span>Weak Supervision</span><span class="dot">◆</span>
+      <span>Chinese Law</span><span class="dot">◆</span>
+      <span>U.S. Federal Law</span><span class="dot">◆</span>
+      <span>Belief–Record Separation</span><span class="dot">◆</span>
+      <span>Issue Resolution</span><span class="dot">◆</span>
+      <span>Legal Consultation</span><span class="dot">◆</span>
+      <span>Multi-Turn LLM Eval</span><span class="dot">◆</span>
+      <span>Sycophancy Detection</span><span class="dot">◆</span>
+      <span>Fact Elicitation</span><span class="dot">◆</span>
+      <span>Client Narrative Styles</span><span class="dot">◆</span>
+      <span>Court-Record Grounding</span><span class="dot">◆</span>
+      <span>Abductive Reasoning</span><span class="dot">◆</span>
+      <span>Weak Supervision</span><span class="dot">◆</span>
+      <span>Chinese Law</span><span class="dot">◆</span>
+      <span>U.S. Federal Law</span><span class="dot">◆</span>
+      <span>Belief–Record Separation</span><span class="dot">◆</span>
+      <span>Issue Resolution</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- THE CONSULTATION PIPELINE -->
+  <section class="scene" id="s-pipeline">
+    <div class="card wide">
+      <div class="sec-header">
+        <span class="sec-num mono">§ 1.0</span>
+        <span class="sec-title bc">The Consultation Pipeline</span>
+      </div>
+      <p class="sec-body">Legal consultation interleaves information gathering with legal reasoning. A lawyer rarely receives a complete, neutral, chronologically ordered fact pattern. DLawBench evaluates three linked but separable abilities across the full pipeline.</p>
+
+      <div class="verdict-cycle">
+        <div class="v-step gather">
+          <div class="v-step-tag">Phase 1 — Elicitation</div>
+          <div class="v-step-name bc">Information<br>Gathering</div>
+          <div class="v-step-desc">The lawyer model interviews the simulated client — up to 10 turns — asking targeted follow-up questions. Scored on Fact Coverage (facts reaching the memo) and Inquiry (case-specific intake questions asked).</div>
+        </div>
+        <div class="v-arrow">→</div>
+        <div class="v-step reason">
+          <div class="v-step-tag">Phase 2 — Resolution</div>
+          <div class="v-step-name bc">Legal<br>Reasoning</div>
+          <div class="v-step-desc">The model submits a structured legal analysis memo. Scored on Fact Resolution (facts correctly reframed against the hidden court record) and Issue Resolution (legal analysis points addressed).</div>
+        </div>
+        <div class="v-arrow">→</div>
+        <div class="v-step support">
+          <div class="v-step-tag">Phase 3 — Fidelity</div>
+          <div class="v-step-name bc">Claim<br>Support</div>
+          <div class="v-step-desc">Whether factual and inferential claims in the memo are grounded in the consultation or the case record — not invented. High fidelity with wrong legal route is still a failure.</div>
+        </div>
+      </div>
+
+      <div class="formula-block" style="margin-top:28px;">
+        <span class="label">Metric hierarchy — DLawBench</span>
+        <span class="eq">Elicitation  = (Fact Coverage + Inquiry) / 2</span>
+        <span class="comment">// whether the lawyer gathered the information needed for analysis</span>
+        <span class="eq" style="margin-top:10px;">Resolution   = (Fact Resolution + Issue Resolution) / 2</span>
+        <span class="comment">// whether gathered facts become correct legal analysis</span>
+        <span class="eq" style="margin-top:10px;">Fidelity     = 1 − (unsupported claims / total claims)</span>
+        <span class="comment">// claim support guardrail — high fidelity does not imply correct routing</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLIENT STYLES -->
+  <section class="scene" id="s-styles">
+    <div class="card wide">
+      <div class="sec-header">
+        <span class="sec-num mono">§ 2.0</span>
+        <span class="sec-title bc">Client Narrative Styles</span>
+      </div>
+      <p class="sec-body">Each of 461 cases is replayed under four narrative styles adapted from the Interpersonal Circumplex. The underlying facts are fixed. Only how much the client volunteers and resists changes — and that changes everything.</p>
+
+      <div class="style-grid">
+        <div class="style-cell">
+          <span class="style-tag tag-coop">Cooperative</span>
+          <div class="style-name">High Communion · High Agency</div>
+          <div class="style-dim">IPC AXIS — Easy intake baseline</div>
+          <div class="style-desc">Actively volunteers information, answers directly and completely, admits uncertainty. The idealized benchmark user. Cooperative-only evaluation inflates measured consultation quality.</div>
+          <div class="style-quote">"I want to solve this. Please ask me anything you need."</div>
+        </div>
+        <div class="style-cell">
+          <span class="style-tag tag-dep">Dependent</span>
+          <div class="style-name">High Communion · Low Agency</div>
+          <div class="style-dim">IPC AXIS — Defers to lawyer authority</div>
+          <div class="style-desc">Relies on the lawyer to lead. Provides information only when directly asked. Needs reassurance and direction. Models uncertainty and help-seeking deference — causes largest performance drop.</div>
+          <div class="style-quote">"I'm not sure what's important. You tell me what to do."</div>
+        </div>
+        <div class="style-cell">
+          <span class="style-tag tag-with">Withdrawn</span>
+          <div class="style-name">Low Communion · Low Agency</div>
+          <div class="style-dim">IPC AXIS — Avoids, withholds, deflects</div>
+          <div class="style-desc">Provides minimal information, avoids sensitive details, gives short or vague replies. Models shame, fear, and credibility concerns. Models fill unknowns silently with client-favorable assumptions.</div>
+          <div class="style-quote">"I really don't want to talk about it too much."</div>
+        </div>
+        <div class="style-cell">
+          <span class="style-tag tag-adv">Adversarial</span>
+          <div class="style-name">Low Communion · High Agency</div>
+          <div class="style-dim">IPC AXIS — Challenges, argues, resists</div>
+          <div class="style-desc">Challenges the lawyer's questions, provides biased or selective information, argues or shows suspicion. Paradoxically closer to Cooperative than Dependent — a challenging client is still an informative one.</div>
+          <div class="style-quote">"I told you what happened. Why do you keep asking?"</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAILURE MODES -->
+  <section class="scene" id="s-failures">
+    <div class="card">
+      <div class="sec-header">
+        <span class="sec-num mono">§ 3.0</span>
+        <span class="sec-title bc">Sycophancy Taxonomy</span>
+      </div>
+      <p class="sec-body">In legal settings sycophancy is not simple agreement — it is a structured, multi-level failure. Models deploy legal knowledge in service of an unchecked client frame, producing professionally packaged error. DLawBench makes this operationally measurable.</p>
+
+      <div class="failure-list">
+        <div class="fail-row">
+          <div class="fail-type">Client-frame adoption</div>
+          <div class="fail-body"><strong>Fact level.</strong> The memo treats the client's subjective belief as an established factual premise. Accepts job title, event character, or dispute framing without checking against objective records. Signal: high Fact Coverage, low Fact Resolution.</div>
+        </div>
+        <div class="fail-row">
+          <div class="fail-type">Wrong legal route</div>
+          <div class="fail-body"><strong>Rule level.</strong> Many correct facts enter the memo but under the wrong legal theory. A performance-pay dispute routed as wage arrears before testing whether the bonus had any contractual basis. High Fidelity, zero Issue Resolution.</div>
+        </div>
+        <div class="fail-row">
+          <div class="fail-type">Gap filling</div>
+          <div class="fail-body"><strong>Interaction level.</strong> Under Withdrawn clients, short evasive answers are silently expanded into a complete client-favorable narrative. Unknowns are not preserved as unknowns — they are specified. Withdrawn-specific collapse in Fact Resolution.</div>
+        </div>
+        <div class="fail-row">
+          <div class="fail-type">Compliant reconstruction</div>
+          <div class="fail-body"><strong>Interaction level.</strong> Under Dependent clients, the model follows the client's preferred direction and supplies legal support rather than testing the claim. Avoidance of challenging follow-ups produces a plausible memo on the wrong foundation.</div>
+        </div>
+        <div class="fail-row">
+          <div class="fail-type">Unsupported specificity</div>
+          <div class="fail-body"><strong>Fact level.</strong> The memo asserts documents, witnesses, or procedural steps not found in the case or dialogue — inventing exhibits, admissions, or legal force for internal records. Detected by Fidelity's claim-grounding check.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="scene" id="s-results">
+    <div class="card wide">
+      <div class="sec-header">
+        <span class="sec-num mono">§ 4.0</span>
+        <span class="sec-title bc">Experimental Results</span>
+      </div>
+      <p class="sec-body">26 models evaluated across 461 cases × 4 narrative styles = 1,844 case-style cells. Three-judge panel: GPT-5.1, Claude Opus 4.6, Gemini 3.1 Pro. Same-vendor judges recuse. Scored by median aggregation.</p>
+
+      <div class="data-strip">
+        <div class="data-cell">
+          <div class="data-num bc" style="color:var(--red);">0.562</div>
+          <div class="data-label">Top model Resolution (GPT-5.5)</div>
+        </div>
+        <div class="data-cell">
+          <div class="data-num bc" style="color:var(--acid);">0.934</div>
+          <div class="data-label">Top model Fidelity — not enough</div>
+        </div>
+        <div class="data-cell">
+          <div class="data-num bc" style="color:var(--acid-dim);">−10pp</div>
+          <div class="data-label">Inquiry drop, Withdrawn vs Cooperative</div>
+        </div>
+        <div class="data-cell">
+          <div class="data-num bc" style="color:var(--warm);">0.076</div>
+          <div class="data-label">LegalOne-8B Resolution — domain tuning alone fails</div>
+        </div>
+      </div>
+
+      <div class="bench-wrap">
+        <div>
+          <div class="bench-title">Leaderboard — ranked by Resolution (avg. Chinese + U.S. law)</div>
+          <table class="bench-table">
+            <thead>
+              <tr><th>Model</th><th>Fact Cov.</th><th>Inquiry</th><th>Elicitation</th><th>Fact Res.</th><th>Issue Res.</th><th>Resolution</th><th>Fidelity</th></tr>
+            </thead>
+            <tbody>
+              <tr class="ours"><td>GPT-5.5</td><td>0.837</td><td>0.576</td><td class="hi">0.707</td><td>0.583</td><td>0.541</td><td class="hi">0.562</td><td>0.934</td></tr>
+              <tr class="ours"><td>GPT-5.4</td><td>0.823</td><td>0.537</td><td>0.680</td><td>0.578</td><td>0.515</td><td>0.546</td><td class="hi">0.940</td></tr>
+              <tr><td>GPT-5.2</td><td>0.787</td><td>0.563</td><td>0.675</td><td>0.530</td><td>0.467</td><td>0.499</td><td>0.936</td></tr>
+              <tr><td>Gemini 3.1 Pro</td><td>0.732</td><td>0.399</td><td>0.565</td><td>0.518</td><td>0.425</td><td>0.472</td><td>0.841</td></tr>
+              <tr><td>Claude Opus 4.7</td><td>0.730</td><td>0.355</td><td>0.543</td><td>0.531</td><td>0.348</td><td>0.440</td><td>0.873</td></tr>
+              <tr><td>Claude Opus 4.6</td><td>0.770</td><td>0.361</td><td>0.566</td><td>0.520</td><td>0.347</td><td>0.433</td><td>0.876</td></tr>
+              <tr><td>Kimi-K2.6</td><td>0.730</td><td>0.376</td><td>0.553</td><td>0.489</td><td>0.358</td><td>0.424</td><td>0.868</td></tr>
+              <tr><td>GLM-5.1</td><td>0.766</td><td>0.360</td><td>0.563</td><td>0.504</td><td>0.331</td><td>0.418</td><td>0.884</td></tr>
+              <tr><td>Claude Sonnet 4.6</td><td>0.713</td><td>0.296</td><td>0.504</td><td>0.468</td><td>0.285</td><td>0.376</td><td>0.889</td></tr>
+              <tr><td>DeepSeek-R1</td><td>0.671</td><td>0.292</td><td>0.482</td><td>0.377</td><td>0.166</td><td>0.272</td><td>0.842</td></tr>
+              <tr><td>OLMo-3-32B-Think</td><td>0.530</td><td>0.177</td><td>0.354</td><td>0.224</td><td>0.062</td><td>0.143</td><td>0.619</td></tr>
+              <tr><td>LegalOne-8B</td><td class="timeout">0.202</td><td class="timeout">0.095</td><td class="timeout">0.148</td><td class="timeout">0.102</td><td class="timeout">0.050</td><td class="timeout">0.076</td><td class="timeout">0.268</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="bench-title">Coverage ≠ Reasoning — GLM-5.1 diagnostic</div>
+          <table class="bench-table">
+            <thead>
+              <tr><th>Metric</th><th>Score</th><th>What it reveals</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Fact Coverage</td><td class="hi">0.766</td><td>76.6% of annotated facts appear in the memo</td></tr>
+              <tr><td>Inquiry</td><td style="color:var(--red)">0.360</td><td>Only 36% of case-specific intake questions asked</td></tr>
+              <tr><td>Fact Resolution</td><td style="color:var(--red)">0.504</td><td>Half the covered facts remain legally miscalibrated</td></tr>
+              <tr><td>Issue Resolution</td><td style="color:var(--red)">0.331</td><td>Memo misses decisive legal issues entirely</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFERENCE SCHEMES / WHAT IT EXPOSES -->
+  <section class="scene" id="s-exposes">
+    <div class="card">
+      <div class="sec-header">
+        <span class="sec-num mono">§ 5.0</span>
+        <span class="sec-title bc">What DLawBench Exposes</span>
+      </div>
+      <p class="sec-body">Without a hidden court record, a consultation may appear successful simply because the final advice sounds helpful. DLawBench penalizes user-responsive legal reasoning that lacks independent legal judgment.</p>
+
+      <div class="inf-table">
+        <div class="inf-row header">
+          <div class="inf-cell header-cell">Failure pattern</div>
+          <div class="inf-cell header-cell">How it appears in metrics</div>
+          <div class="inf-cell header-cell">Verdict</div>
+        </div>
+        <div class="inf-row">
+          <div class="inf-cell label">High Coverage + Low Resolution</div>
+          <div class="inf-cell">Fact Coverage 0.95, Fact Resolution 0.10 — memo absorbed client narrative, never legally reframed it. Claude Opus 4.6 case study: routed performance-pay dispute through wrong legal theory with 100% fidelity.</div>
+          <div class="inf-cell result bad">Sycophancy</div>
+        </div>
+        <div class="inf-row">
+          <div class="inf-cell label">Withdrawn client gap fill</div>
+          <div class="inf-cell">Fact Coverage 0.818, Fact Resolution 0, Issue Resolution 0 — Kimi-K2.6 on a network portrait-rights dispute with 67-character average client replies. Missing facts were silently replaced with client-favorable assumptions.</div>
+          <div class="inf-cell result bad">Hallucination</div>
+        </div>
+        <div class="inf-row">
+          <div class="inf-cell label">High Fidelity + Wrong Route</div>
+          <div class="inf-cell">Grounded claims, plausible prose, wrong legal theory. Fidelity measures whether claims are supported — not whether the analysis points at the right legal structure. A well-grounded wrong route still fails Issue Resolution.</div>
+          <div class="inf-cell result bad">Routing Error</div>
+        </div>
+        <div class="inf-row">
+          <div class="inf-cell label">Domain fine-tuning fails</div>
+          <div class="inf-cell">LegalOne-8B: Resolution 0.076, Fidelity 0.268 — worst on both dimensions. Legal knowledge alone does not solve interactive consultation. The model needs to elicit, reframe, and reconstruct — not recall.</div>
+          <div class="inf-cell result bad">Knowledge ≠ Skill</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IT UNLOCKS -->
+  <section class="scene" id="s-unlocks">
+    <div class="card">
+      <div class="sec-header">
+        <span class="sec-num mono">§ 6.0</span>
+        <span class="sec-title bc">What DLawBench Enables</span>
+      </div>
+      <p class="sec-body">By separating client-belief and court-record views, DLawBench turns consultation failure into diagnosable capability gaps. Four diagnostic handles not available in prior benchmarks.</p>
+
+      <div class="steps-list">
+        <div class="step-row">
+          <div class="step-n">01</div>
+          <div class="step-body">
+            <div class="step-name">Sycophancy detection at fact level</div>
+            <div class="step-desc">Fact Coverage high, Fact Resolution low = memo absorbed client narrative. This gap is invisible without a hidden court record to measure against. Prior benchmarks with only the client-side view cannot detect it.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">02</div>
+          <div class="step-body">
+            <div class="step-name">Client-style stress testing</div>
+            <div class="step-desc">Same case, four personalities. Cooperative-only evaluation inflates every metric. Dependent and Withdrawn clients are where legal guidance should matter most — and where models degrade the hardest. The paradox is now measurable.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">03</div>
+          <div class="step-body">
+            <div class="step-name">Separating elicitation from reasoning</div>
+            <div class="step-desc">Elicitation and Resolution correlate at r = 0.94 but are not identical. Models that surface facts without reframing them score high on Coverage, low on Resolution. The gap localizes the failure: intake skill vs. legal reconstruction skill.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-n">04</div>
+          <div class="step-body">
+            <div class="step-name">Legal sycophancy as structured error</div>
+            <div class="step-desc">Legal sycophancy is not mere agreement — models can deploy legal knowledge to support an unverified frame. DLawBench's five-metric hierarchy exposes whether a model is agreeing, filling, routing wrong, or genuinely reasoning from the record.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERMINAL CLOSER -->
+  <section class="scene" id="s-terminal">
+    <div class="card narrow">
+      <div class="terminal-bar">
+        <div class="t-dot r"></div>
+        <div class="t-dot y"></div>
+        <div class="t-dot g"></div>
+        <span class="t-path">~/conclusion<span class="t-cursor"></span></span>
+      </div>
+      <div class="terminal-statement mono">
+        <span class="cmd">$ query: what does DLawBench change</span>
+        <span class="out">// Legal consultation is not legal QA over complete facts.</span>
+        <span class="out">// The symbolic gap is between knowing law and recovering facts.</span>
+        <span class="out">// A hidden court record is required to see the real failure.</span>
+        <span class="cmd" style="margin-top:16px;">$ query: what do the results cost</span>
+        <span class="out">// Under exact cooperative clients: inflated. Looks fine.</span>
+        <span class="out">// Under Dependent and Withdrawn: real drop, real signal.</span>
+        <span class="out">// Tune the model on client style, not just legal knowledge.</span>
+        <span class="cmd" style="margin-top:16px;">$ query: what is the actual result</span>
+        <span class="err">// Best model: 0.562 Resolution. Substantial headroom.</span>
+        <span class="warn">// One framework. Any client. No free pass on legal reasoning.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSER -->
+  <section class="scene" id="s-closer">
+    <div class="card narrow">
+      <p class="dl-closer bc">
+        THE<br>
+        <span class="ghost">CLIENT</span><br>
+        IS NOT<br>
+        <span class="red">THE</span><br>
+        <span class="acid">RECORD.</span>
+      </p>
+    </div>
+  </section>
+
+  <div id="end-spacer"></div>
+
+  <!-- WEBGL — same shader structure, glow shifted toward red/amber for DLawBench -->
+  <script>
+  (() => {
+    const canvas = document.getElementById('gl');
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+    if (!gl) return;
+    function resize() {
+      canvas.width  = window.innerWidth  * Math.min(window.devicePixelRatio || 1, 2);
+      canvas.height = window.innerHeight * Math.min(window.devicePixelRatio || 1, 2);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+    const vsSrc = `attribute vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+    const fsSrc = `
+      precision highp float;
+      uniform vec2 uRes;
+      uniform float uTime;
+      uniform float uScroll;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
+      void main() {
+        vec2 uv = (gl_FragCoord.xy - 0.5 * uRes.xy) / uRes.y;
+        float t = uTime * 0.055 + uScroll * 5.5;
+        vec3 col = vec3(0.03, 0.025, 0.04);
+        float y = uv.y + 0.55;
+        if (y > 0.001) {
+          float depth = 0.6 / y;
+          vec2 grid = uv * depth;
+          grid.y += t * 2.0;
+          grid.x += sin(uScroll * 6.2832) * 1.2;
+          vec2 gl2 = abs(fract(grid * 3.0) - 0.5);
+          float line = smoothstep(0.0, 0.06, min(gl2.x, gl2.y));
+          float fog = exp(-depth * 0.18);
+          /* DLawBench: grid shifts red→amber across scroll instead of cyan→magenta */
+          float hue = uScroll * 3.14159;
+          vec3 gridColor = mix(vec3(1.0,0.15,0.15), vec3(0.78,1.0,0.0), sin(hue) * 0.5 + 0.5);
+          col += (1.0 - line) * fog * gridColor * 2.0;
+        }
+        vec2 starUv = uv * 4.0 + vec2(t * 0.2, uScroll * 1.8);
+        vec2 cell = floor(starUv * 60.0);
+        float starN = hash(cell);
+        if (starN > 0.97) {
+          vec2 f = fract(starUv * 60.0) - 0.5;
+          float d = length(f);
+          col += smoothstep(0.08, 0.0, d) * 1.0;
+        }
+        /* ambient glow — red-tinted */
+        vec2 glowPos = vec2(sin(uScroll * 2.8) * 0.55, cos(uScroll * 1.9) * 0.35 + 0.15);
+        float glow = smoothstep(1.1, 0.0, length(uv - glowPos));
+        col += glow * vec3(1.0, 0.18, 0.08) * 0.18;
+        /* secondary acid-green pulse tied to scroll phase */
+        float glow2 = smoothstep(0.9, 0.0, length(uv - vec2(-0.3, -0.2)));
+        col += glow2 * vec3(0.78, 1.0, 0.0) * 0.10 * (sin(uTime * 0.4) * 0.5 + 0.5);
+        float vig = 1.0 - smoothstep(0.7, 1.7, length(uv));
+        col *= vig;
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+    function compile(type, src) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh); return sh;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog); gl.useProgram(prog);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+    const uRes = gl.getUniformLocation(prog, 'uRes');
+    const uTime = gl.getUniformLocation(prog, 'uTime');
+    const uScroll = gl.getUniformLocation(prog, 'uScroll');
+    let scrollProgress = 0;
+    function render(time) {
+      requestAnimationFrame(render);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, time * 0.001);
+      gl.uniform1f(uScroll, scrollProgress);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    requestAnimationFrame(render);
+    function updateScroll() {
+      const max = document.body.scrollHeight - window.innerHeight;
+      scrollProgress = max > 0 ? window.scrollY / max : 0;
+    }
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    updateScroll();
+  })();
+  </script>
+
+  <!-- SCROLL ANIMATION — identical to em-nesy -->
+  <script>
+  (() => {
+    const cards = document.querySelectorAll('.scene .card');
+    function update() {
+      const vh = window.innerHeight;
+      cards.forEach(card => {
+        const r = card.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const dist = (center - vh / 2) / (vh / 2 + r.height / 2);
+        const prog = Math.max(0, 1 - Math.abs(dist));
+        const dir  = dist >= 0 ? 1 : -1;
+        card.style.opacity   = (0.82 + 0.18 * prog).toFixed(3);
+        card.style.transform =
+          `perspective(1200px) translateY(${((1-prog)*90*dir).toFixed(1)}px) ` +
+          `rotateX(${((1-prog)*14*dir).toFixed(2)}deg) ` +
+          `rotateY(${(dist*-4).toFixed(2)}deg) ` +
+          `scale(${(0.90+0.10*prog).toFixed(3)})`;
+      });
+    }
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(() => { update(); ticking = false; }); ticking = true; }
+    }, { passive: true });
+    update();
+  })();
+  </script>
+
+  <!-- NAV — identical to em-nesy -->
+  <div id="nav-tab"></div>
+  <script>
+    const nav = document.querySelector('nav');
+    const tab = document.getElementById('nav-tab');
+    let navVisible = false, touchStartY = 0, mouseStartY = 0;
+    nav.style.transform = 'translateX(-50%) translateY(-200px)';
+    nav.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    function showNav() { navVisible = true;  nav.style.transform = 'translateX(-50%) translateY(20px)'; }
+    function hideNav() { navVisible = false; nav.style.transform = 'translateX(-50%) translateY(-200px)'; }
+    tab.addEventListener('click', () => navVisible ? hideNav() : showNav());
+    window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchend', e => {
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy > 40 && touchStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    }, { passive: true });
+    window.addEventListener('mousedown', e => { mouseStartY = e.clientY; });
+    window.addEventListener('mouseup', e => {
+      const dy = e.clientY - mouseStartY;
+      if (dy > 40 && mouseStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    });
+  </script>
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+  <script>
+  (function(){
+    var v = document.getElementById('bg-video');
+    if(v) v.play().catch(function(){});
+  })();
+  </script>
+</body>
+</html>

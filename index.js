@@ -145,7 +145,11 @@ const server = http.createServer(async (req, res) => {
 
   // Serve static files
   if (req.method === 'GET') {
-    const filePath = path.join(__dirname, pathname === '/' ? 'therapy-chat.html' : pathname.slice(1));
+    // Route / to index.html, /perspective to therapy-chat.html
+    let serveFile = pathname.slice(1);
+    if (pathname === '/' || pathname === '') serveFile = 'index.html';
+    if (pathname === '/perspective' || pathname === '/perspective/') serveFile = 'therapy-chat.html';
+    const filePath = path.join(__dirname, serveFile);
     const ext = path.extname(filePath) || '.html';
     const mime = MIME[ext];
     if (mime) {

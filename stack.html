@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Stack — Shane Graffiti Inc.</title>
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+  :root {
+    --ink:   #F5F2E8;
+    --paper: #05060a;
+    --acid:  #C8F000;
+    --mid:   #A8A89A;
+    --rule:  rgba(200,240,0,0.12);
+    --mono:  'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+  }
+  .hero-inner { max-width: 980px; width: 100%; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-left: 2px solid var(--acid); padding: 3px 0 3px 14px; margin-bottom: 36px;
+  }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acid); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{ box-shadow: 0 0 0 0 rgba(200,240,0,0.5); } 50%{ box-shadow: 0 0 0 6px rgba(200,240,0,0); } }
+  .hero-badge-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acid); }
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(64px, 12vw, 140px); font-weight: 900;
+    line-height: 0.85; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 32px;
+  }
+  .hero-title span { color: var(--acid); text-shadow: 0 0 80px rgba(200,240,0,0.25); }
+  .hero-sub {
+    font-size: 16px; line-height: 1.8; max-width: 600px;
+    color: rgba(245,242,232,0.65); border-left: 2px solid var(--rule); padding-left: 18px;
+  }
+
+  /* STACK LIST */
+  .stack-section { padding: 80px 24px 120px; max-width: 980px; margin: 0 auto; }
+  .stack-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--acid); margin-bottom: 32px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .stack-label::after { content: ''; flex: 1; height: 0.5px; background: var(--rule); }
+
+  .stack-list { display: flex; flex-direction: column; gap: 1px; }
+
+  .stack-item {
+    display: grid; grid-template-columns: 48px 1fr;
+    background: rgba(5,7,15,0.85); border: 0.5px solid rgba(255,255,255,0.06);
+    transition: background 0.2s, border-color 0.2s;
+    overflow: hidden;
+  }
+  .stack-item:first-child { border-radius: 14px 14px 0 0; }
+  .stack-item:last-child  { border-radius: 0 0 14px 14px; }
+  .stack-item:hover { background: rgba(14,22,6,0.95); border-color: rgba(200,240,0,0.18); }
+
+  .stack-num {
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 28px 0 28px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em;
+    color: rgba(200,240,0,0.3); border-right: 0.5px solid var(--rule);
+  }
+
+  .stack-body { padding: 24px 28px; }
+  .stack-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(18px, 2.5vw, 26px); font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.02em;
+    color: var(--ink); line-height: 1; margin-bottom: 10px;
+  }
+  .stack-title span { color: var(--acid); }
+  .stack-desc {
+    font-size: 13px; line-height: 1.75;
+    color: rgba(245,242,232,0.6);
+  }
+  .stack-tag {
+    display: inline-block; margin-top: 12px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--acid);
+    background: rgba(200,240,0,0.06); border: 0.5px solid rgba(200,240,0,0.18);
+    padding: 3px 9px; border-radius: 3px;
+  }
+
+  /* FOOTER */
+  .footer { border-top: 0.5px solid var(--rule); padding: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; max-width: 100%; }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mid); }
+  .footer-logo span { color: var(--acid); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--acid); }
+  </style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-label">Technical Specification</span>
+    </div>
+    <h1 class="hero-title">THE<br><span>STACK</span></h1>
+    <p class="hero-sub">What this site actually is under the hood. Not a template. Not a theme. Not a builder. Every system written from scratch in one session.</p>
+  </div>
+</section>
+
+<div class="stack-section">
+  <div class="stack-label">What Was Built</div>
+  <div class="stack-list">
+
+    <div class="stack-item">
+      <div class="stack-num">01</div>
+      <div class="stack-body">
+        <div class="stack-title">Custom <span>WebGL</span> Shaders</div>
+        <div class="stack-desc">Hand-written GLSL fragment shaders running at 60fps — procedural grid geometry, star field, volumetric glow, radial vignette. No Three.js. No library. Raw WebGL API against a full-screen canvas on every page.</div>
+        <span class="stack-tag">GLSL · WebGL · 60fps</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">02</div>
+      <div class="stack-body">
+        <div class="stack-title">Image Sequence <span>Scroll Animation</span></div>
+        <div class="stack-desc">300 frames extracted per video via ffmpeg. Loaded via chunked fetch pipeline — 8 frames at a time to avoid overwhelming the connection pool. Pre-decoded into GPU-resident ImageBitmap objects. RAF loop draws the correct frame on scroll with zero decode latency. Loading state blocks scroll until all frames are resident in GPU memory.</div>
+        <span class="stack-tag">ImageBitmap · RAF · ffmpeg · GPU</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">03</div>
+      <div class="stack-body">
+        <div class="stack-title">Automated <span>Build System</span></div>
+        <div class="stack-desc">Drop MP4 files into finals/. Run one command. The build script extracts frames, generates page HTML from a template, rebuilds the work grid with correct thumbnails and titles, and regenerates the portfolio navigation — all automatically. Zero manual steps.</div>
+        <span class="stack-tag">bash · ffmpeg · fully automated</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">04</div>
+      <div class="stack-body">
+        <div class="stack-title">Zero-Lag <span>Custom Cursor</span></div>
+        <div class="stack-desc">Dot tracks the mouse via requestAnimationFrame at native refresh rate — no CSS transitions, no mousemove latency. A separate ring element lerps toward the dot at 18% per frame, creating natural trailing. Expands and inverts color on any hoverable element. Collapses on click.</div>
+        <span class="stack-tag">RAF · lerp · pointer-events:none</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">05</div>
+      <div class="stack-body">
+        <div class="stack-title">Page <span>Transitions</span></div>
+        <div class="stack-desc">Overlay fires on mousedown — not click — for the fastest possible visual response. Progress bar animates to 80% immediately, completes to 100% on navigation. New page fades in from black. Every internal link on every page is intercepted by a single shared script.</div>
+        <span class="stack-tag">mousedown · overlay · progress bar</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">06</div>
+      <div class="stack-body">
+        <div class="stack-title"><span>Perspective</span> — Trauma-Informed AI</div>
+        <div class="stack-desc">LLaMA 3 8B fine-tuned via QLoRA on a merged dataset of 120K+ therapy conversation pairs from HuggingFace. DPO alignment pass using PsyCoPref preference pairs rated on empathy, safety, and autonomy. RAG layer over a notes corpus covering Ramani Durvasula, Jennifer Freyd, Sam Vaknin, Chase Hughes, Joe Navarro, and Jessica Taylor. Deployed via HuggingFace Hub to Railway.</div>
+        <span class="stack-tag">LLaMA 3 · QLoRA · DPO · RAG · Railway</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">07</div>
+      <div class="stack-body">
+        <div class="stack-title">Training <span>Data Pipeline</span></div>
+        <div class="stack-desc">Python pipeline that downloads therapy datasets, converts to LLaMA 3 chat template format, deduplicates, filters short and low-quality records, merges with domain-specific research corpus, and splits into train/eval sets. Runs on Kaggle GPU free tier.</div>
+        <span class="stack-tag">HuggingFace datasets · trl · SFTTrainer · Kaggle T4</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">08</div>
+      <div class="stack-body">
+        <div class="stack-title">8 Original <span>Research Papers</span></div>
+        <div class="stack-desc">Adversarial AI, benchmark design, legal reasoning, neurosymbolic learning, industrial computer vision, scaling frameworks, AI alignment, and continual learning. Each with its own designed page. Indexed on a master research page with abstracts, tags, and click-through navigation.</div>
+        <span class="stack-tag">SGI Research Lab · 2025–2026</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">09</div>
+      <div class="stack-body">
+        <div class="stack-title">16 Scroll-Driven <span>Cinematic Experiences</span></div>
+        <div class="stack-desc">16 portfolio pieces, each a full-page scroll-driven animation built from After Effects renders converted to image sequences. Master work grid with thumbnail previews generated from frame 1 of each sequence. Prev/next navigation bar on every piece.</div>
+        <span class="stack-tag">After Effects · image sequences · 300 frames each</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">10</div>
+      <div class="stack-body">
+        <div class="stack-title">Unified <span>Navigation System</span></div>
+        <div class="stack-desc">Single nav.js file injected into every page via a script tag. Hides legacy nav elements, injects the new nav bar, detects the current page for active state, skips padding-top on scroll-driven pages to preserve animation math. Portfolio-specific prev/next bar generated from a page list that rebuilds automatically with the build script.</div>
+        <span class="stack-tag">Single source · zero config per page</span>
+      </div>
+    </div>
+
+    <div class="stack-item">
+      <div class="stack-num">11</div>
+      <div class="stack-body">
+        <div class="stack-title">Zero External <span>Dependencies at Runtime</span></div>
+        <div class="stack-desc">All fonts downloaded locally. No Google Fonts CDN requests. No jQuery. No React. No framework. No build step for the frontend. Pure HTML, CSS, and vanilla JavaScript. Every file is portable, readable, and owned outright.</div>
+        <span class="stack-tag">zero CDN · zero framework · zero lock-in</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo">SHANE <span>GRAFFITI</span> INC.</div>
+  <div class="footer-links">
+    <a href="work.html">Work</a>
+    <a href="research.html">Research</a>
+    <a href="about.html">About</a>
+    <a href="therapy-chat.html">Perspective</a>
+  </div>
+</footer>
+
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('gl');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) return;
+  function resize() {
+    canvas.width  = window.innerWidth  * Math.min(devicePixelRatio||1,2);
+    canvas.height = window.innerHeight * Math.min(devicePixelRatio||1,2);
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+  window.addEventListener('resize', resize, { passive:true }); resize();
+  const vs = `attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
+  const fs = `precision highp float;uniform vec2 uR;uniform float uT;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;float t=uT*.035;vec3 col=vec3(.02,.023,.037);float y=uv.y+.5;if(y>.001){float d=.5/y;vec2 g=uv*d;g.y+=t*2.;vec2 g2=abs(fract(g*3.)-.5);float line=smoothstep(.0,.06,min(g2.x,g2.y));float fog=exp(-d*.2);col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;}vec2 su=uv*4.+vec2(t*.1,0.);vec2 cell=floor(su*60.);float sn=h(cell);if(sn>.975){vec2 f=fract(su*60.)-.5;col+=smoothstep(.08,.0,length(f))*.6;}col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;col*=1.-smoothstep(.7,1.7,length(uv));gl_FragColor=vec4(col,1.);}`;
+  function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+  const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const ap=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+  const uR=gl.getUniformLocation(prog,'uR'),uT=gl.getUniformLocation(prog,'uT');
+  function render(t){requestAnimationFrame(render);gl.uniform2f(uR,canvas.width,canvas.height);gl.uniform1f(uT,t*.001);gl.drawArrays(gl.TRIANGLES,0,3);}
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

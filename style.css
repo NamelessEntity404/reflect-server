@@ -1,0 +1,257 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: #000; }
+#spacer { height: 600vh; position: relative; z-index: 1; }
+#c { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; }
+
+/* ── NAV ───────────────────────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-120%);
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 92vw;
+  padding: 10px 14px;
+  margin-top: 20px;
+  border-radius: 20px;
+  background: rgba(20, 20, 30, 0.45);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset,
+    0 8px 32px rgba(0,0,0,0.6),
+    0 2px 8px rgba(0,0,0,0.4);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+nav.visible {
+  transform: translateX(-50%) translateY(0%);
+}
+
+/* swipe hint tab at top */
+#nav-tab {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 101;
+  width: 60px;
+  height: 5px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#nav-tab:hover { background: rgba(255,255,255,0.5); }
+
+/* ── SKEUOMORPHIC BUTTONS ──────────────────────────────────────── */
+nav a {
+  position: relative;
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.08s ease;
+
+  /* glass fill */
+  background: linear-gradient(
+    175deg,
+    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.08) 45%,
+    rgba(255,255,255,0.04) 55%,
+    rgba(255,255,255,0.14) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* border — bright top, dark bottom = light from above */
+  border: 1px solid rgba(255,255,255,0.35);
+  border-bottom-color: rgba(255,255,255,0.08);
+  border-right-color: rgba(255,255,255,0.12);
+
+  /* 3D protrusion */
+  box-shadow:
+    /* inner top highlight */
+    0 1px 0 0 rgba(255,255,255,0.5) inset,
+    /* inner bottom shadow */
+    0 -1px 0 0 rgba(0,0,0,0.35) inset,
+    /* inner left highlight */
+    1px 0 0 0 rgba(255,255,255,0.15) inset,
+    /* outer drop shadows — make it pop off the surface */
+    0 2px 0 rgba(0,0,0,0.6),
+    0 4px 8px rgba(0,0,0,0.45),
+    0 8px 16px rgba(0,0,0,0.25);
+}
+
+/* specular gloss streak across top */
+nav a::before {
+  content: '';
+  position: absolute;
+  top: 1px; left: 6px; right: 6px;
+  height: 40%;
+  border-radius: 8px 8px 50% 50%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.28) 0%,
+    rgba(255,255,255,0.0) 100%
+  );
+  pointer-events: none;
+}
+
+/* hover — slightly brighter */
+nav a:hover {
+  color: #fff;
+  background: linear-gradient(
+    175deg,
+    rgba(255,255,255,0.30) 0%,
+    rgba(255,255,255,0.12) 45%,
+    rgba(255,255,255,0.06) 55%,
+    rgba(255,255,255,0.20) 100%
+  );
+  box-shadow:
+    0 1px 0 0 rgba(255,255,255,0.6) inset,
+    0 -1px 0 0 rgba(0,0,0,0.35) inset,
+    1px 0 0 0 rgba(255,255,255,0.2) inset,
+    0 2px 0 rgba(0,0,0,0.6),
+    0 6px 12px rgba(0,0,0,0.5),
+    0 10px 20px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+}
+
+/* active/pressed — embossed, sinks into surface */
+nav a:active {
+  transform: translateY(1px);
+  background: linear-gradient(
+    175deg,
+    rgba(0,0,0,0.15) 0%,
+    rgba(255,255,255,0.05) 50%,
+    rgba(255,255,255,0.10) 100%
+  );
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.6) inset,
+    0 1px 2px rgba(0,0,0,0.8) inset,
+    0 -1px 0 rgba(255,255,255,0.1) inset,
+    0 1px 2px rgba(0,0,0,0.4);
+  border-color: rgba(255,255,255,0.15);
+  border-top-color: rgba(0,0,0,0.3);
+  color: rgba(255,255,255,0.7);
+}
+
+/* active page — permanently pressed/selected */
+nav a.active {
+  transform: translateY(1px);
+  color: rgba(255,255,255,0.95);
+  background: linear-gradient(
+    175deg,
+    rgba(100,160,255,0.25) 0%,
+    rgba(80,120,255,0.12) 50%,
+    rgba(100,160,255,0.18) 100%
+  );
+  box-shadow:
+    0 2px 5px rgba(0,0,0,0.7) inset,
+    0 1px 2px rgba(0,0,0,0.5) inset,
+    0 -1px 0 rgba(255,255,255,0.08) inset,
+    0 1px 3px rgba(0,0,0,0.5),
+    0 0 12px rgba(100,160,255,0.2);
+  border-color: rgba(100,160,255,0.4);
+  border-top-color: rgba(0,0,0,0.2);
+}
+
+/* ── SCROLL HINT ───────────────────────────────────────────────── */
+#scroll-hint {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  z-index: 20; display: flex; flex-direction: column; align-items: center;
+  gap: 8px; transition: opacity 0.6s ease;
+}
+#scroll-hint.hidden { opacity: 0; pointer-events: none; }
+#scroll-hint span {
+  color: rgba(255,255,255,0.4);
+  font-family: -apple-system, sans-serif;
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+}
+#scroll-hint .arrow {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+  animation: scrollpulse 1.4s ease-in-out infinite;
+}
+@keyframes scrollpulse {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  50% { transform: scaleY(0.4); opacity: 0.3; }
+}
+
+/* ── BUY BUTTON ────────────────────────────────────────────────── */
+#buy-btn {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+}
+#buy-btn.visible { opacity: 1; pointer-events: all; }
+#buy-btn a {
+  display: block;
+  padding: 20px 60px;
+  font-family: -apple-system, 'SF Pro Display', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  border-radius: 14px;
+  background: linear-gradient(
+    175deg,
+    rgba(255,255,255,0.28) 0%,
+    rgba(255,255,255,0.08) 45%,
+    rgba(255,255,255,0.04) 55%,
+    rgba(255,255,255,0.18) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-bottom-color: rgba(255,255,255,0.1);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.55) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset,
+    0 3px 0 rgba(0,0,0,0.7),
+    0 6px 16px rgba(0,0,0,0.5),
+    0 12px 32px rgba(0,0,0,0.3);
+  transition: all 0.08s ease;
+  cursor: pointer;
+}
+#buy-btn a::before {
+  content: '';
+  position: absolute;
+  top: 1px; left: 8px; right: 8px;
+  height: 40%;
+  border-radius: 12px 12px 50% 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+  pointer-events: none;
+}
+#buy-btn a:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset,
+    0 4px 0 rgba(0,0,0,0.7),
+    0 8px 20px rgba(0,0,0,0.6),
+    0 16px 40px rgba(0,0,0,0.35);
+}
+#buy-btn a:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 3px 6px rgba(0,0,0,0.8) inset,
+    0 1px 3px rgba(0,0,0,0.6) inset,
+    0 1px 0 rgba(0,0,0,0.5),
+    0 2px 6px rgba(0,0,0,0.4);
+}

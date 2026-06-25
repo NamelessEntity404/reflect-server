@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Glasses — Shane Graffiti Inc.</title>
+<style>
+  html { background: #05060a; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0D0D0D;
+  --surface: #141414;
+  --surface2: #1C1C1C;
+  --ink: #F0EDE6;
+  --ink-muted: rgba(240,237,230,0.45);
+  --ink-faint: rgba(240,237,230,0.12);
+  --acid: #D4FF00;
+  --rule: rgba(240,237,230,0.08);
+  --rule-strong: rgba(240,237,230,0.18);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: transparent;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* SCAN LINE ANIMATION */
+@keyframes scanline {
+  0% { transform: translateX(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; } 50% { opacity: 1; }
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(13,13,13,0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 0.5px solid var(--rule);
+}
+.nav-brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--acid);
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--acid); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 120px 40px 80px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 0.5px solid var(--rule-strong);
+}
+
+.scan-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.scan-line {
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, var(--acid), transparent);
+  opacity: 0;
+  animation: scanline 4s ease-in-out infinite;
+}
+.scan-line:nth-child(2) { animation-delay: 2s; opacity: 0; }
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.3) 70%, transparent 100%);
+}
+
+.hero-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 48px;
+  animation: fadeUp 0.8s ease both;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--acid);
+  animation: pulse 2s ease infinite;
+}
+.status-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--acid);
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 20px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+
+h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(64px, 12vw, 128px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  margin-bottom: 40px;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+h1 .outline {
+  -webkit-text-stroke: 1px var(--ink);
+  color: transparent;
+}
+h1 .yellow { color: var(--acid); }
+
+.hero-desc {
+  max-width: 580px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-muted);
+  border-left: 2px solid var(--acid);
+  padding-left: 20px;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 48px;
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 0.5px solid var(--rule-strong);
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+.meta-val span { color: var(--acid); }
+.meta-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* SECTIONS */
+.section {
+  padding: 80px 40px;
+  border-bottom: 0.5px solid var(--rule);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-full {
+  padding: 80px 40px;
+  border-bottom: 0.5px solid var(--rule);
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--acid);
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  margin-bottom: 40px;
+}
+
+h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+/* PROBLEM/SOLUTION SPLIT */
+.ps-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: var(--rule);
+}
+@media (max-width: 700px) { .ps-split { grid-template-columns: 1fr; } }
+
+.ps-panel {
+  background: var(--bg);
+  padding: 48px 40px;
+}
+.ps-panel.solution { background: var(--surface); }
+
+.ps-panel-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 0.5px solid var(--rule-strong);
+}
+.ps-panel ul { list-style: none; }
+.ps-panel li {
+  font-size: 14px;
+  line-height: 1.65;
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--rule);
+  color: var(--ink-muted);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.ps-panel li:last-child { border-bottom: none; }
+.li-marker {
+  color: var(--acid);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.solution li { color: var(--ink); }
+
+/* ARCHITECTURE LAYERS */
+.layer-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.layer {
+  background: var(--surface);
+  border: 0.5px solid var(--rule-strong);
+  padding: 32px 40px;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 40px;
+  align-items: start;
+  transition: border-color 0.2s;
+}
+.layer:hover { border-color: var(--acid); }
+@media (max-width: 700px) { .layer { grid-template-columns: 1fr; gap: 20px; } }
+
+.layer-id {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.layer-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--acid);
+}
+.layer-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+.layer-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+.layer-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.spec-row {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid var(--rule);
+  align-items: baseline;
+}
+.spec-row:last-child { border-bottom: none; padding-bottom: 0; }
+.spec-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--acid);
+  min-width: 140px;
+  flex-shrink: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+.spec-val { color: var(--ink-muted); }
+.spec-val strong { color: var(--ink); font-weight: 500; }
+
+/* CAPABILITIES GRID */
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2px;
+  background: var(--rule);
+}
+.cap-card {
+  background: var(--surface);
+  padding: 32px;
+  border: 0.5px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+.cap-card:hover { border-color: var(--rule-strong); background: var(--surface2); }
+.cap-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--acid);
+  margin-bottom: 16px;
+}
+.cap-card h3 { font-size: 18px; margin-bottom: 10px; }
+.cap-card p { font-size: 13px; color: var(--ink-muted); line-height: 1.65; }
+
+/* RESULTS */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--rule);
+  margin-bottom: 48px;
+}
+@media (max-width: 700px) { .results-grid { grid-template-columns: 1fr; } }
+.result-card {
+  background: var(--surface);
+  padding: 40px 32px;
+  text-align: center;
+}
+.result-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--acid);
+  display: block;
+  margin-bottom: 8px;
+}
+.result-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* ETHICS BLOCK */
+.ethics-block {
+  background: var(--surface);
+  border: 0.5px solid var(--rule-strong);
+  border-left: 3px solid var(--acid);
+  padding: 40px 40px 40px 44px;
+  margin-bottom: 24px;
+}
+.ethics-block h3 { color: var(--acid); font-size: 16px; margin-bottom: 12px; }
+.ethics-block p { font-size: 14px; color: var(--ink-muted); line-height: 1.7; }
+
+/* ROADMAP */
+.roadmap { display: flex; flex-direction: column; gap: 0; }
+.roadmap-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 32px;
+  padding: 32px 0;
+  border-bottom: 0.5px solid var(--rule);
+  align-items: start;
+}
+.roadmap-item:last-child { border-bottom: none; }
+.roadmap-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--acid);
+  padding-top: 4px;
+}
+.roadmap-content h3 { margin-bottom: 8px; font-size: 18px; }
+.roadmap-content p { font-size: 14px; color: var(--ink-muted); }
+
+/* FOOTER */
+footer {
+  padding: 60px 40px;
+  border-top: 0.5px solid var(--rule-strong);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.footer-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.footer-brand span { color: var(--acid); }
+.footer-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  text-align: right;
+  line-height: 2;
+}
+.footer-meta a { color: var(--ink-muted); text-decoration: none; }
+.footer-meta a:hover { color: var(--acid); }
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.25; pointer-events:none; }
+</style>
+<link rel="stylesheet" href="fonts.css">
+</head>
+<body>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="bg-research.webm" type="video/webm">
+    <source src="bg-research.mp4" type="video/mp4">
+  </video>
+
+
+<nav>
+  <a href="#" class="nav-brand">SGI // SMART GLASSES</a>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#capabilities">Capabilities</a></li>
+    <li><a href="#ethics">Ethics</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="scan-container">
+    <div class="scan-line"></div>
+    <div class="scan-line"></div>
+  </div>
+  <div class="hero-grid-bg"></div>
+
+  <div class="hero-status">
+    <div class="status-dot"></div>
+    <span class="status-text">Case Study — Active Development</span>
+  </div>
+
+  <p class="hero-eyebrow">Shane Graffiti Inc. &nbsp;·&nbsp; Product Design &nbsp;·&nbsp; AI Research &nbsp;·&nbsp; Wearable Tech</p>
+
+  <h1>
+    MODULAR<br>
+    <span class="outline">ARCHITECTURE</span><br>
+    <span class="yellow">SMART</span><br>
+    GLASSES
+  </h1>
+
+  <p class="hero-desc">
+    A full-stack product concept for abuse detection, legal documentation, and survivor empowerment — engineered from hardware architecture through AI model design, UX, and court-admissible evidence systems.
+  </p>
+
+  <div class="hero-meta">
+    <div class="meta-item">
+      <span class="meta-val">50<span>%</span></span>
+      <span class="meta-label">Faster threat response</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-val">30<span>%</span></span>
+      <span class="meta-label">User engagement increase</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-val">0</span>
+      <span class="meta-label">Attacker-facing cues</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-val">100<span>%</span></span>
+      <span class="meta-label">User data sovereignty</span>
+    </div>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<div id="overview" style="max-width: 1100px; margin: 0 auto;">
+  <div class="section">
+    <p class="section-label">Project Overview</p>
+    <h2>The Problem<br>Nobody Solved</h2>
+
+    <div class="ps-split">
+      <div class="ps-panel">
+        <p class="ps-panel-label">// PROBLEM_SPACE.md</p>
+        <ul>
+          <li><span class="li-marker">—</span>Victims of coercive control can't document incidents on demand in acute crisis situations</li>
+          <li><span class="li-marker">—</span>The legal system structurally disadvantages abuse survivors — coercive control is nearly impossible to prove without timestamped evidence</li>
+          <li><span class="li-marker">—</span>Traditional detection systems lack portability, user autonomy, and integration with legal frameworks</li>
+          <li><span class="li-marker">—</span>Any recording device that requires activation gives the attacker time to stop the incident</li>
+          <li><span class="li-marker">—</span>Smart glasses exist — none of them solve this</li>
+        </ul>
+      </div>
+      <div class="ps-panel solution">
+        <p class="ps-panel-label">// SOLUTION.md</p>
+        <ul>
+          <li><span class="li-marker">→</span>Glasses that detect abuse and activate recording with zero cues to the attacker</li>
+          <li><span class="li-marker">→</span>All recordings saved to tamper-proof cloud with timestamps built for chain of custody</li>
+          <li><span class="li-marker">→</span>Evidence formatted natively for legal submission — no victim has to manually compile a case</li>
+          <li><span class="li-marker">→</span>Coercive control becomes falsifiable — patterns documented over time, not just isolated incidents</li>
+          <li><span class="li-marker">→</span>Full data sovereignty: the user owns everything, government and manufacturer access is zero</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="architecture" style="border-top: 0.5px solid var(--rule);">
+  <div class="section">
+    <p class="section-label">System Architecture</p>
+    <h2>Layered Defense.<br>Every Variable<br>Controlled.</h2>
+
+    <div class="layer-grid">
+
+      <div class="layer">
+        <div class="layer-id">
+          <span class="layer-num">LAYER_01</span>
+          <span class="layer-name">Hardware Core</span>
+          <span class="layer-tag">Physical Systems</span>
+        </div>
+        <div class="layer-specs">
+          <div class="spec-row">
+            <span class="spec-key">Processor</span>
+            <span class="spec-val"><strong>Qualcomm XR2</strong> — edge AI processing, real-time data analysis</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Vision</span>
+            <span class="spec-val"><strong>Dual stereo cameras</strong> + infrared sensors for low-light environments</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Audio</span>
+            <span class="spec-val"><strong>MEMS microphones</strong> — directional audio capture</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Security HW</span>
+            <span class="spec-val"><strong>Tamper-proof encryption chips</strong> + physical kill switch for instant data wipe</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Biometrics</span>
+            <span class="spec-val">Heart rate variability, skin conductivity, micro facial expression sensors</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-id">
+          <span class="layer-num">LAYER_02</span>
+          <span class="layer-name">Software Framework</span>
+          <span class="layer-tag">OS + AI Stack</span>
+        </div>
+        <div class="layer-specs">
+          <div class="spec-row">
+            <span class="spec-key">OS</span>
+            <span class="spec-val"><strong>Hardened Linux core</strong> with SELinux security policies</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">AI Models</span>
+            <span class="spec-val">Modular abuse detection — identifies coercive control tactics, emotional manipulation, behavioral anomalies</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Network Security</span>
+            <span class="spec-val"><strong>Suricata IDS/IPS</strong> + OpenWRT granular firewall control</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Edge AI</span>
+            <span class="spec-val"><strong>TensorFlow Lite + ONNX Runtime</strong> — full on-device inference, no cloud dependency required</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Resilience</span>
+            <span class="spec-val">Containerized core services (Docker) — auto-restart on failure, zero downtime during attack</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-id">
+          <span class="layer-num">LAYER_03</span>
+          <span class="layer-name">User Interface</span>
+          <span class="layer-tag">HUD + Controls</span>
+        </div>
+        <div class="layer-specs">
+          <div class="spec-row">
+            <span class="spec-key">HUD Alerts</span>
+            <span class="spec-val"><strong>Red-Yellow-Green</strong> real-time threat assessment overlay — minimal cognitive load</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Voice Control</span>
+            <span class="spec-val">Natural language processing for hands-free, covert operation</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Dashboard</span>
+            <span class="spec-val">Drag-and-drop security settings — no coding knowledge required</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Stealth Mode</span>
+            <span class="spec-val">Haptic feedback, peripheral light cues, bone conduction audio — zero visible alert to attacker</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Cognitive Load</span>
+            <span class="spec-val">Dynamic HUD simplification during high-stress states — system detects overload and reduces output</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-id">
+          <span class="layer-num">LAYER_04</span>
+          <span class="layer-name">Evidence System</span>
+          <span class="layer-tag">Legal Infrastructure</span>
+        </div>
+        <div class="layer-specs">
+          <div class="spec-row">
+            <span class="spec-key">Chain of Custody</span>
+            <span class="spec-val"><strong>Blockchain-verified</strong> immutable audit trail — cryptographically signed timestamps</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Encryption</span>
+            <span class="spec-val">Hardware-level encryption at capture + zero-knowledge architecture — manufacturer cannot access</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Evidence Packet</span>
+            <span class="spec-val">Auto-compiled: timestamped video/audio, behavioral analysis, biometric data, environmental metadata</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Legal Format</span>
+            <span class="spec-val">Reports formatted for direct submission to legal counsel or law enforcement — no survivor recount required</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Tamper Detection</span>
+            <span class="spec-val">Any unauthorized access attempt triggers alert + system lock — forensic integrity preserved</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-id">
+          <span class="layer-num">LAYER_05</span>
+          <span class="layer-name">Data Sovereignty</span>
+          <span class="layer-tag">Privacy Architecture</span>
+        </div>
+        <div class="layer-specs">
+          <div class="spec-row">
+            <span class="spec-key">Storage</span>
+            <span class="spec-val">Data resides on device by default — cloud backup only with explicit user authorization</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Encryption Keys</span>
+            <span class="spec-val"><strong>User-held only</strong> — zero-knowledge framework, dynamic key rotation</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Deletion</span>
+            <span class="spec-val">Full data wipe on demand via gesture or voice — plus ethical data decay algorithms for long-term hygiene</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Jurisdiction</span>
+            <span class="spec-val">Dynamic compliance switching — auto-adjusts to GDPR (EU), CCPA (CA), or local laws on location change</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Decentralized ID</span>
+            <span class="spec-val">DIDs for authentication — no centralized database, no single point of compromise</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CAPABILITIES -->
+<div id="capabilities" style="border-top: 0.5px solid var(--rule);">
+  <div class="section">
+    <p class="section-label">Advanced Capabilities</p>
+    <h2>What It Does<br>That Nothing Else Does</h2>
+  </div>
+</div>
+
+<div class="cap-grid" style="max-width: 1100px; margin: 0 auto; padding: 0 40px 80px;">
+  <div class="cap-card">
+    <p class="cap-num">CAP_01</p>
+    <h3>Context-Aware Threat Detection</h3>
+    <p>Distinguishes a loud argument at a concert from the same decibel level in a domestic setting. Environmental context, behavioral cues, and historical patterns are fused in real time.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_02</p>
+    <h3>Gaslighting Detection + Reality Anchoring</h3>
+    <p>When manipulation is detected, the system discreetly surfaces factual anchors — conversation logs, timestamps, recorded audio — to reinforce the user's memory and confidence in real time.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_03</p>
+    <h3>Biometric Stress Response Integration</h3>
+    <p>Monitors heart rate variability, skin conductivity, and micro facial expressions. When physiological stress spikes alongside environmental threat indicators, the system pre-activates safety protocols before the user can.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_04</p>
+    <h3>Federated Learning — Privacy-First AI Improvement</h3>
+    <p>Detection models improve continuously via federated learning — new coercive language patterns identified anywhere in the network update global models without exposing any individual user's data.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_05</p>
+    <h3>Dynamic Trust Network + Interaction Heatmapping</h3>
+    <p>Builds dynamic trust scores for people in the user's environment based on behavioral patterns over time. Interaction heatmaps surface recurring tension patterns that might otherwise go unnoticed across months of interaction.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_06</p>
+    <h3>Decoy + Misinformation Defense</h3>
+    <p>On unauthorized access, deploys a convincing decoy interface feeding false information to the intruder. Can inject metadata inconsistencies into active surveillance streams — inspired by enterprise cybersecurity honeypot methodology.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_07</p>
+    <h3>Redundant Communication Mesh</h3>
+    <p>Failover across cellular, encrypted mesh networks, and satellite. In areas with no network coverage, the system establishes peer-to-peer mesh with nearby trusted devices to relay distress signals.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_08</p>
+    <h3>Coercive Pattern Disruption</h3>
+    <p>Maps cycles of manipulation, isolation, and dominance over time. When a known cycle is initiating, the system suggests pre-emptive actions — exit strategies, trusted contact alerts, or discreet de-escalation prompts via bone conduction audio.</p>
+  </div>
+  <div class="cap-card">
+    <p class="cap-num">CAP_09</p>
+    <h3>Open Developer API</h3>
+    <p>RESTful APIs expose real-time detection data, biometric readings, and environmental analytics. Modular plugin architecture (Python, TensorFlow, OpenCV) allows third-party expansion without touching the hardened OS core.</p>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div style="border-top: 0.5px solid var(--rule); border-bottom: 0.5px solid var(--rule);">
+  <div class="section">
+    <p class="section-label">Results</p>
+    <h2>Pilot Program<br>Outcomes</h2>
+    <div class="results-grid">
+      <div class="result-card">
+        <span class="result-num">50%</span>
+        <span class="result-label">Reduction in threat<br>response time</span>
+      </div>
+      <div class="result-card">
+        <span class="result-num">30%</span>
+        <span class="result-label">Increase in user<br>engagement</span>
+      </div>
+      <div class="result-card">
+        <span class="result-num">100%</span>
+        <span class="result-label">Court-admissible<br>evidence integrity</span>
+      </div>
+    </div>
+    <p style="font-size: 14px; color: var(--ink-muted); max-width: 600px; line-height: 1.7;">
+      Early pilot programs deployed across urban centers with high rates of street harassment and rural areas with extended emergency response times. Survivors in domestic abuse situations specifically highlighted the discreet recording feature as the capability that changed what they could prove in court.
+    </p>
+  </div>
+</div>
+
+<!-- ETHICS -->
+<div id="ethics" style="border-bottom: 0.5px solid var(--rule);">
+  <div class="section">
+    <p class="section-label">Ethical Framework</p>
+    <h2>Built Around<br>User Sovereignty.<br>Not Around Access.</h2>
+
+    <div class="ethics-block">
+      <h3>// Informed Consent — Ongoing, Not a Checkbox</h3>
+      <p>Users receive comprehensive onboarding on data collection, processing, and storage. Consent is modifiable in real time through dashboard controls. In dual-consent jurisdictions, all parties are automatically notified when recording activates.</p>
+    </div>
+    <div class="ethics-block">
+      <h3>// Zero-Trust Data Architecture</h3>
+      <p>Immutable audit logs track every data transaction. End-to-end encryption with dynamic key rotation. The manufacturer cannot access user data under any circumstances — and that's a design constraint, not a policy.</p>
+    </div>
+    <div class="ethics-block">
+      <h3>// Built-In Abuse Prevention for the Tool Itself</h3>
+      <p>If the system detects patterns consistent with stalking — frequent location tracking without consent — it automatically triggers privacy audits and disables certain functions until reviewed by the user. A protection device cannot become a surveillance device.</p>
+    </div>
+    <div class="ethics-block">
+      <h3>// Law Enforcement Access — User Consent or Legal Warrant Only</h3>
+      <p>Law enforcement agencies expressed interest in direct data access. The answer was no. Data is released only with explicit user consent or a valid legal warrant under the user's jurisdiction. That line does not move.</p>
+    </div>
+    <div class="ethics-block">
+      <h3>// Transparent AI Decision-Making</h3>
+      <p>An AI Transparency Dashboard lets users review exactly why every alert was triggered, what data points influenced the decision, and how the model weighted those inputs. No black boxes in a product built on trust.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ROADMAP -->
+<div id="roadmap">
+  <div class="section">
+    <p class="section-label">Roadmap</p>
+    <h2>Next Phase</h2>
+    <div class="roadmap">
+      <div class="roadmap-item">
+        <span class="roadmap-phase">NEXT</span>
+        <div class="roadmap-content">
+          <h3>Advanced Biometric Authentication</h3>
+          <p>Next-gen biometric layers beyond current stress-response detection — predictive threat profiling that anticipates escalation before behavioral cues are visible to the human eye.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <span class="roadmap-phase">PHASE 2</span>
+        <div class="roadmap-content">
+          <h3>Global Language + Cultural Adaptation</h3>
+          <p>Multilingual interfaces and culturally nuanced threat detection models trained on regional behavioral norms — what constitutes an escalation pattern differs significantly across cultures, dialects, and non-verbal communication systems.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <span class="roadmap-phase">PHASE 3</span>
+        <div class="roadmap-content">
+          <h3>Decentralized Blockchain Data Storage</h3>
+          <p>Blockchain-based evidence storage eliminating any single point of failure. Users retain full control through decentralized encryption protocols — no company, server, or government can lock them out of their own evidence.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <span class="roadmap-phase">CONCEPT</span>
+        <div class="roadmap-content">
+          <h3>Integrated Drone Support</h3>
+          <p>Personal safety drone integration for remote deployment — immediate visual surveillance, deterrence, and medical aid delivery in areas where emergency response times make human intervention impractical.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    SHANE <span>GRAFFITI</span> INC.
+  </div>
+  <div class="footer-meta">
+    <div>shane.graffiti@shanegraffiti.com</div>
+    <div>646-647-4340</div>
+    <div><a href="https://www.linkedin.com/in/shanedibona/">linkedin.com/in/shanedibona</a></div>
+    <div><a href="https://www.shanegraffiti.com">shanegraffiti.com</a></div>
+    <div style="margin-top: 12px; font-size: 9px; opacity: 0.4;">© Shane Graffiti Inc. — For Evaluation Purposes Only</div>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const el = document.querySelector(a.getAttribute('href'));
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.layer, .cap-card, .ethics-block, .roadmap-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+<script src="nav.js"></script>
+<script src="transitions.js"></script>
+  <script>
+  (function(){
+    var v = document.getElementById('bg-video');
+    if(v) v.play().catch(function(){});
+  })();
+  </script>
+</body>
+</html>

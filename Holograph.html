@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!-- saved from url=(0032)http://localhost:8765/page2.html -->
+<html lang="en" style="cursor: none;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Holograph</title>
+  <link rel="stylesheet" href="./Holograph_files/style.css">
+</head>
+<body>
+  <nav style="transform: translateX(-50%) translateY(-200px); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+    <a href="http://localhost:8765/index.html">Page 1</a>
+    <a href="http://localhost:8765/page2.html" class="active">Page 2</a>
+    <a href="http://localhost:8765/page3.html">Page 3</a>
+    <a href="http://localhost:8765/page4.html">Page 4</a>
+    <a href="http://localhost:8765/page5.html">Page 5</a>
+    <a href="http://localhost:8765/page6.html">Page 6</a>
+    <a href="http://localhost:8765/page7.html">Page 7</a>
+    <a href="http://localhost:8765/page8.html">Page 8</a>
+    <a href="http://localhost:8765/page9.html">Page 9</a>
+    <a href="http://localhost:8765/page10.html">Page 10</a>
+    <a href="http://localhost:8765/page11.html">Page 11</a>
+    <a href="http://localhost:8765/page12.html">Page 12</a>
+    <a href="http://localhost:8765/page13.html">Page 13</a>
+    <a href="http://localhost:8765/page14.html">Page 14</a>
+    <a href="http://localhost:8765/page15.html">Page 15</a>
+    <a href="http://localhost:8765/page16.html">Page 16</a>
+  </nav>
+  <div id="spacer"></div>
+  <canvas id="c" width="1071" height="919"></canvas>
+  <div id="scroll-hint" class="hidden">
+    <span>scroll</span>
+    <div class="arrow"></div>
+  </div>
+  <div id="buy-btn"><a href="http://localhost:8765/page2.html#">BUY NOW — $299</a></div>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const video = document.createElement('video');
+    video.src         = './_videos/web__round holograph-Final Comp.mp4';
+    video.muted       = true;
+    video.playsInline = true;
+    video.preload     = 'auto';
+    video.play().then(() => video.pause()).catch(() => {});
+
+    function draw() {
+      requestAnimationFrame(draw);
+      if (video.readyState < 2) return;
+      const vw = video.videoWidth, vh = video.videoHeight;
+      const scale = Math.min(canvas.width / vw, canvas.height / vh);
+      const dw = vw * scale, dh = vh * scale;
+      const dx = (canvas.width - dw) / 2, dy = (canvas.height - dh) / 2;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, dx, dy, dw, dh);
+    }
+    draw();
+
+    const buyBtn = document.getElementById('buy-btn');
+    const scrollHint = document.getElementById('scroll-hint');
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) scrollHint.classList.add('hidden');
+      if (!video.duration) return;
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      video.currentTime = pct * video.duration;
+
+      if (video.currentTime >= 9 && video.currentTime <= 13) {
+        buyBtn.classList.add('visible');
+      } else {
+        buyBtn.classList.remove('visible');
+      }
+    }, { passive: true });
+  </script>
+
+  <div id="nav-tab"></div>
+  <script>
+    const nav = document.querySelector('nav');
+    const tab = document.getElementById('nav-tab');
+    let navVisible = false;
+    let touchStartY = 0;
+    let mouseStartY = 0;
+
+    // hide immediately on load
+    nav.style.transform = 'translateX(-50%) translateY(-200px)';
+    nav.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    function showNav() {
+      navVisible = true;
+      nav.style.transform = 'translateX(-50%) translateY(20px)';
+    }
+    function hideNav() {
+      navVisible = false;
+      nav.style.transform = 'translateX(-50%) translateY(-200px)';
+    }
+
+    tab.addEventListener('click', () => navVisible ? hideNav() : showNav());
+
+    window.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener('touchend', e => {
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy > 40 && touchStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    }, { passive: true });
+
+    window.addEventListener('mousedown', e => { mouseStartY = e.clientY; });
+    window.addEventListener('mouseup', e => {
+      const dy = e.clientY - mouseStartY;
+      if (dy > 40 && mouseStartY < 80) showNav();
+      if (dy < -40) hideNav();
+    });
+  </script>
+<script src="./Holograph_files/sparkler-cursor.js"></script><canvas width="1071" height="919" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; pointer-events: none; z-index: 2147483647;"></canvas>
+
+
+</body></html>

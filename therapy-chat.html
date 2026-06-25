@@ -28,7 +28,7 @@
   html { background: #000; height: 100%; overflow: hidden; }
   body { background: transparent; height: 100%; overflow: hidden; }
   body { color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; }
-  #bg-canvas { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; pointer-events:none; opacity:0.38; }
+  #bg-video { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; opacity: 0.35; }
 
   /* HEADER */
   .header { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:0.5px solid var(--rule); background:rgba(5,6,10,0.85); backdrop-filter:blur(20px); }
@@ -42,187 +42,31 @@
   .btn-clear { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; color:var(--mid); background:none; border:0.5px solid rgba(168,168,154,0.2); border-radius:4px; padding:5px 10px; cursor:pointer; transition:color 0.2s,border-color 0.2s; text-transform:uppercase; }
   .btn-clear:hover { color:var(--red); border-color:rgba(255,64,64,0.4); }
 
-  /* MESSAGES — Tinder card stack */
-  .messages {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    perspective: 1400px;
-    perspective-origin: 50% 45%;
-  }
+  /* MESSAGES */
+  .messages { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:16px; scroll-behavior:smooth; }
+  .messages::-webkit-scrollbar { width:4px; }
+  .messages::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
 
   /* EMPTY STATE */
-  .empty-state { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; opacity:0.6; }
+  .empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; opacity:0.6; }
   .empty-glyph { font-family:'Barlow Condensed',sans-serif; font-size:64px; font-weight:900; color:var(--acid); opacity:0.3; letter-spacing:-2px; }
   .empty-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink); }
   .empty-sub { font-size:13px; color:var(--mid); max-width:360px; line-height:1.7; }
 
-  /* CARD PAIR — prompt + response grouped */
-  .card-pair {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) translateZ(0) scale(1);
-    width: calc(100% - 48px);
-    max-width: 720px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
-    max-height: calc(100% - 48px);
-    overflow-y: auto;
-  }
-  .card-pair::-webkit-scrollbar { width: 3px; }
-  .card-pair::-webkit-scrollbar-thumb { background: rgba(200,240,0,0.15); border-radius:2px; }
-
-  /* STACK DEPTH CLASSES */
-  .card-pair[data-depth="0"] { transform:translate(-50%,-50%) translateZ(0) scale(1); opacity:1; pointer-events:all; }
-  .card-pair[data-depth="1"] { transform:translate(-50%,-46%) translateZ(-90px) scale(0.95); opacity:0.65; pointer-events:none; }
-  .card-pair[data-depth="2"] { transform:translate(-50%,-42%) translateZ(-180px) scale(0.90); opacity:0.38; pointer-events:none; }
-  .card-pair[data-depth="3"] { transform:translate(-50%,-38%) translateZ(-270px) scale(0.85); opacity:0.18; pointer-events:none; }
-  .card-pair[data-depth="4"] { transform:translate(-50%,-34%) translateZ(-360px) scale(0.80); opacity:0.08; pointer-events:none; }
-  .card-pair[data-depth="5"], .card-pair[data-depth="6"], .card-pair[data-depth="7"], .card-pair[data-depth="8"], .card-pair[data-depth="9"] {
-    transform:translate(-50%,-30%) translateZ(-440px) scale(0.76); opacity:0; pointer-events:none;
-  }
-
-  /* SWIPE ANIMATION */
-  .card-pair.swipe-left  { transform:translate(-150%,-50%) translateZ(0) scale(1)!important; opacity:0!important; }
-  .card-pair.swipe-right { transform:translate(50%,-50%) translateZ(0) scale(1)!important; opacity:0!important; }
-
-  /* STACK NAV INDICATOR */
-  .stack-nav {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    z-index: 10;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: rgba(200,240,0,0.4);
-    user-select: none;
-  }
-  .stack-nav button {
-    background: none; border: 0.5px solid rgba(200,240,0,0.2); color: rgba(200,240,0,0.5);
-    border-radius: 4px; padding: 4px 10px; cursor: pointer; font-family: var(--mono);
-    font-size: 10px; letter-spacing: 0.1em; transition: border-color 0.2s, color 0.2s;
-  }
-  .stack-nav button:hover { border-color: rgba(200,240,0,0.5); color: var(--acid); }
-  .stack-nav button:disabled { opacity: 0.2; cursor: default; }
-
-  /* MSG within card-pair */
-  .msg {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-    align-items: center;
-  }
-  .msg.user { align-items: center; }
-  .msg.ai   { align-items: center; }
-  .msg-meta {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 0 4px;
-    margin-bottom: 4px;
-    text-align: center;
-    width: 100%;
-  }
-  /* YOU — white label */
-  .msg.user .msg-meta { color: rgba(255,255,255,0.45); letter-spacing:0.18em; }
-  /* PERSPECTIVE — mid label */
-  .msg.ai   .msg-meta { color: rgba(200,240,0,0.45); letter-spacing:0.18em; }
-
-  .msg-bubble {
-    padding: 20px 26px;
-    border-radius: 20px;
-    font-size: 15px;
-    line-height: 1.8;
-    width: 100%;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Specular reflection layer — the light sheen across the glass */
-  .msg-bubble::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .msg-bubble > * { position: relative; z-index: 2; }
-
-  /* YOU — white frosted glass with light gradient + specular */
-  .msg.user .msg-bubble {
-    background: linear-gradient(
-      160deg,
-      rgba(255,255,255,0.28) 0%,
-      rgba(255,255,255,0.16) 50%,
-      rgba(255,255,255,0.22) 100%
-    );
-    backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
-    -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
-    border: 0.5px solid rgba(255,255,255,0.5);
-    box-shadow:
-      0 16px 40px rgba(0,0,0,0.35),
-      0 2px 8px rgba(0,0,0,0.2),
-      inset 0 1px 0 rgba(255,255,255,0.85),
-      inset 0 -1px 0 rgba(255,255,255,0.15),
-      inset 1px 0 0 rgba(255,255,255,0.3),
-      inset -1px 0 0 rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.95);
-  }
-  .msg.user .msg-bubble::before {
-    background: linear-gradient(
-      135deg,
-      rgba(255,255,255,0.22) 0%,
-      rgba(255,255,255,0.06) 45%,
-      rgba(255,255,255,0.0) 50%,
-      rgba(255,255,255,0.04) 100%
-    );
-  }
-
-  /* PERSPECTIVE — dark frosted glass with depth gradient + subtle sheen */
-  .msg.ai .msg-bubble {
-    background: linear-gradient(
-      160deg,
-      rgba(35,35,32,0.82) 0%,
-      rgba(12,12,10,0.88) 60%,
-      rgba(20,20,18,0.84) 100%
-    );
-    backdrop-filter: blur(48px) saturate(180%) brightness(0.85);
-    -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.85);
-    border: 0.5px solid rgba(255,255,255,0.13);
-    box-shadow:
-      0 20px 50px rgba(0,0,0,0.65),
-      0 4px 12px rgba(0,0,0,0.4),
-      inset 0 1px 0 rgba(255,255,255,0.18),
-      inset 0 -1px 0 rgba(0,0,0,0.5),
-      inset 1px 0 0 rgba(255,255,255,0.06),
-      inset -1px 0 0 rgba(0,0,0,0.3);
-    color: rgba(245,242,232,0.95);
-  }
-  .msg.ai .msg-bubble::before {
-    background: linear-gradient(
-      130deg,
-      rgba(255,255,255,0.07) 0%,
-      rgba(255,255,255,0.03) 35%,
-      rgba(255,255,255,0.0) 50%,
-      rgba(200,240,0,0.02) 100%
-    );
-  }
-  .msg.ai .msg-bubble p + p { margin-top:12px; }
+  /* MESSAGES */
+  .msg { display:flex; flex-direction:column; gap:6px; max-width:780px; animation:msg-in 0.2s ease-out; }
+  @keyframes msg-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .msg.user { align-self:flex-end; align-items:flex-end; }
+  .msg.ai   { align-self:flex-start; align-items:flex-start; }
+  .msg-meta { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; color:var(--mid); text-transform:uppercase; padding:0 4px; }
+  .msg.user .msg-meta { color:rgba(200,240,0,0.5); }
+  .msg-bubble { padding:14px 18px; border-radius:var(--glass-radius); font-size:14px; line-height:1.7; backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+  .msg.user .msg-bubble { background:var(--glass-user-bg); border:0.5px solid rgba(200,240,0,0.22); border-bottom-right-radius:3px; }
+  .msg.ai   .msg-bubble { background:var(--glass-bg); border:var(--glass-border); border-bottom-left-radius:3px; }
+  .msg.ai .msg-bubble p + p { margin-top:10px; }
 
   /* THINKING */
-  .thinking { display:flex; align-items:center; justify-content:center; gap:6px; padding:14px 20px; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:16px; align-self:center; width:100%; max-width:720px; }
+  .thinking { display:flex; align-items:center; gap:6px; padding:12px 16px; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:var(--glass-radius); border-bottom-left-radius:3px; align-self:flex-start; }
   .thinking-dot { width:5px; height:5px; border-radius:50%; background:var(--acid); animation:think 1.2s ease-in-out infinite; }
   .thinking-dot:nth-child(2){animation-delay:0.2s}
   .thinking-dot:nth-child(3){animation-delay:0.4s}
@@ -320,12 +164,9 @@
 <link rel="stylesheet" href="fonts.css">
 </head>
 <body><nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(200,240,0,0.12);font-family:'JetBrains Mono',monospace;">  <a href="index.html" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F5F2E8;text-decoration:none;">SHANE <span style="color:#C8F000;">GRAFFITI</span> INC.</a>  <div style="display:flex;align-items:center;gap:32px;">    <a href="index.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Work</a>    <a href="research.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Research</a>    <a href="about.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">About</a>    <a href="therapy-chat.html" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;">Perspective —</a>  </div></nav>
-  <canvas id="bg-canvas"></canvas>
-  <div id="reflect-load-overlay" style="position:fixed;inset:0;z-index:9997;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#05060a;pointer-events:none;">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#A8A89A;margin-bottom:16px;">Loading</div>
-    <div style="width:160px;height:1px;background:rgba(200,240,0,0.15);overflow:hidden;"><div id="reflect-load-bar" style="height:100%;width:0%;background:#C8F000;transition:width 0.1s linear;"></div></div>
-    <div id="reflect-load-pct" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:rgba(200,240,0,0.5);margin-top:10px;">0%</div>
-  </div>
+  <video id="bg-video" muted loop playsinline preload="auto">
+    <source src="bg-reflect.mp4" type="video/mp4">
+  </video>
 
   <header class="header">
     <div class="header-left">
@@ -342,11 +183,6 @@
   </header>
 
   <div class="messages" id="messages">
-    <div class="stack-nav" id="stack-nav" style="display:none;">
-      <button id="stack-prev" onclick="goBack()" disabled>← BACK</button>
-      <span id="stack-count"></span>
-      <button id="stack-next" onclick="goForward()" disabled>FORWARD →</button>
-    </div>
     <div class="disclaimer-gate" id="disclaimer-gate">
       <div class="disclaimer-badge">
         <div class="badge-dot"></div>
@@ -384,239 +220,6 @@
   </div>
 
 
-
-  <!-- ANALYTICS ENGINE -->
-  <script>
-  window._SGI = (function() {
-    var t0 = Date.now();
-    var session_id = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    var events = [];
-    var scrollDepths = new Set();
-    var msgEl = null;
-
-    function ts() { return Date.now() - t0; }
-
-    function track(type, data) {
-      events.push(Object.assign({ t: ts(), type: type }, data || {}));
-      // Keep last 500 events to avoid memory bloat
-      if (events.length > 500) events = events.slice(-500);
-    }
-
-    // ── Page visibility ──────────────────────────────────────────────────────
-    var visibilityChanges = [];
-    document.addEventListener('visibilitychange', function() {
-      var e = { t: ts(), state: document.visibilityState };
-      visibilityChanges.push(e);
-      track('visibility', e);
-    });
-
-    // ── Mouse movement heatmap (sampled every 500ms) ─────────────────────────
-    var lastMouseSample = 0;
-    var mousePositions = [];
-    document.addEventListener('mousemove', function(e) {
-      var now = Date.now();
-      if (now - lastMouseSample > 500) {
-        lastMouseSample = now;
-        mousePositions.push([
-          Math.round(e.clientX / window.innerWidth * 100),
-          Math.round(e.clientY / window.innerHeight * 100),
-          ts()
-        ]);
-        if (mousePositions.length > 200) mousePositions = mousePositions.slice(-200);
-      }
-    }, { passive: true });
-
-    // ── Click tracking ───────────────────────────────────────────────────────
-    document.addEventListener('click', function(e) {
-      track('click', {
-        x_pct: Math.round(e.clientX / window.innerWidth * 100),
-        y_pct: Math.round(e.clientY / window.innerHeight * 100),
-        target: e.target.tagName + (e.target.id ? '#'+e.target.id : '') + (e.target.className ? '.'+String(e.target.className).split(' ')[0] : ''),
-      });
-    });
-
-    // ── Scroll depth on messages div ─────────────────────────────────────────
-    function trackMsgScroll() {
-      if (!msgEl) return;
-      var maxScroll = msgEl.scrollHeight - msgEl.clientHeight;
-      if (maxScroll <= 0) return;
-      var pct = Math.round(msgEl.scrollTop / maxScroll * 100);
-      var depth = Math.floor(pct / 10) * 10;
-      if (!scrollDepths.has(depth)) {
-        scrollDepths.add(depth);
-        track('scroll_depth', { pct: depth });
-      }
-    }
-
-    // ── Copy detection ───────────────────────────────────────────────────────
-    document.addEventListener('copy', function() { track('copy'); });
-    document.addEventListener('cut', function() { track('cut'); });
-
-    // ── Text selection ───────────────────────────────────────────────────────
-    document.addEventListener('selectionchange', function() {
-      var sel = window.getSelection();
-      if (sel && sel.toString().length > 10) {
-        track('text_select', { len: sel.toString().length });
-      }
-    });
-
-    // ── Focus / blur ─────────────────────────────────────────────────────────
-    window.addEventListener('focus', function() { track('window_focus'); });
-    window.addEventListener('blur', function() { track('window_blur'); });
-
-    // ── Battery ──────────────────────────────────────────────────────────────
-    var batteryInfo = null;
-    if (navigator.getBattery) {
-      navigator.getBattery().then(function(b) {
-        batteryInfo = { level: b.level, charging: b.charging };
-      }).catch(function(){});
-    }
-
-    // ── Network ──────────────────────────────────────────────────────────────
-    var netInfo = null;
-    if (navigator.connection) {
-      var c = navigator.connection;
-      netInfo = { type: c.effectiveType, downlink: c.downlink, rtt: c.rtt, saveData: c.saveData };
-    }
-
-    // ── Canvas fingerprint ───────────────────────────────────────────────────
-    var canvasFingerprint = null;
-    try {
-      var cv = document.createElement('canvas');
-      cv.width = 200; cv.height = 50;
-      var cx = cv.getContext('2d');
-      cx.textBaseline = 'top';
-      cx.font = '14px Arial';
-      cx.fillStyle = '#f00';
-      cx.fillRect(0, 0, 200, 50);
-      cx.fillStyle = '#00f';
-      cx.fillText('SGI Perspective 2026', 2, 2);
-      cx.fillStyle = 'rgba(0,200,100,0.8)';
-      cx.fillText('Canvas FP', 4, 20);
-      canvasFingerprint = cv.toDataURL().slice(-50); // last 50 chars as hash proxy
-    } catch(e) {}
-
-    // ── Audio fingerprint ────────────────────────────────────────────────────
-    var audioFingerprint = null;
-    try {
-      var ac = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
-      var osc = ac.createOscillator();
-      var an = ac.createAnalyser();
-      var gain = ac.createGain();
-      gain.gain.value = 0;
-      osc.connect(an); an.connect(gain); gain.connect(ac.destination);
-      osc.start(0);
-      var buf = new Float32Array(an.frequencyBinCount);
-      an.getFloatFrequencyData(buf);
-      audioFingerprint = buf.slice(0, 10).join(',');
-      osc.stop(); ac.close();
-    } catch(e) {}
-
-    // ── Fonts detection (common set) ─────────────────────────────────────────
-    var detectedFonts = [];
-    var testFonts = ['Arial','Helvetica','Times New Roman','Courier New','Georgia','Verdana',
-      'Impact','Comic Sans MS','Trebuchet MS','Arial Black','Palatino','Garamond',
-      'Bookman','Tahoma','Symbol','Webdings','Wingdings','MS Sans Serif'];
-    try {
-      var testEl = document.createElement('span');
-      testEl.style.cssText = 'position:absolute;visibility:hidden;font-size:72px';
-      testEl.innerHTML = 'mmmmmmmmmmlli';
-      document.body.appendChild(testEl);
-      var baseW = testEl.offsetWidth;
-      testFonts.forEach(function(f) {
-        testEl.style.fontFamily = f + ',monospace';
-        if (testEl.offsetWidth !== baseW) detectedFonts.push(f);
-      });
-      document.body.removeChild(testEl);
-    } catch(e) {}
-
-    // ── Do Not Track ─────────────────────────────────────────────────────────
-    var dnt = navigator.doNotTrack || window.doNotTrack || null;
-
-    // ── Cookies / Storage availability ───────────────────────────────────────
-    var cookiesEnabled = navigator.cookieEnabled;
-    var localStorageAvail = false;
-    try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); localStorageAvail = true; } catch(e) {}
-
-    // ── Time tracking ────────────────────────────────────────────────────────
-    var messageTimings = []; // {sent_at, response_received_at, dwell_ms}
-    var lastMsgSentAt = null;
-    var lastResponseAt = null;
-
-    function onMessageSent() {
-      lastMsgSentAt = ts();
-      track('message_sent', { msg_num: messageTimings.length + 1 });
-    }
-
-    function onResponseComplete(responseLen) {
-      lastResponseAt = ts();
-      var timing = {
-        msg_num: messageTimings.length + 1,
-        sent_at: lastMsgSentAt,
-        response_at: lastResponseAt,
-        response_time_ms: lastResponseAt - lastMsgSentAt,
-        response_len: responseLen,
-      };
-      messageTimings.push(timing);
-      track('response_received', timing);
-    }
-
-    function onNextMessageSent() {
-      if (lastResponseAt && messageTimings.length > 0) {
-        var dwell = ts() - lastResponseAt;
-        messageTimings[messageTimings.length - 1].dwell_ms = dwell;
-        track('dwell', { dwell_ms: dwell, msg_num: messageTimings.length });
-      }
-    }
-
-    // ── Session summary ──────────────────────────────────────────────────────
-    function getSessionSummary() {
-      return {
-        session_id:       session_id,
-        session_ms:       ts(),
-        total_events:     events.length,
-        scroll_depths:    [...scrollDepths].sort(function(a,b){return a-b;}),
-        message_timings:  messageTimings,
-        visibility_changes: visibilityChanges,
-        mouse_samples:    mousePositions.length,
-        battery:          batteryInfo,
-        network:          netInfo,
-        canvas_fp:        canvasFingerprint,
-        audio_fp:         audioFingerprint,
-        fonts:            detectedFonts,
-        dnt:              dnt,
-        cookies:          cookiesEnabled,
-        local_storage:    localStorageAvail,
-        events_sample:    events.slice(-50),
-      };
-    }
-
-    // Send session summary on page unload
-    window.addEventListener('pagehide', function() {
-      var summary = getSessionSummary();
-      navigator.sendBeacon && navigator.sendBeacon('/api/session', JSON.stringify(summary));
-    });
-
-    // Also init scroll tracking after DOM ready
-    document.addEventListener('DOMContentLoaded', function() {
-      msgEl = document.getElementById('messages');
-      if (msgEl) msgEl.addEventListener('scroll', trackMsgScroll, { passive: true });
-    });
-    // Fallback if DOMContentLoaded already fired
-    if (document.readyState !== 'loading') {
-      msgEl = document.getElementById('messages');
-      if (msgEl) msgEl.addEventListener('scroll', trackMsgScroll, { passive: true });
-    }
-
-    return {
-      session_id: session_id,
-      getPayload: getSessionSummary,
-      onMessageSent: onMessageSent,
-      onResponseComplete: onResponseComplete,
-      onNextMessageSent: onNextMessageSent,
-    };
-  })();
-  </script>
   <!-- CHAT -->
   <script>
   const API_URL = 'https://reflect-server-production.up.railway.app';
@@ -634,85 +237,13 @@
   let isStreaming  = false;
   let pendingImage = null; // { base64, mediaType, name, url }
 
-  
-  const msgsEl  = document.getElementById('messages');
-  const inputEl = document.getElementById('user-input');
-
+  const bgVideo = document.getElementById('bg-video');
+  bgVideo.play().catch(() => {});
 
   function acknowledgeDisclaimer() {
     document.getElementById('disclaimer-gate').remove();
     document.getElementById('user-input').focus();
   }
-
-  // ── CARD PAIR STACK ──────────────────────────────────────────────────────
-  let pairs = [];
-  let currentPair = null;
-  let viewIdx = 0; // 0 = newest pair is front
-
-  function applyDepths() {
-    pairs.forEach((p, i) => {
-      // i=0 is newest. viewIdx=0 means newest is at depth 0.
-      const depth = i - viewIdx;
-      // depth < 0 means swiped past (off to left)
-      if (depth < 0) {
-        p.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-150%,-50%) scale(1) translateZ(0);opacity:0;pointer-events:none;transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.45s;width:calc(100% - 48px);max-width:720px;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 48px);overflow-y:auto;';
-      } else {
-        const d = Math.min(depth, 5);
-        const z = -d * 90;
-        const s = 1 - d * 0.05;
-        const y = -50 + d * 4; // peek up slightly
-        const op = Math.max(1 - d * 0.18, 0.05);
-        p.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,${y}%) translateZ(${z}px) scale(${s});opacity:${op};pointer-events:${d===0?'all':'none'};transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.45s;width:calc(100% - 48px);max-width:720px;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 48px);overflow-y:auto;z-index:${10-d};`;
-      }
-    });
-    const nav = document.getElementById('stack-nav');
-    if (nav) {
-      const total = pairs.length;
-      nav.style.display = total > 1 ? 'flex' : 'none';
-      document.getElementById('stack-count').textContent = (viewIdx + 1) + ' / ' + total;
-      document.getElementById('stack-prev').disabled = viewIdx >= total - 1;
-      document.getElementById('stack-next').disabled = viewIdx <= 0;
-    }
-  }
-
-  function goBack() {
-    if (viewIdx >= pairs.length - 1) return;
-    viewIdx++;
-    applyDepths();
-  }
-
-  function goForward() {
-    if (viewIdx <= 0) return;
-    viewIdx--;
-    applyDepths();
-  }
-
-  function createCardPair() {
-    const msgs = document.getElementById('messages');
-    const pair = document.createElement('div');
-    pair.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) translateZ(0) scale(1);opacity:1;pointer-events:all;transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.45s;width:calc(100% - 48px);max-width:720px;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 48px);overflow-y:auto;z-index:10;';
-    pairs.unshift(pair);
-    msgs.appendChild(pair);
-    viewIdx = 0;
-    applyDepths();
-    return pair;
-  }
-
-  // Swipe
-  let tx0 = 0, ty0 = 0;
-  document.getElementById('messages').addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; }, { passive: true });
-  document.getElementById('messages').addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - tx0;
-    const dy = e.changedTouches[0].clientY - ty0;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) { dx < 0 ? goBack() : goForward(); }
-  }, { passive: true });
-
-  // Arrow keys
-  document.addEventListener('keydown', e => {
-    if (document.activeElement === document.getElementById('user-input')) return;
-    if (e.key === 'ArrowLeft') goBack();
-    if (e.key === 'ArrowRight') goForward();
-  });
 
   function autoResize(el) {
     el.style.height = 'auto';
@@ -729,22 +260,6 @@
   function scrollToBottom() {
     const m = document.getElementById('messages');
     m.scrollTop = m.scrollHeight;
-  }
-
-  function updateZStack() {
-    const msgs = document.getElementById('messages');
-    const cards = msgs.querySelectorAll('.msg');
-    const total = cards.length;
-    cards.forEach(function(card, i) {
-      const fromEnd = total - 1 - i; // 0 = newest, 1 = one back, etc.
-      const z     = -fromEnd * 60;
-      const scale = 1 - fromEnd * 0.03;
-      const op    = Math.max(1 - fromEnd * 0.12, 0.3);
-      card.style.transform   = 'translateZ(' + z + 'px) scale(' + scale + ')';
-      card.style.opacity     = op;
-      card.style.transition  = 'transform 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease';
-      card.style.zIndex      = i;
-    });
   }
 
   function hideEmpty() {
@@ -783,35 +298,40 @@
 
   function appendUserMessage(text, imageUrl) {
     hideEmpty();
-    currentPair = createCardPair();
-    const div = document.createElement('div');
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
     div.className = 'msg user';
     let content = '';
     if (imageUrl) content += `<img class="msg-image" src="${imageUrl}" alt="attached image" />`;
     if (text) content += `<div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
     div.innerHTML = `<div class="msg-meta">YOU</div>${content}`;
-    currentPair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
   }
 
   function createAIBubble() {
     hideEmpty();
-    const div = document.createElement('div');
+    const msgs   = document.getElementById('messages');
+    const div    = document.createElement('div');
     div.className = 'msg ai';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
     div.innerHTML = '<div class="msg-meta">PERSPECTIVE</div>';
     div.appendChild(bubble);
-    if (currentPair) currentPair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
     return bubble;
   }
 
   function showThinking() {
     hideEmpty();
-    const div = document.createElement('div');
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
     div.className = 'thinking';
     div.id = 'thinking';
     div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
-    if (currentPair) currentPair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
   }
 
   function removeThinking() {
@@ -820,14 +340,17 @@
   }
 
   function showError(msg) {
-    const div = document.createElement('div');
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
     div.className = 'error-msg';
     div.textContent = 'ERROR: ' + msg;
-    if (currentPair) currentPair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
   }
 
   function showTrialEnded() {
-    const div = document.createElement('div');
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
     div.className = 'trial-ended';
     div.innerHTML = `
       <div class="trial-ended-title">Trial complete</div>
@@ -837,8 +360,8 @@
         <button onclick="joinWaitlist()">JOIN WAITLIST</button>
       </div>
       <div id="waitlist-confirm" style="display:none;color:var(--acid);font-family:var(--mono);font-size:11px;margin-top:6px;">YOU'RE ON THE LIST.</div>`;
-    const msgs = document.getElementById('messages');
     msgs.appendChild(div);
+    scrollToBottom();
     document.getElementById('user-input').disabled = true;
     document.getElementById('send-btn').disabled   = true;
   }
@@ -866,15 +389,10 @@
   }
 
   function clearChat() {
-    history = []; pairs = []; currentPair = null; stackIdx = 0;
+    history = [];
     document.getElementById('user-input').disabled = false;
     document.getElementById('send-btn').disabled   = false;
     document.getElementById('messages').innerHTML = `
-      <div class="stack-nav" id="stack-nav" style="display:none;">
-        <button id="stack-prev" onclick="goBack()" disabled>← BACK</button>
-        <span id="stack-count"></span>
-        <button id="stack-next" onclick="goForward()" disabled>FORWARD →</button>
-      </div>
       <div class="empty-state" id="empty-state">
         <div class="empty-glyph">//</div>
         <div class="empty-title">Start somewhere real</div>
@@ -909,42 +427,10 @@
       userContent = text;
     }
     history.push({ role: 'user', content: userContent });
-    if(window._SGI){ if(history.length>1)window._SGI.onNextMessageSent(); window._SGI.onMessageSent(); }
     showThinking();
 
     try {
-      // Device fingerprint — sent with every request, logged server-side
-      const getGPU = () => {
-        try {
-          const gl = document.createElement('canvas').getContext('webgl');
-          const ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
-          return ext ? { vendor: gl.getParameter(ext.UNMASKED_VENDOR_WEBGL), renderer: gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) } : null;
-        } catch { return null; }
-      };
-      const gpu = getGPU();
-      const deviceInfo = {
-        ua:           navigator.userAgent,
-        platform:     navigator.platform || null,
-        language:     navigator.language,
-        languages:    navigator.languages ? [...navigator.languages] : [],
-        screen_w:     screen.width,
-        screen_h:     screen.height,
-        screen_depth: screen.colorDepth,
-        dpr:          window.devicePixelRatio,
-        viewport_w:   window.innerWidth,
-        viewport_h:   window.innerHeight,
-        cpu_cores:    navigator.hardwareConcurrency || null,
-        mem_gb:       navigator.deviceMemory || null,
-        timezone:     Intl.DateTimeFormat().resolvedOptions().timeZone,
-        touch_points: navigator.maxTouchPoints,
-        online:       navigator.onLine,
-        gpu_vendor:   gpu ? gpu.vendor : null,
-        gpu_renderer: gpu ? gpu.renderer : null,
-        referrer:     document.referrer || null,
-        url:          window.location.href,
-      };
-
-      const body = { messages: history, device: deviceInfo, analytics: window._SGI ? { session_id: window._SGI.session_id } : null };
+      const body = { messages: history };
       if (IS_ADMIN) body.adminToken = ADMIN_TOKEN;
 
       const response = await fetch(API_URL + '/api/chat', {
@@ -1001,7 +487,6 @@
       }
 
       history.push({ role: 'assistant', content: fullText });
-    if(window._SGI) window._SGI.onResponseComplete(fullText.length);
 
     } catch (err) {
       removeThinking();
@@ -1017,6 +502,5 @@
   </script>
 <script src="nav.js"></script>
 <script src="transitions.js"></script>
-  <script src="reflect-player.js"></script>
 </body>
 </html>

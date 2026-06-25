@@ -1,0 +1,532 @@
+
+<style>
+:root {
+  --ink: #0A0A0A;
+  --paper: #F0EDE6;
+  --acid: #D4FF00;
+  --mid: #888780;
+  --rule: rgba(10,10,10,0.15);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #F0EDE6;
+    --paper: #0A0A0A;
+    --rule: rgba(240,237,230,0.15);
+    --mid: #888780;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+.bc { font-family: 'Barlow Condensed', sans-serif; }
+
+/* HERO */
+.hero {
+  padding: 80px 40px 60px;
+  border-bottom: 0.5px solid var(--rule);
+  position: relative;
+}
+.hero-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 24px;
+}
+.hero-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(72px, 14vw, 140px);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.hero-name .accent { color: var(--acid); -webkit-text-stroke: 1px var(--ink); }
+@media (prefers-color-scheme: dark) {
+  .hero-name .accent { -webkit-text-stroke: 1px var(--paper); }
+}
+.hero-tag {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  max-width: 520px;
+  color: var(--ink);
+  line-height: 1.7;
+  border-left: 2px solid var(--acid);
+  padding-left: 16px;
+}
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 0.5px solid var(--rule);
+  flex-wrap: wrap;
+}
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); }
+
+/* MARQUEE */
+.marquee-wrap {
+  overflow: hidden;
+  border-top: 0.5px solid var(--rule);
+  border-bottom: 0.5px solid var(--rule);
+  padding: 12px 0;
+  background: var(--ink);
+  color: var(--paper);
+}
+.marquee-track {
+  display: flex;
+  gap: 0;
+  white-space: nowrap;
+  animation: scroll 20s linear infinite;
+}
+.marquee-track span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0 40px;
+}
+.marquee-track .dot { color: var(--acid); padding: 0; }
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* SECTIONS */
+.section { padding: 64px 40px; border-bottom: 0.5px solid var(--rule); }
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 40px;
+}
+.section-headline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  margin-bottom: 48px;
+}
+
+/* DISCIPLINE GRID */
+.disc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0;
+  border: 0.5px solid var(--rule);
+}
+.disc-cell {
+  padding: 20px 24px;
+  border-right: 0.5px solid var(--rule);
+  border-bottom: 0.5px solid var(--rule);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background 0.15s;
+  cursor: default;
+}
+.disc-cell:hover { background: var(--acid); color: var(--ink); }
+
+/* PROBLEM/SOLUTION CARDS */
+.ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+@media (max-width: 600px) { .ps-grid { grid-template-columns: 1fr; } }
+.ps-card {
+  padding: 40px;
+  border: 0.5px solid var(--rule);
+}
+.ps-letter {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0.08;
+  margin-bottom: -20px;
+}
+.ps-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 24px;
+}
+.ps-block { margin-bottom: 24px; }
+.ps-block-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 10px;
+}
+.ps-block ul { list-style: none; }
+.ps-block li {
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--rule);
+  color: var(--ink);
+}
+.ps-block li:last-child { border-bottom: none; }
+.solution-block { background: var(--ink); color: var(--paper); padding: 20px; border-radius: 2px; }
+.solution-block li { border-bottom-color: rgba(240,237,230,0.1); color: var(--paper); }
+
+/* TIMELINE */
+.timeline { position: relative; }
+.tl-year {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+  align-items: start;
+}
+.tl-year-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  opacity: 0.18;
+  position: sticky;
+  top: 20px;
+}
+.tl-items { border-left: 1px solid var(--rule); padding-left: 32px; }
+.tl-item { margin-bottom: 16px; }
+.tl-item-text {
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--rule);
+}
+.tl-item-text:last-child { border-bottom: none; }
+.tl-item-text strong {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* PODCAST SECTION */
+.podcast-block {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 48px 40px;
+  border-bottom: 0.5px solid var(--rule);
+}
+.podcast-method {
+  font-size: 13px;
+  line-height: 1.8;
+  max-width: 560px;
+  opacity: 0.75;
+  margin-top: 24px;
+}
+.podcast-method strong {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 1;
+  display: block;
+  color: var(--acid);
+  margin-bottom: 4px;
+}
+
+/* BIG STATEMENT */
+.big-statement {
+  padding: 80px 40px;
+  border-bottom: 0.5px solid var(--rule);
+}
+.big-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.big-text .yellow { color: var(--acid); -webkit-text-stroke: 1px var(--ink); }
+@media (prefers-color-scheme: dark) {
+  .big-text .yellow { -webkit-text-stroke: 0px; }
+}
+
+/* EAT THE SUPPLY CHAIN */
+.eat-block {
+  padding: 40px;
+  border-bottom: 0.5px solid var(--rule);
+  overflow: hidden;
+}
+.eat-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(48px, 11vw, 120px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  word-break: break-all;
+}
+.eat-text .outline {
+  -webkit-text-stroke: 1.5px var(--ink);
+  color: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  .eat-text .outline { -webkit-text-stroke: 1.5px var(--paper); }
+}
+
+/* CONTACT */
+.contact-block {
+  padding: 64px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+.contact-cta {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(32px, 6vw, 60px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.9;
+}
+.contact-details { display: flex; flex-direction: column; gap: 8px; text-align: right; }
+.contact-details a {
+  font-size: 13px;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.contact-details a:hover { opacity: 1; }
+.contact-details span { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Shane Graffiti Inc. — Multidisciplinary Creative Director Portfolio</h2>
+
+<div class="hero">
+  <p class="hero-eyebrow">Shane Graffiti Inc. — Creative Director / Founder — New York</p>
+  <h1 class="hero-name bc">
+    SHANE<br>
+    <span class="accent">GRAFFITI</span>
+  </h1>
+  <p class="hero-tag">
+    End-to-end creative architect. 20+ years spanning fashion, motion, UI/UX, AI research, full-stack development, and brand strategy. I don't execute campaigns — I build the entire supply chain.
+  </p>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-num bc">20+</span>
+      <span class="stat-label">Years experience</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num bc">12</span>
+      <span class="stat-label">Disciplines mastered</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num bc">4</span>
+      <span class="stat-label">Years to compound this</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num bc">0</span>
+      <span class="stat-label">Templates used</span>
+    </div>
+  </div>
+</div>
+
+<div class="marquee-wrap">
+  <div class="marquee-track" id="mt">
+    <span>Fashion Design</span><span class="dot">◆</span>
+    <span>Motion Design</span><span class="dot">◆</span>
+    <span>Art Direction</span><span class="dot">◆</span>
+    <span>UI / UX</span><span class="dot">◆</span>
+    <span>AI Research</span><span class="dot">◆</span>
+    <span>Full Stack Dev</span><span class="dot">◆</span>
+    <span>Cybersecurity</span><span class="dot">◆</span>
+    <span>Sound Engineering</span><span class="dot">◆</span>
+    <span>Advertising</span><span class="dot">◆</span>
+    <span>Post Production</span><span class="dot">◆</span>
+    <span>Copywriting</span><span class="dot">◆</span>
+    <span>Brand Strategy</span><span class="dot">◆</span>
+    <span>Fashion Design</span><span class="dot">◆</span>
+    <span>Motion Design</span><span class="dot">◆</span>
+    <span>Art Direction</span><span class="dot">◆</span>
+    <span>UI / UX</span><span class="dot">◆</span>
+    <span>AI Research</span><span class="dot">◆</span>
+    <span>Full Stack Dev</span><span class="dot">◆</span>
+    <span>Cybersecurity</span><span class="dot">◆</span>
+    <span>Sound Engineering</span><span class="dot">◆</span>
+    <span>Advertising</span><span class="dot">◆</span>
+    <span>Post Production</span><span class="dot">◆</span>
+    <span>Copywriting</span><span class="dot">◆</span>
+    <span>Brand Strategy</span><span class="dot">◆</span>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-label">What I do</p>
+  <p class="section-headline">Disciplines</p>
+  <div class="disc-grid">
+    <div class="disc-cell">Fashion Design</div>
+    <div class="disc-cell">Graphic Design</div>
+    <div class="disc-cell">Art Direction</div>
+    <div class="disc-cell">Packaging</div>
+    <div class="disc-cell">Video Design</div>
+    <div class="disc-cell">Post Production</div>
+    <div class="disc-cell">Market Strategy</div>
+    <div class="disc-cell">Advertising</div>
+    <div class="disc-cell">UI / UX Design</div>
+    <div class="disc-cell">AI Research</div>
+    <div class="disc-cell">Full Stack Dev</div>
+    <div class="disc-cell">Cybersecurity</div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-label">Case studies — problem / solution</p>
+  <p class="section-headline">What I built<br>&amp; why</p>
+  <div class="ps-grid">
+    <div class="ps-card">
+      <div class="ps-letter bc">A</div>
+      <p class="ps-title bc">Queer Fashion Brand</p>
+      <div class="ps-block">
+        <p class="ps-block-label">The problem</p>
+        <ul>
+          <li>Queer-centered clothing design is nearly nonexistent</li>
+          <li>Menswear patterns don't fit queer bodies</li>
+          <li>Queer culture is absent from mainstream advertising</li>
+          <li>Existing queer brands lack inspirational copy — no "just do it" for us</li>
+        </ul>
+      </div>
+      <div class="ps-block">
+        <p class="ps-block-label">The solution</p>
+        <div class="solution-block">
+          <ul>
+            <li>A queer brand that helps you accomplish your goals, not just dress you</li>
+            <li>Clothes re-patterned to actually fit queer bodies</li>
+            <li>Copy that inspires beyond the garment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="ps-card">
+      <div class="ps-letter bc">B</div>
+      <p class="ps-title bc">Abuse Detection<br>Smart Glasses</p>
+      <div class="ps-block">
+        <p class="ps-block-label">The problem</p>
+        <ul>
+          <li>Smart glasses can save lives — they don't</li>
+          <li>The legal system is stacked against victims of abuse</li>
+          <li>Coercive control is hard to prove on long time horizons</li>
+          <li>Evidence can't be captured on demand in acute crisis situations</li>
+        </ul>
+      </div>
+      <div class="ps-block">
+        <p class="ps-block-label">The solution</p>
+        <div class="solution-block">
+          <ul>
+            <li>Glasses that activate and record when abuse is detected — zero attacker-facing cues</li>
+            <li>Documents save to tamper-proof cloud in a timeline designed for court</li>
+            <li>Coercive control becomes falsifiable with timestamps preserved for chain of custody</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-label">Process — how it compounds</p>
+  <p class="section-headline">Four years.<br>One outcome.</p>
+  <div class="timeline">
+    <div class="tl-year">
+      <div class="tl-year-num bc">01</div>
+      <div class="tl-items">
+        <div class="tl-item-text">
+          <strong>Foundation</strong>
+          Hand-painted the art and logos that went on the shirts. Dye sublimation onto Gildan blanks. Heat transfer vinyl. Yards of raw fabric. Built the packaging to ship the product.
+        </div>
+        <div class="tl-item-text">
+          <strong>Why it matters</strong>
+          You can't lead a brand you haven't built from zero. Understanding material constraints is what separates directors from decorators.
+        </div>
+      </div>
+    </div>
+    <div class="tl-year">
+      <div class="tl-year-num bc">02</div>
+      <div class="tl-items">
+        <div class="tl-item-text">
+          <strong>Brand &amp; Production</strong>
+          Created video shoots of the clothing. Built the visual identity. Produced commercials — shot, written, engineered, and scored in-house.
+        </div>
+        <div class="tl-item-text">
+          <strong>Stack used</strong>
+          Sora for AI-directed backgrounds. Envato for lower thirds and motion typography. Logic Pro for sound design and audio engineering. After Effects for compositing and post. Claude Code and Figma for UI/UX.
+        </div>
+        <div class="tl-item-text">
+          <strong>Output</strong>
+          Full brand campaign with original ad copy, asset library, and launch-ready commercial content — produced entirely without an agency.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="big-statement">
+  <p class="big-text">
+    END TO END STRATEGY.<br>
+    PRODUCT ECOSYSTEMS.<br>
+    <span class="yellow">TOUCH EVERY LAYER.</span><br>
+    SPAN EVERY DEPARTMENT.<br>
+    CONTROL THE OUTCOME<br>
+    BY OWNING EVERY VARIABLE.
+  </p>
+</div>
+
+<div class="eat-block">
+  <div class="eat-text">
+    <span>EAT </span><span class="outline">THE </span><br>
+    <span>SUPPLY</span><br>
+    <span class="outline">CHAIN.</span>
+  </div>
+</div>
+
+<div class="podcast-block">
+  <p class="section-label" style="color: var(--acid); opacity:1;">Content — AI Research Podcast</p>
+  <p class="section-headline bc" style="color: var(--paper);">Argue with the<br>smartest people<br>in the room.</p>
+  <div class="podcast-method">
+    <strong>The method</strong>
+    Source the most contentious AI research posts on LinkedIn — the ones that are wrong in interesting ways. Disagree on camera. Script the counterargument. Memorize the lines. Perform it. No teleprompter, no slides — just a position and the receipts to back it up.
+  </div>
+</div>
+
+<div class="contact-block">
+  <div class="contact-cta bc">
+    Let's build<br>something<br>nobody's<br>built.
+  </div>
+  <div class="contact-details">
+    <span>Find me</span>
+    <a href="https://www.instagram.com/shane_graffiti" target="_blank">@shane_graffiti</a>
+    <a href="#">Shane Graffiti Inc.</a>
+    <a href="#">Brooklyn, New York</a>
+  </div>
+</div>
