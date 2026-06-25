@@ -91,28 +91,35 @@
     text-align: center;
     width: 100%;
   }
-  .msg.user .msg-meta { color: rgba(200,240,0,0.5); }
-  .msg.ai   .msg-meta { color: var(--mid); }
+  /* YOU — acid green glass */
+  .msg.user .msg-meta { color: #C8F000; letter-spacing:0.18em; }
+  /* PERSPECTIVE — electric blue glass */
+  .msg.ai   .msg-meta { color: #00C8FF; letter-spacing:0.18em; }
+
   .msg-bubble {
-    padding: 18px 24px;
-    border-radius: 16px;
+    padding: 20px 26px;
+    border-radius: 18px;
     font-size: 15px;
-    line-height: 1.75;
+    line-height: 1.8;
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     box-shadow: var(--glass-shadow);
     width: 100%;
     text-align: left;
   }
+  /* YOU — acid green tinted card */
   .msg.user .msg-bubble {
-    background: var(--glass-user-bg);
-    border: 0.5px solid rgba(200,240,0,0.22);
-    border-radius: 16px;
+    background: rgba(200,240,0,0.08);
+    border: 1px solid rgba(200,240,0,0.3);
+    border-radius: 18px;
+    color: #F5F2E8;
   }
+  /* PERSPECTIVE — electric blue tinted card */
   .msg.ai .msg-bubble {
-    background: var(--glass-bg);
-    border: var(--glass-border);
-    border-radius: 16px;
+    background: rgba(0,140,200,0.1);
+    border: 1px solid rgba(0,200,255,0.2);
+    border-radius: 18px;
+    color: #F5F2E8;
   }
   .msg.ai .msg-bubble p + p { margin-top:12px; }
 
