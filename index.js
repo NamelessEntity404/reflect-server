@@ -116,6 +116,23 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && pathname === '/health') { res.writeHead(200); res.end('ok'); return; }
   if (req.method === 'OPTIONS') { cors(res); res.writeHead(204); res.end(); return; }
 
+  // Admin: upload a frame file to /app/_frames volume
+  if (req.method === 'POST' && pathname.startsWith('/admin/upload-frame')) {
+    const adminToken = new URL('http://x' + req.url).searchParams.get('token');
+    if (!process.env.ADMIN_TOKEN || adminToken !== process.env.ADMIN_TOKEN) { json(res, 403, { error: 'Forbidden' }); return; }
+    const filePath = new URL('http://x' + req.url).searchParams.get('path');
+    if (!filePath || filePath.includes('..')) { json(res, 400, { error: 'Bad path' }); return; }
+    const destPath = path.join('/app/_frames', filePath);
+    fs.mkdirSync(path.dirname(destPath), { recursive: true });
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      fs.writeFileSync(destPath, Buffer.concat(chunks));
+      cors(res); res.writeHead(200, {'Content-Type':'application/json'}); res.end(JSON.stringify({ok:true,path:destPath}));
+    });
+    return;
+  }
+
   // Admin: download all conversation logs
   if (req.method === 'GET' && pathname === '/admin/logs') {
     const adminToken = new URL('http://x' + req.url).searchParams.get('token');
