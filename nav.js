@@ -43,7 +43,7 @@
 
   const reflect = document.createElement('a');
   reflect.href = 'therapy-chat.html';
-  reflect.textContent = 'Reflect';
+  reflect.textContent = 'Perspective';
   reflect.style.cssText = "font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;";
   linkWrap.appendChild(reflect);
 
