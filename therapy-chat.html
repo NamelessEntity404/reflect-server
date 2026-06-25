@@ -238,47 +238,56 @@
   let pendingImage = null; // { base64, mediaType, name, url }
 
   const bgVideo = document.getElementById('bg-video');
-  const msgsEl = document.getElementById('messages');
+  const msgsEl  = document.getElementById('messages');
   const inputEl = document.getElementById('user-input');
 
-  // Start playing
+  // STATE: idle | typing | scrolling
+  let vidState = 'idle';
+  let typingTimer = null;
+  let scrollTimer = null;
+  let rafId = null;
+
+  function setState(s) {
+    if (vidState === s) return;
+    vidState = s;
+    if (s === 'idle') {
+      bgVideo.loop = true;
+      bgVideo.play().catch(() => {});
+    } else {
+      bgVideo.pause();
+    }
+  }
+
+  // Start idle
   bgVideo.play().catch(() => {});
 
-  // PAUSE while typing, RESUME on blur
-  let typingTimer = null;
+  // TYPING: pause video while user is actively typing
   inputEl.addEventListener('input', () => {
-    bgVideo.pause();
+    setState('typing');
     clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      if (!isStreaming) bgVideo.play().catch(() => {});
-    }, 1500);
-  });
-  inputEl.addEventListener('focus', () => {
-    if (inputEl.value.length > 0) bgVideo.pause();
+    typingTimer = setTimeout(() => setState('idle'), 1200);
   });
   inputEl.addEventListener('blur', () => {
     clearTimeout(typingTimer);
-    bgVideo.play().catch(() => {});
+    setState('idle');
   });
 
-  // SCROLL-DRIVEN playback — scroll position drives video time
-  let isUserScrolling = false;
-  let scrollPlayTimer = null;
+  // SCROLL: drive video position from scroll
   msgsEl.addEventListener('scroll', () => {
-    if (!bgVideo.duration) return;
-    isUserScrolling = true;
+    const maxScroll = msgsEl.scrollHeight - msgsEl.clientHeight;
+    if (maxScroll <= 0 || !bgVideo.duration) return;
     bgVideo.pause();
-
-    // Map scroll position (0-100%) to video time (0-duration)
-    const scrollPct = msgsEl.scrollTop / (msgsEl.scrollHeight - msgsEl.clientHeight || 1);
-    bgVideo.currentTime = scrollPct * bgVideo.duration;
-
-    // Resume normal playback 800ms after scrolling stops
-    clearTimeout(scrollPlayTimer);
-    scrollPlayTimer = setTimeout(() => {
-      isUserScrolling = false;
+    bgVideo.loop = false;
+    vidState = 'scrolling';
+    const pct = msgsEl.scrollTop / maxScroll;
+    bgVideo.currentTime = pct * bgVideo.duration;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      bgVideo.loop = true;
+      bgVideo.currentTime = pct * bgVideo.duration;
       bgVideo.play().catch(() => {});
-    }, 800);
+      vidState = 'idle';
+    }, 600);
   }, { passive: true });
 
   function acknowledgeDisclaimer() {
