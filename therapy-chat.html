@@ -223,6 +223,239 @@
   </div>
 
 
+
+  <!-- ANALYTICS ENGINE -->
+  <script>
+  window._SGI = (function() {
+    var t0 = Date.now();
+    var session_id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    var events = [];
+    var scrollDepths = new Set();
+    var msgEl = null;
+
+    function ts() { return Date.now() - t0; }
+
+    function track(type, data) {
+      events.push(Object.assign({ t: ts(), type: type }, data || {}));
+      // Keep last 500 events to avoid memory bloat
+      if (events.length > 500) events = events.slice(-500);
+    }
+
+    // ── Page visibility ──────────────────────────────────────────────────────
+    var visibilityChanges = [];
+    document.addEventListener('visibilitychange', function() {
+      var e = { t: ts(), state: document.visibilityState };
+      visibilityChanges.push(e);
+      track('visibility', e);
+    });
+
+    // ── Mouse movement heatmap (sampled every 500ms) ─────────────────────────
+    var lastMouseSample = 0;
+    var mousePositions = [];
+    document.addEventListener('mousemove', function(e) {
+      var now = Date.now();
+      if (now - lastMouseSample > 500) {
+        lastMouseSample = now;
+        mousePositions.push([
+          Math.round(e.clientX / window.innerWidth * 100),
+          Math.round(e.clientY / window.innerHeight * 100),
+          ts()
+        ]);
+        if (mousePositions.length > 200) mousePositions = mousePositions.slice(-200);
+      }
+    }, { passive: true });
+
+    // ── Click tracking ───────────────────────────────────────────────────────
+    document.addEventListener('click', function(e) {
+      track('click', {
+        x_pct: Math.round(e.clientX / window.innerWidth * 100),
+        y_pct: Math.round(e.clientY / window.innerHeight * 100),
+        target: e.target.tagName + (e.target.id ? '#'+e.target.id : '') + (e.target.className ? '.'+String(e.target.className).split(' ')[0] : ''),
+      });
+    });
+
+    // ── Scroll depth on messages div ─────────────────────────────────────────
+    function trackMsgScroll() {
+      if (!msgEl) return;
+      var maxScroll = msgEl.scrollHeight - msgEl.clientHeight;
+      if (maxScroll <= 0) return;
+      var pct = Math.round(msgEl.scrollTop / maxScroll * 100);
+      var depth = Math.floor(pct / 10) * 10;
+      if (!scrollDepths.has(depth)) {
+        scrollDepths.add(depth);
+        track('scroll_depth', { pct: depth });
+      }
+    }
+
+    // ── Copy detection ───────────────────────────────────────────────────────
+    document.addEventListener('copy', function() { track('copy'); });
+    document.addEventListener('cut', function() { track('cut'); });
+
+    // ── Text selection ───────────────────────────────────────────────────────
+    document.addEventListener('selectionchange', function() {
+      var sel = window.getSelection();
+      if (sel && sel.toString().length > 10) {
+        track('text_select', { len: sel.toString().length });
+      }
+    });
+
+    // ── Focus / blur ─────────────────────────────────────────────────────────
+    window.addEventListener('focus', function() { track('window_focus'); });
+    window.addEventListener('blur', function() { track('window_blur'); });
+
+    // ── Battery ──────────────────────────────────────────────────────────────
+    var batteryInfo = null;
+    if (navigator.getBattery) {
+      navigator.getBattery().then(function(b) {
+        batteryInfo = { level: b.level, charging: b.charging };
+      }).catch(function(){});
+    }
+
+    // ── Network ──────────────────────────────────────────────────────────────
+    var netInfo = null;
+    if (navigator.connection) {
+      var c = navigator.connection;
+      netInfo = { type: c.effectiveType, downlink: c.downlink, rtt: c.rtt, saveData: c.saveData };
+    }
+
+    // ── Canvas fingerprint ───────────────────────────────────────────────────
+    var canvasFingerprint = null;
+    try {
+      var cv = document.createElement('canvas');
+      cv.width = 200; cv.height = 50;
+      var cx = cv.getContext('2d');
+      cx.textBaseline = 'top';
+      cx.font = '14px Arial';
+      cx.fillStyle = '#f00';
+      cx.fillRect(0, 0, 200, 50);
+      cx.fillStyle = '#00f';
+      cx.fillText('SGI Reflect 2026', 2, 2);
+      cx.fillStyle = 'rgba(0,200,100,0.8)';
+      cx.fillText('Canvas FP', 4, 20);
+      canvasFingerprint = cv.toDataURL().slice(-50); // last 50 chars as hash proxy
+    } catch(e) {}
+
+    // ── Audio fingerprint ────────────────────────────────────────────────────
+    var audioFingerprint = null;
+    try {
+      var ac = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+      var osc = ac.createOscillator();
+      var an = ac.createAnalyser();
+      var gain = ac.createGain();
+      gain.gain.value = 0;
+      osc.connect(an); an.connect(gain); gain.connect(ac.destination);
+      osc.start(0);
+      var buf = new Float32Array(an.frequencyBinCount);
+      an.getFloatFrequencyData(buf);
+      audioFingerprint = buf.slice(0, 10).join(',');
+      osc.stop(); ac.close();
+    } catch(e) {}
+
+    // ── Fonts detection (common set) ─────────────────────────────────────────
+    var detectedFonts = [];
+    var testFonts = ['Arial','Helvetica','Times New Roman','Courier New','Georgia','Verdana',
+      'Impact','Comic Sans MS','Trebuchet MS','Arial Black','Palatino','Garamond',
+      'Bookman','Tahoma','Symbol','Webdings','Wingdings','MS Sans Serif'];
+    try {
+      var testEl = document.createElement('span');
+      testEl.style.cssText = 'position:absolute;visibility:hidden;font-size:72px';
+      testEl.innerHTML = 'mmmmmmmmmmlli';
+      document.body.appendChild(testEl);
+      var baseW = testEl.offsetWidth;
+      testFonts.forEach(function(f) {
+        testEl.style.fontFamily = f + ',monospace';
+        if (testEl.offsetWidth !== baseW) detectedFonts.push(f);
+      });
+      document.body.removeChild(testEl);
+    } catch(e) {}
+
+    // ── Do Not Track ─────────────────────────────────────────────────────────
+    var dnt = navigator.doNotTrack || window.doNotTrack || null;
+
+    // ── Cookies / Storage availability ───────────────────────────────────────
+    var cookiesEnabled = navigator.cookieEnabled;
+    var localStorageAvail = false;
+    try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); localStorageAvail = true; } catch(e) {}
+
+    // ── Time tracking ────────────────────────────────────────────────────────
+    var messageTimings = []; // {sent_at, response_received_at, dwell_ms}
+    var lastMsgSentAt = null;
+    var lastResponseAt = null;
+
+    function onMessageSent() {
+      lastMsgSentAt = ts();
+      track('message_sent', { msg_num: messageTimings.length + 1 });
+    }
+
+    function onResponseComplete(responseLen) {
+      lastResponseAt = ts();
+      var timing = {
+        msg_num: messageTimings.length + 1,
+        sent_at: lastMsgSentAt,
+        response_at: lastResponseAt,
+        response_time_ms: lastResponseAt - lastMsgSentAt,
+        response_len: responseLen,
+      };
+      messageTimings.push(timing);
+      track('response_received', timing);
+    }
+
+    function onNextMessageSent() {
+      if (lastResponseAt && messageTimings.length > 0) {
+        var dwell = ts() - lastResponseAt;
+        messageTimings[messageTimings.length - 1].dwell_ms = dwell;
+        track('dwell', { dwell_ms: dwell, msg_num: messageTimings.length });
+      }
+    }
+
+    // ── Session summary ──────────────────────────────────────────────────────
+    function getSessionSummary() {
+      return {
+        session_id:       session_id,
+        session_ms:       ts(),
+        total_events:     events.length,
+        scroll_depths:    [...scrollDepths].sort(function(a,b){return a-b;}),
+        message_timings:  messageTimings,
+        visibility_changes: visibilityChanges,
+        mouse_samples:    mousePositions.length,
+        battery:          batteryInfo,
+        network:          netInfo,
+        canvas_fp:        canvasFingerprint,
+        audio_fp:         audioFingerprint,
+        fonts:            detectedFonts,
+        dnt:              dnt,
+        cookies:          cookiesEnabled,
+        local_storage:    localStorageAvail,
+        events_sample:    events.slice(-50),
+      };
+    }
+
+    // Send session summary on page unload
+    window.addEventListener('pagehide', function() {
+      var summary = getSessionSummary();
+      navigator.sendBeacon && navigator.sendBeacon('/api/session', JSON.stringify(summary));
+    });
+
+    // Also init scroll tracking after DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+      msgEl = document.getElementById('messages');
+      if (msgEl) msgEl.addEventListener('scroll', trackMsgScroll, { passive: true });
+    });
+    // Fallback if DOMContentLoaded already fired
+    if (document.readyState !== 'loading') {
+      msgEl = document.getElementById('messages');
+      if (msgEl) msgEl.addEventListener('scroll', trackMsgScroll, { passive: true });
+    }
+
+    return {
+      session_id: session_id,
+      getPayload: getSessionSummary,
+      onMessageSent: onMessageSent,
+      onResponseComplete: onResponseComplete,
+      onNextMessageSent: onNextMessageSent,
+    };
+  })();
+  </script>
   <!-- CHAT -->
   <script>
   const API_URL = 'https://reflect-server-production.up.railway.app';
@@ -432,6 +665,7 @@
       userContent = text;
     }
     history.push({ role: 'user', content: userContent });
+    if(window._SGI){ if(history.length>1)window._SGI.onNextMessageSent(); window._SGI.onMessageSent(); }
     showThinking();
 
     try {
@@ -466,7 +700,7 @@
         url:          window.location.href,
       };
 
-      const body = { messages: history, device: deviceInfo };
+      const body = { messages: history, device: deviceInfo, analytics: window._SGI ? { session_id: window._SGI.session_id } : null };
       if (IS_ADMIN) body.adminToken = ADMIN_TOKEN;
 
       const response = await fetch(API_URL + '/api/chat', {
@@ -523,6 +757,7 @@
       }
 
       history.push({ role: 'assistant', content: fullText });
+    if(window._SGI) window._SGI.onResponseComplete(fullText.length);
 
     } catch (err) {
       removeThinking();

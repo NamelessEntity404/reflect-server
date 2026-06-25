@@ -158,6 +158,23 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Session analytics beacon (sent on page unload)
+  if (req.method === 'POST' && pathname === '/api/session') {
+    let raw = '';
+    req.on('data', c => raw += c);
+    req.on('end', () => {
+      try {
+        const session = JSON.parse(raw);
+        session.ts = new Date().toISOString();
+        session.ip = getIP(req);
+        const sessionLog = LOG_PATH.replace('conversations.jsonl', 'sessions.jsonl');
+        fs.appendFileSync(sessionLog, JSON.stringify(session) + '\n');
+      } catch(e) {}
+      cors(res); res.writeHead(204); res.end();
+    });
+    return;
+  }
+
   if (req.method !== 'POST' || pathname !== '/api/chat') { json(res, 404, { error: 'Not found' }); return; }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
