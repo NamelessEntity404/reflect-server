@@ -42,42 +42,84 @@
   .btn-clear { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; color:var(--mid); background:none; border:0.5px solid rgba(168,168,154,0.2); border-radius:4px; padding:5px 10px; cursor:pointer; transition:color 0.2s,border-color 0.2s; text-transform:uppercase; }
   .btn-clear:hover { color:var(--red); border-color:rgba(255,64,64,0.4); }
 
-  /* MESSAGES — centered Z-stack layout */
+  /* MESSAGES — Tinder card stack */
   .messages {
     flex: 1;
-    overflow-y: auto;
-    padding: 40px 24px 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    scroll-behavior: smooth;
-    perspective: 1200px;
-    perspective-origin: 50% 50%;
+    position: relative;
+    overflow: hidden;
+    perspective: 1400px;
+    perspective-origin: 50% 45%;
   }
-  .messages::-webkit-scrollbar { width:4px; }
-  .messages::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
 
   /* EMPTY STATE */
-  .empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; opacity:0.6; }
+  .empty-state { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; opacity:0.6; }
   .empty-glyph { font-family:'Barlow Condensed',sans-serif; font-size:64px; font-weight:900; color:var(--acid); opacity:0.3; letter-spacing:-2px; }
   .empty-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink); }
   .empty-sub { font-size:13px; color:var(--mid); max-width:360px; line-height:1.7; }
 
-  /* MESSAGES — centered, stacked in Z */
+  /* CARD PAIR — prompt + response grouped */
+  .card-pair {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) translateZ(0) scale(1);
+    width: calc(100% - 48px);
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
+    max-height: calc(100% - 48px);
+    overflow-y: auto;
+  }
+  .card-pair::-webkit-scrollbar { width: 3px; }
+  .card-pair::-webkit-scrollbar-thumb { background: rgba(200,240,0,0.15); border-radius:2px; }
+
+  /* STACK DEPTH CLASSES */
+  .card-pair[data-depth="0"] { transform:translate(-50%,-50%) translateZ(0) scale(1); opacity:1; pointer-events:all; }
+  .card-pair[data-depth="1"] { transform:translate(-50%,-46%) translateZ(-90px) scale(0.95); opacity:0.65; pointer-events:none; }
+  .card-pair[data-depth="2"] { transform:translate(-50%,-42%) translateZ(-180px) scale(0.90); opacity:0.38; pointer-events:none; }
+  .card-pair[data-depth="3"] { transform:translate(-50%,-38%) translateZ(-270px) scale(0.85); opacity:0.18; pointer-events:none; }
+  .card-pair[data-depth="4"] { transform:translate(-50%,-34%) translateZ(-360px) scale(0.80); opacity:0.08; pointer-events:none; }
+  .card-pair[data-depth="5"], .card-pair[data-depth="6"], .card-pair[data-depth="7"], .card-pair[data-depth="8"], .card-pair[data-depth="9"] {
+    transform:translate(-50%,-30%) translateZ(-440px) scale(0.76); opacity:0; pointer-events:none;
+  }
+
+  /* SWIPE ANIMATION */
+  .card-pair.swipe-left  { transform:translate(-150%,-50%) translateZ(0) scale(1)!important; opacity:0!important; }
+  .card-pair.swipe-right { transform:translate(50%,-50%) translateZ(0) scale(1)!important; opacity:0!important; }
+
+  /* STACK NAV INDICATOR */
+  .stack-nav {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: rgba(200,240,0,0.4);
+    user-select: none;
+  }
+  .stack-nav button {
+    background: none; border: 0.5px solid rgba(200,240,0,0.2); color: rgba(200,240,0,0.5);
+    border-radius: 4px; padding: 4px 10px; cursor: pointer; font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.1em; transition: border-color 0.2s, color 0.2s;
+  }
+  .stack-nav button:hover { border-color: rgba(200,240,0,0.5); color: var(--acid); }
+  .stack-nav button:disabled { opacity: 0.2; cursor: default; }
+
+  /* MSG within card-pair */
   .msg {
     display: flex;
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    max-width: 720px;
     align-items: center;
-    margin-bottom: 24px;
-    animation: msg-in 0.35s cubic-bezier(0.16,1,0.3,1) both;
-  }
-  @keyframes msg-in {
-    from { opacity:0; transform:translateZ(-120px) scale(0.92); }
-    to   { opacity:1; transform:translateZ(0) scale(1); }
   }
   .msg.user { align-items: center; }
   .msg.ai   { align-items: center; }
@@ -300,6 +342,11 @@
   </header>
 
   <div class="messages" id="messages">
+    <div class="stack-nav" id="stack-nav" style="display:none;">
+      <button id="stack-prev" onclick="goBack()" disabled>← BACK</button>
+      <span id="stack-count"></span>
+      <button id="stack-next" onclick="goForward()" disabled>FORWARD →</button>
+    </div>
     <div class="disclaimer-gate" id="disclaimer-gate">
       <div class="disclaimer-badge">
         <div class="badge-dot"></div>
@@ -597,10 +644,93 @@
     document.getElementById('user-input').focus();
   }
 
-  // Update Z-stack on scroll so depth adjusts as user reads back
-  document.getElementById('messages').addEventListener('scroll', function() {
-    updateZStack();
+  // ── CARD PAIR STACK ──────────────────────────────────────────────────────
+  let pairs = [];       // array of card-pair DOM elements
+  let currentPair = null; // active card-pair being filled
+  let stackIdx = 0;     // which pair is at front (0 = newest)
+
+  function updateStack() {
+    pairs.forEach((p, i) => {
+      const depth = i;
+      p.setAttribute('data-depth', Math.min(depth, 9));
+    });
+    const nav = document.getElementById('stack-nav');
+    if (nav) {
+      const total = pairs.length;
+      nav.style.display = total > 1 ? 'flex' : 'none';
+      document.getElementById('stack-count').textContent = `${stackIdx + 1} / ${total}`;
+      document.getElementById('stack-prev').disabled = stackIdx >= pairs.length - 1;
+      document.getElementById('stack-next').disabled = stackIdx <= 0;
+    }
+  }
+
+  function goBack() {
+    if (stackIdx >= pairs.length - 1) return;
+    stackIdx++;
+    // Rebuild depths from stackIdx outward
+    const reordered = [...pairs].reverse();
+    reordered.forEach((p, i) => {
+      const depth = (reordered.length - 1 - i) - stackIdx;
+      p.setAttribute('data-depth', Math.max(0, Math.min(depth + stackIdx, 9)));
+    });
+    // Actually just shift: current front goes to depth 1, etc.
+    reorganizeStack();
+  }
+
+  function goForward() {
+    if (stackIdx <= 0) return;
+    stackIdx--;
+    reorganizeStack();
+  }
+
+  function reorganizeStack() {
+    // pairs[0] = newest. stackIdx=0 means newest is front.
+    pairs.forEach((p, i) => {
+      const depth = i - stackIdx;
+      if (depth < 0) {
+        p.setAttribute('data-depth', Math.abs(depth) + 10); // behind view
+        p.style.transform = 'translate(-150%, -50%) translateZ(0) scale(1)';
+        p.style.opacity = '0';
+        p.style.pointerEvents = 'none';
+      } else {
+        p.style.transform = ''; p.style.opacity = '';
+        p.setAttribute('data-depth', Math.min(depth, 9));
+      }
+    });
+    updateStack();
+  }
+
+  function createCardPair() {
+    const msgs = document.getElementById('messages');
+    const pair = document.createElement('div');
+    pair.className = 'card-pair';
+    pair.setAttribute('data-depth', '0');
+    // Push existing pairs back
+    pairs.unshift(pair);
+    msgs.appendChild(pair);
+    stackIdx = 0;
+    updateStack();
+    return pair;
+  }
+
+  // Swipe gesture
+  let touchStartX = 0, touchStartY = 0;
+  const msgsContainer = document.getElementById('messages');
+  msgsContainer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
+  msgsContainer.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0) goBack(); else goForward();
+    }
   }, { passive: true });
+
+  // Arrow keys
+  document.addEventListener('keydown', e => {
+    if (e.target === document.getElementById('user-input')) return;
+    if (e.key === 'ArrowLeft') goBack();
+    if (e.key === 'ArrowRight') goForward();
+  });
 
   function autoResize(el) {
     el.style.height = 'auto';
@@ -671,43 +801,35 @@
 
   function appendUserMessage(text, imageUrl) {
     hideEmpty();
-    const msgs = document.getElementById('messages');
-    const div  = document.createElement('div');
+    currentPair = createCardPair();
+    const div = document.createElement('div');
     div.className = 'msg user';
     let content = '';
     if (imageUrl) content += `<img class="msg-image" src="${imageUrl}" alt="attached image" />`;
     if (text) content += `<div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
     div.innerHTML = `<div class="msg-meta">YOU</div>${content}`;
-    msgs.appendChild(div);
-    updateZStack();
-    scrollToBottom();
+    currentPair.appendChild(div);
   }
 
   function createAIBubble() {
     hideEmpty();
-    const msgs   = document.getElementById('messages');
-    const div    = document.createElement('div');
+    const div = document.createElement('div');
     div.className = 'msg ai';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
     div.innerHTML = '<div class="msg-meta">PERSPECTIVE</div>';
     div.appendChild(bubble);
-    msgs.appendChild(div);
-    updateZStack();
-    scrollToBottom();
+    if (currentPair) currentPair.appendChild(div);
     return bubble;
   }
 
   function showThinking() {
     hideEmpty();
-    const msgs = document.getElementById('messages');
-    const div  = document.createElement('div');
+    const div = document.createElement('div');
     div.className = 'thinking';
     div.id = 'thinking';
     div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
-    msgs.appendChild(div);
-    updateZStack();
-    scrollToBottom();
+    if (currentPair) currentPair.appendChild(div);
   }
 
   function removeThinking() {
@@ -716,18 +838,14 @@
   }
 
   function showError(msg) {
-    const msgs = document.getElementById('messages');
-    const div  = document.createElement('div');
+    const div = document.createElement('div');
     div.className = 'error-msg';
     div.textContent = 'ERROR: ' + msg;
-    msgs.appendChild(div);
-    updateZStack();
-    scrollToBottom();
+    if (currentPair) currentPair.appendChild(div);
   }
 
   function showTrialEnded() {
-    const msgs = document.getElementById('messages');
-    const div  = document.createElement('div');
+    const div = document.createElement('div');
     div.className = 'trial-ended';
     div.innerHTML = `
       <div class="trial-ended-title">Trial complete</div>
@@ -737,9 +855,8 @@
         <button onclick="joinWaitlist()">JOIN WAITLIST</button>
       </div>
       <div id="waitlist-confirm" style="display:none;color:var(--acid);font-family:var(--mono);font-size:11px;margin-top:6px;">YOU'RE ON THE LIST.</div>`;
+    const msgs = document.getElementById('messages');
     msgs.appendChild(div);
-    updateZStack();
-    scrollToBottom();
     document.getElementById('user-input').disabled = true;
     document.getElementById('send-btn').disabled   = true;
   }
@@ -767,10 +884,15 @@
   }
 
   function clearChat() {
-    history = [];
+    history = []; pairs = []; currentPair = null; stackIdx = 0;
     document.getElementById('user-input').disabled = false;
     document.getElementById('send-btn').disabled   = false;
     document.getElementById('messages').innerHTML = `
+      <div class="stack-nav" id="stack-nav" style="display:none;">
+        <button id="stack-prev" onclick="goBack()" disabled>← BACK</button>
+        <span id="stack-count"></span>
+        <button id="stack-next" onclick="goForward()" disabled>FORWARD →</button>
+      </div>
       <div class="empty-state" id="empty-state">
         <div class="empty-glyph">//</div>
         <div class="empty-title">Start somewhere real</div>
