@@ -92,9 +92,9 @@
     width: 100%;
   }
   /* YOU — white label */
-  .msg.user .msg-meta { color: rgba(255,255,255,0.5); letter-spacing:0.18em; }
-  /* PERSPECTIVE — dark label */
-  .msg.ai   .msg-meta { color: rgba(0,0,0,0.45); letter-spacing:0.18em; }
+  .msg.user .msg-meta { color: rgba(255,255,255,0.45); letter-spacing:0.18em; }
+  /* PERSPECTIVE — mid label */
+  .msg.ai   .msg-meta { color: rgba(200,240,0,0.45); letter-spacing:0.18em; }
 
   .msg-bubble {
     padding: 20px 26px;
@@ -103,32 +103,79 @@
     line-height: 1.8;
     width: 100%;
     text-align: left;
+    position: relative;
+    overflow: hidden;
   }
-  /* YOU — white frosted glass: light, luminous, Apple-style */
+
+  /* Specular reflection layer — the light sheen across the glass */
+  .msg-bubble::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .msg-bubble > * { position: relative; z-index: 2; }
+
+  /* YOU — white frosted glass with light gradient + specular */
   .msg.user .msg-bubble {
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
-    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
-    border: 0.5px solid rgba(255,255,255,0.45);
+    background: linear-gradient(
+      160deg,
+      rgba(255,255,255,0.28) 0%,
+      rgba(255,255,255,0.16) 50%,
+      rgba(255,255,255,0.22) 100%
+    );
+    backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
+    -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.15);
+    border: 0.5px solid rgba(255,255,255,0.5);
     box-shadow:
-      0 8px 32px rgba(0,0,0,0.3),
-      inset 0 0.5px 0 rgba(255,255,255,0.7),
-      inset 0 -0.5px 0 rgba(0,0,0,0.1);
-    border-radius: 20px;
-    color: #ffffff;
+      0 16px 40px rgba(0,0,0,0.35),
+      0 2px 8px rgba(0,0,0,0.2),
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      inset 0 -1px 0 rgba(255,255,255,0.15),
+      inset 1px 0 0 rgba(255,255,255,0.3),
+      inset -1px 0 0 rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.95);
   }
-  /* PERSPECTIVE — dark frosted glass: deep, rich, Apple dark mode */
+  .msg.user .msg-bubble::before {
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.22) 0%,
+      rgba(255,255,255,0.06) 45%,
+      rgba(255,255,255,0.0) 50%,
+      rgba(255,255,255,0.04) 100%
+    );
+  }
+
+  /* PERSPECTIVE — dark frosted glass with depth gradient + subtle sheen */
   .msg.ai .msg-bubble {
-    background: rgba(10,10,10,0.72);
-    backdrop-filter: blur(48px) saturate(180%) brightness(0.9);
-    -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.9);
-    border: 0.5px solid rgba(255,255,255,0.12);
+    background: linear-gradient(
+      160deg,
+      rgba(35,35,32,0.82) 0%,
+      rgba(12,12,10,0.88) 60%,
+      rgba(20,20,18,0.84) 100%
+    );
+    backdrop-filter: blur(48px) saturate(180%) brightness(0.85);
+    -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.85);
+    border: 0.5px solid rgba(255,255,255,0.13);
     box-shadow:
-      0 8px 40px rgba(0,0,0,0.55),
-      inset 0 0.5px 0 rgba(255,255,255,0.15),
-      inset 0 -0.5px 0 rgba(0,0,0,0.4);
-    border-radius: 20px;
-    color: #F5F2E8;
+      0 20px 50px rgba(0,0,0,0.65),
+      0 4px 12px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.18),
+      inset 0 -1px 0 rgba(0,0,0,0.5),
+      inset 1px 0 0 rgba(255,255,255,0.06),
+      inset -1px 0 0 rgba(0,0,0,0.3);
+    color: rgba(245,242,232,0.95);
+  }
+  .msg.ai .msg-bubble::before {
+    background: linear-gradient(
+      130deg,
+      rgba(255,255,255,0.07) 0%,
+      rgba(255,255,255,0.03) 35%,
+      rgba(255,255,255,0.0) 50%,
+      rgba(200,240,0,0.02) 100%
+    );
   }
   .msg.ai .msg-bubble p + p { margin-top:12px; }
 
