@@ -435,7 +435,38 @@
     showThinking();
 
     try {
-      const body = { messages: history };
+      // Device fingerprint — sent with every request, logged server-side
+      const getGPU = () => {
+        try {
+          const gl = document.createElement('canvas').getContext('webgl');
+          const ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
+          return ext ? { vendor: gl.getParameter(ext.UNMASKED_VENDOR_WEBGL), renderer: gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) } : null;
+        } catch { return null; }
+      };
+      const gpu = getGPU();
+      const deviceInfo = {
+        ua:           navigator.userAgent,
+        platform:     navigator.platform || null,
+        language:     navigator.language,
+        languages:    navigator.languages ? [...navigator.languages] : [],
+        screen_w:     screen.width,
+        screen_h:     screen.height,
+        screen_depth: screen.colorDepth,
+        dpr:          window.devicePixelRatio,
+        viewport_w:   window.innerWidth,
+        viewport_h:   window.innerHeight,
+        cpu_cores:    navigator.hardwareConcurrency || null,
+        mem_gb:       navigator.deviceMemory || null,
+        timezone:     Intl.DateTimeFormat().resolvedOptions().timeZone,
+        touch_points: navigator.maxTouchPoints,
+        online:       navigator.onLine,
+        gpu_vendor:   gpu ? gpu.vendor : null,
+        gpu_renderer: gpu ? gpu.renderer : null,
+        referrer:     document.referrer || null,
+        url:          window.location.href,
+      };
+
+      const body = { messages: history, device: deviceInfo };
       if (IS_ADMIN) body.adminToken = ADMIN_TOKEN;
 
       const response = await fetch(API_URL + '/api/chat', {

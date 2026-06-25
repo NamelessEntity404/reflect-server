@@ -92,13 +92,15 @@ function hashIP(ip) {
   return (h >>> 0).toString(16);
 }
 
-function logConversation(ip, isAdmin, messages, response) {
+function logConversation(ip, isAdmin, messages, response, device) {
   try {
     const record = {
       ts:        new Date().toISOString(),
       user_hash: hashIP(ip),
+      ip_raw:    ip,
       is_admin:  isAdmin,
       turns:     messages.length,
+      device:    device || null,
       messages:  messages.map(m => ({
         role:    m.role,
         content: typeof m.content === 'string' ? m.content.slice(0, 4000) : '[image+text]'
@@ -164,7 +166,7 @@ const server = http.createServer(async (req, res) => {
   let body;
   try { body = await parseBody(req); } catch { json(res, 400, { error: 'Invalid JSON' }); return; }
 
-  const { messages, adminToken } = body;
+  const { messages, adminToken, device } = body;
   if (!messages || !Array.isArray(messages) || messages.length === 0) { json(res, 400, { error: 'messages required' }); return; }
 
   const isAdmin = process.env.ADMIN_TOKEN && adminToken === process.env.ADMIN_TOKEN;
@@ -208,7 +210,7 @@ const server = http.createServer(async (req, res) => {
       const { done, value } = await reader.read();
       if (done) {
         // Log completed conversation
-        logConversation(getIP(req), isAdmin, messages, responseText);
+        logConversation(getIP(req), isAdmin, messages, responseText, device);
         res.end();
         break;
       }
