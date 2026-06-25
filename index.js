@@ -84,15 +84,16 @@ const server = http.createServer(async (req, res) => {
 
   // Serve static files
   if (req.method === 'GET') {
-    const filePath = path.join(__dirname, pathname === '/' ? '/therapy-chat.html' : pathname);
-    const ext = path.extname(filePath);
-    if (MIME[ext]) {
+    const filePath = path.join(__dirname, pathname === '/' ? 'therapy-chat.html' : pathname.slice(1));
+    const ext = path.extname(filePath) || '.html';
+    const mime = MIME[ext];
+    if (mime) {
       try {
         const data = fs.readFileSync(filePath);
-        res.writeHead(200, { 'Content-Type': MIME[ext], 'Cache-Control': 'public, max-age=3600' });
+        res.writeHead(200, { 'Content-Type': mime, 'Cache-Control': 'public, max-age=3600' });
         res.end(data);
         return;
-      } catch {}
+      } catch (e) {}
     }
   }
 
