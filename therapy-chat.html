@@ -238,7 +238,48 @@
   let pendingImage = null; // { base64, mediaType, name, url }
 
   const bgVideo = document.getElementById('bg-video');
+  const msgsEl = document.getElementById('messages');
+  const inputEl = document.getElementById('user-input');
+
+  // Start playing
   bgVideo.play().catch(() => {});
+
+  // PAUSE while typing, RESUME on blur
+  let typingTimer = null;
+  inputEl.addEventListener('input', () => {
+    bgVideo.pause();
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      if (!isStreaming) bgVideo.play().catch(() => {});
+    }, 1500);
+  });
+  inputEl.addEventListener('focus', () => {
+    if (inputEl.value.length > 0) bgVideo.pause();
+  });
+  inputEl.addEventListener('blur', () => {
+    clearTimeout(typingTimer);
+    bgVideo.play().catch(() => {});
+  });
+
+  // SCROLL-DRIVEN playback — scroll position drives video time
+  let isUserScrolling = false;
+  let scrollPlayTimer = null;
+  msgsEl.addEventListener('scroll', () => {
+    if (!bgVideo.duration) return;
+    isUserScrolling = true;
+    bgVideo.pause();
+
+    // Map scroll position (0-100%) to video time (0-duration)
+    const scrollPct = msgsEl.scrollTop / (msgsEl.scrollHeight - msgsEl.clientHeight || 1);
+    bgVideo.currentTime = scrollPct * bgVideo.duration;
+
+    // Resume normal playback 800ms after scrolling stops
+    clearTimeout(scrollPlayTimer);
+    scrollPlayTimer = setTimeout(() => {
+      isUserScrolling = false;
+      bgVideo.play().catch(() => {});
+    }, 800);
+  }, { passive: true });
 
   function acknowledgeDisclaimer() {
     document.getElementById('disclaimer-gate').remove();
