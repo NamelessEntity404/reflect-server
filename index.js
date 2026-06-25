@@ -75,7 +75,7 @@ function json(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
-const MIME = { '.html':'text/html', '.css':'text/css', '.js':'application/javascript', '.mp4':'video/mp4', '.woff2':'font/woff2', '.json':'application/json' };
+const MIME = { '.html':'text/html', '.css':'text/css', '.js':'application/javascript', '.mp4':'video/mp4', '.webm':'video/webm', '.woff2':'font/woff2', '.json':'application/json', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.png':'image/png', '.webp':'image/webp' };
 
 const server = http.createServer(async (req, res) => {
   const { pathname } = url.parse(req.url);

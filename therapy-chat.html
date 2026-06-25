@@ -28,7 +28,7 @@
   html { background: #000; height: 100%; overflow: hidden; }
   body { background: transparent; height: 100%; overflow: hidden; }
   body { color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; }
-  #bg-video { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover; opacity: 0.35; }
+  #bg-canvas { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; pointer-events:none; opacity:0.38; }
 
   /* HEADER */
   .header { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:0.5px solid var(--rule); background:rgba(5,6,10,0.85); backdrop-filter:blur(20px); }
@@ -164,9 +164,12 @@
 <link rel="stylesheet" href="fonts.css">
 </head>
 <body><nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(200,240,0,0.12);font-family:'JetBrains Mono',monospace;">  <a href="index.html" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F5F2E8;text-decoration:none;">SHANE <span style="color:#C8F000;">GRAFFITI</span> INC.</a>  <div style="display:flex;align-items:center;gap:32px;">    <a href="index.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Work</a>    <a href="research.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Research</a>    <a href="about.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">About</a>    <a href="therapy-chat.html" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;">Reflect —</a>  </div></nav>
-  <video id="bg-video" autoplay muted loop playsinline preload="auto">
-    <source src="bg-reflect.webm" type="video/webm"><source src="bg-reflect.mp4" type="video/mp4">
-  </video>
+  <canvas id="bg-canvas"></canvas>
+  <div id="reflect-load-overlay" style="position:fixed;inset:0;z-index:9997;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#05060a;pointer-events:none;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#A8A89A;margin-bottom:16px;">Loading</div>
+    <div style="width:160px;height:1px;background:rgba(200,240,0,0.15);overflow:hidden;"><div id="reflect-load-bar" style="height:100%;width:0%;background:#C8F000;transition:width 0.1s linear;"></div></div>
+    <div id="reflect-load-pct" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:rgba(200,240,0,0.5);margin-top:10px;">0%</div>
+  </div>
 
   <header class="header">
     <div class="header-left">
@@ -237,58 +240,10 @@
   let isStreaming  = false;
   let pendingImage = null; // { base64, mediaType, name, url }
 
-  const bgVideo = document.getElementById('bg-video');
+  
   const msgsEl  = document.getElementById('messages');
   const inputEl = document.getElementById('user-input');
 
-  // STATE: idle | typing | scrolling
-  let vidState = 'idle';
-  let typingTimer = null;
-  let scrollTimer = null;
-  let rafId = null;
-
-  function setState(s) {
-    if (vidState === s) return;
-    vidState = s;
-    if (s === 'idle') {
-      bgVideo.loop = true;
-      bgVideo.play().catch(() => {});
-    } else {
-      bgVideo.pause();
-    }
-  }
-
-  // Start idle
-  bgVideo.play().catch(() => {});
-
-  // TYPING: pause video while user is actively typing
-  inputEl.addEventListener('input', () => {
-    setState('typing');
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => setState('idle'), 1200);
-  });
-  inputEl.addEventListener('blur', () => {
-    clearTimeout(typingTimer);
-    setState('idle');
-  });
-
-  // SCROLL: drive video position from scroll
-  msgsEl.addEventListener('scroll', () => {
-    const maxScroll = msgsEl.scrollHeight - msgsEl.clientHeight;
-    if (maxScroll <= 0 || !bgVideo.duration) return;
-    bgVideo.pause();
-    bgVideo.loop = false;
-    vidState = 'scrolling';
-    const pct = msgsEl.scrollTop / maxScroll;
-    bgVideo.currentTime = pct * bgVideo.duration;
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      bgVideo.loop = true;
-      bgVideo.currentTime = pct * bgVideo.duration;
-      bgVideo.play().catch(() => {});
-      vidState = 'idle';
-    }, 600);
-  }, { passive: true });
 
   function acknowledgeDisclaimer() {
     document.getElementById('disclaimer-gate').remove();
@@ -552,5 +507,6 @@
   </script>
 <script src="nav.js"></script>
 <script src="transitions.js"></script>
+  <script src="reflect-player.js"></script>
 </body>
 </html>
