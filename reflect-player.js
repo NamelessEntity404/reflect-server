@@ -14,7 +14,7 @@
   var FPS          = 25;
   var CHUNK        = 16;
   var BASE         = '/_frames_reflect/';
-  var READ_TIMEOUT = 2000; // ms of mouse stillness = reading
+  var READ_TIMEOUT = 6000; // ms of mouse stillness = reading
 
   var canvas  = document.getElementById('bg-canvas');
   var ctx     = canvas.getContext('2d', { alpha: false });
