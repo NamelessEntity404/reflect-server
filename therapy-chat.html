@@ -534,6 +534,11 @@
     document.getElementById('user-input').focus();
   }
 
+  // Update Z-stack on scroll so depth adjusts as user reads back
+  document.getElementById('messages').addEventListener('scroll', function() {
+    updateZStack();
+  }, { passive: true });
+
   function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 160) + 'px';
@@ -549,6 +554,22 @@
   function scrollToBottom() {
     const m = document.getElementById('messages');
     m.scrollTop = m.scrollHeight;
+  }
+
+  function updateZStack() {
+    const msgs = document.getElementById('messages');
+    const cards = msgs.querySelectorAll('.msg');
+    const total = cards.length;
+    cards.forEach(function(card, i) {
+      const fromEnd = total - 1 - i; // 0 = newest, 1 = one back, etc.
+      const z     = -fromEnd * 60;
+      const scale = 1 - fromEnd * 0.03;
+      const op    = Math.max(1 - fromEnd * 0.12, 0.3);
+      card.style.transform   = 'translateZ(' + z + 'px) scale(' + scale + ')';
+      card.style.opacity     = op;
+      card.style.transition  = 'transform 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease';
+      card.style.zIndex      = i;
+    });
   }
 
   function hideEmpty() {
@@ -595,6 +616,7 @@
     if (text) content += `<div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
     div.innerHTML = `<div class="msg-meta">YOU</div>${content}`;
     msgs.appendChild(div);
+    updateZStack();
     scrollToBottom();
   }
 
@@ -608,6 +630,7 @@
     div.innerHTML = '<div class="msg-meta">PERSPECTIVE</div>';
     div.appendChild(bubble);
     msgs.appendChild(div);
+    updateZStack();
     scrollToBottom();
     return bubble;
   }
@@ -620,6 +643,7 @@
     div.id = 'thinking';
     div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
     msgs.appendChild(div);
+    updateZStack();
     scrollToBottom();
   }
 
@@ -634,6 +658,7 @@
     div.className = 'error-msg';
     div.textContent = 'ERROR: ' + msg;
     msgs.appendChild(div);
+    updateZStack();
     scrollToBottom();
   }
 
@@ -650,6 +675,7 @@
       </div>
       <div id="waitlist-confirm" style="display:none;color:var(--acid);font-family:var(--mono);font-size:11px;margin-top:6px;">YOU'RE ON THE LIST.</div>`;
     msgs.appendChild(div);
+    updateZStack();
     scrollToBottom();
     document.getElementById('user-input').disabled = true;
     document.getElementById('send-btn').disabled   = true;
