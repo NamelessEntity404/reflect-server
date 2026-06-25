@@ -6,7 +6,7 @@
   'use strict';
 
   /* ── HIDE CURSOR ───────────────────────────────────────────── */
-  document.documentElement.style.cursor = 'none';
+  document.documentElement.style.cursor = 'auto';
 
   /* ── VIDEO CURSOR ──────────────────────────────────────────── */
   const vidCursor = document.createElement('video');
@@ -41,7 +41,7 @@
   /* ── STYLES ────────────────────────────────────────────────── */
   const S = document.createElement('style');
   S.textContent = `
-    * { cursor: none !important; }
+    * { cursor: auto !important; }
 
     #pond-bg {
       position: fixed; inset: 0; z-index: 0;

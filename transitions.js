@@ -86,7 +86,7 @@
   // ── Global button/link active states ─────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
-    a, button { cursor: none !important; }
+    a, button { cursor: auto !important; }
     a:active { opacity: 0.7 !important; transform: scale(0.97) !important; }
     .paper-card:active, .work-card:active { transform: scale(0.98) !important; }
     .paper-card { transition: background 0.2s, transform 0.15s !important; }
