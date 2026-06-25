@@ -645,89 +645,71 @@
   }
 
   // ── CARD PAIR STACK ──────────────────────────────────────────────────────
-  let pairs = [];       // array of card-pair DOM elements
-  let currentPair = null; // active card-pair being filled
-  let stackIdx = 0;     // which pair is at front (0 = newest)
+  let pairs = [];
+  let currentPair = null;
+  let viewIdx = 0; // 0 = newest pair is front
 
-  function updateStack() {
+  function applyDepths() {
     pairs.forEach((p, i) => {
-      const depth = i;
-      p.setAttribute('data-depth', Math.min(depth, 9));
+      // i=0 is newest. viewIdx=0 means newest is at depth 0.
+      const depth = i - viewIdx;
+      // depth < 0 means swiped past (off to left)
+      if (depth < 0) {
+        p.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-150%,-50%) scale(1) translateZ(0);opacity:0;pointer-events:none;transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.45s;width:calc(100% - 48px);max-width:720px;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 48px);overflow-y:auto;';
+      } else {
+        const d = Math.min(depth, 5);
+        const z = -d * 90;
+        const s = 1 - d * 0.05;
+        const y = -50 + d * 4; // peek up slightly
+        const op = Math.max(1 - d * 0.18, 0.05);
+        p.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,${y}%) translateZ(${z}px) scale(${s});opacity:${op};pointer-events:${d===0?'all':'none'};transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.45s;width:calc(100% - 48px);max-width:720px;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 48px);overflow-y:auto;z-index:${10-d};`;
+      }
     });
     const nav = document.getElementById('stack-nav');
     if (nav) {
       const total = pairs.length;
       nav.style.display = total > 1 ? 'flex' : 'none';
-      document.getElementById('stack-count').textContent = `${stackIdx + 1} / ${total}`;
-      document.getElementById('stack-prev').disabled = stackIdx >= pairs.length - 1;
-      document.getElementById('stack-next').disabled = stackIdx <= 0;
+      document.getElementById('stack-count').textContent = (viewIdx + 1) + ' / ' + total;
+      document.getElementById('stack-prev').disabled = viewIdx >= total - 1;
+      document.getElementById('stack-next').disabled = viewIdx <= 0;
     }
   }
 
   function goBack() {
-    if (stackIdx >= pairs.length - 1) return;
-    stackIdx++;
-    // Rebuild depths from stackIdx outward
-    const reordered = [...pairs].reverse();
-    reordered.forEach((p, i) => {
-      const depth = (reordered.length - 1 - i) - stackIdx;
-      p.setAttribute('data-depth', Math.max(0, Math.min(depth + stackIdx, 9)));
-    });
-    // Actually just shift: current front goes to depth 1, etc.
-    reorganizeStack();
+    if (viewIdx >= pairs.length - 1) return;
+    viewIdx++;
+    applyDepths();
   }
 
   function goForward() {
-    if (stackIdx <= 0) return;
-    stackIdx--;
-    reorganizeStack();
-  }
-
-  function reorganizeStack() {
-    // pairs[0] = newest. stackIdx=0 means newest is front.
-    pairs.forEach((p, i) => {
-      const depth = i - stackIdx;
-      if (depth < 0) {
-        p.setAttribute('data-depth', Math.abs(depth) + 10); // behind view
-        p.style.transform = 'translate(-150%, -50%) translateZ(0) scale(1)';
-        p.style.opacity = '0';
-        p.style.pointerEvents = 'none';
-      } else {
-        p.style.transform = ''; p.style.opacity = '';
-        p.setAttribute('data-depth', Math.min(depth, 9));
-      }
-    });
-    updateStack();
+    if (viewIdx <= 0) return;
+    viewIdx--;
+    applyDepths();
   }
 
   function createCardPair() {
     const msgs = document.getElementById('messages');
     const pair = document.createElement('div');
-    pair.className = 'card-pair';
-    pair.setAttribute('data-depth', '0');
-    // Push existing pairs back
+    pair.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) translateZ(0) scale(1);opacity:1;pointer-events:all;transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.45s;width:calc(100% - 48px);max-width:720px;display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 48px);overflow-y:auto;z-index:10;';
     pairs.unshift(pair);
     msgs.appendChild(pair);
-    stackIdx = 0;
-    updateStack();
+    viewIdx = 0;
+    applyDepths();
     return pair;
   }
 
-  // Swipe gesture
-  let touchStartX = 0, touchStartY = 0;
-  const msgsContainer = document.getElementById('messages');
-  msgsContainer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
-  msgsContainer.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      if (dx < 0) goBack(); else goForward();
-    }
+  // Swipe
+  let tx0 = 0, ty0 = 0;
+  document.getElementById('messages').addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; }, { passive: true });
+  document.getElementById('messages').addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx0;
+    const dy = e.changedTouches[0].clientY - ty0;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) { dx < 0 ? goBack() : goForward(); }
   }, { passive: true });
 
   // Arrow keys
   document.addEventListener('keydown', e => {
-    if (e.target === document.getElementById('user-input')) return;
+    if (document.activeElement === document.getElementById('user-input')) return;
     if (e.key === 'ArrowLeft') goBack();
     if (e.key === 'ArrowRight') goForward();
   });
