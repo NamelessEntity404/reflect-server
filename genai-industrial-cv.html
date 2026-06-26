@@ -849,7 +849,7 @@
         vec2 gp=vec2(sin(uScroll*2.2)*0.45, cos(uScroll*1.6)*0.3+0.1);
         col+=smoothstep(1.1,0.0,length(uv-gp))*vec3(0.78,0.94,0.0)*0.13;
         col*=1.0-smoothstep(0.7,1.7,length(uv));
-        gl_FragColor=vec4(col,1.0);
+        gl_FragColor = vec4(col * 0.7, 0.75);
       }
     `;
     function compile(type, src){

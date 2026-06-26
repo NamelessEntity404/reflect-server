@@ -381,7 +381,7 @@
       if(sn>.975){ vec2 f=fract(su*60.)-.5; col+=smoothstep(.08,.0,length(f))*.6; }
       col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;
       col*=1.-smoothstep(.7,1.7,length(uv));
-      gl_FragColor=vec4(col,1.);
+      gl_FragColor=vec4(col*0.7,0.75);
     }`;
   function sh(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
   const prog = gl.createProgram();

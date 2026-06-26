@@ -648,7 +648,7 @@
         float vig = 1.0 - smoothstep(0.7, 1.7, length(uv));
         col *= vig;
 
-        gl_FragColor = vec4(col, 1.0);
+        gl_FragColor = vec4(col * 0.7, 0.75);
       }
     `;
 
