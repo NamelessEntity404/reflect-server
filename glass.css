@@ -21,7 +21,6 @@ video {
 /* ── UNIVERSAL CARD SELECTOR ─────────────────────────────────────────────── */
 .about-card,
 .paper-card,
-.card,
 .card-shell,
 .pipe-step,
 .guardrail,
@@ -31,11 +30,8 @@ video {
 .method-card,
 .eval-card,
 .result-card,
-.benchmark-card,
-.work-card,
-.research-card,
-.stat-card,
-.info-card {
+.benchmark-card {
+/* .work-card EXCLUDED — thumbnail containers, not glass cards */
   position: relative !important;
   overflow: hidden !important;
   /* 60% opaque dark glass with gradient for depth */
