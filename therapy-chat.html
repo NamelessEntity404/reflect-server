@@ -273,7 +273,12 @@
 
   function scrollToBottom() {
     const m = document.getElementById('messages');
-    m.scrollTop = m.scrollHeight;
+    // Only auto-scroll if user is within 120px of the bottom
+    // If they scrolled up to read, leave them alone
+    const distanceFromBottom = m.scrollHeight - m.scrollTop - m.clientHeight;
+    if (distanceFromBottom < 120) {
+      m.scrollTop = m.scrollHeight;
+    }
   }
 
   function hideEmpty() {
