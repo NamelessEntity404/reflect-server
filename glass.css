@@ -41,8 +41,8 @@ video {
     rgba(12, 13, 10, 0.65) 50%,
     rgba(22, 24, 19, 0.60) 100%
   ) !important;
-  backdrop-filter: blur(24px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  /* backdrop-filter removed — too GPU intensive, breaks lower-end machines */
+  /* Glass effect achieved through gradient + border only */
   border: 0.5px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 18px !important;
   box-shadow:
