@@ -165,14 +165,10 @@
   <link rel="stylesheet" href="glass.css">
 </head>
 <body><nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(200,240,0,0.12);font-family:'JetBrains Mono',monospace;">  <a href="index.html" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F5F2E8;text-decoration:none;">SHANE <span style="color:#C8F000;">GRAFFITI</span> INC.</a>  <div style="display:flex;align-items:center;gap:32px;">    <a href="index.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Work</a>    <a href="research.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Research</a>    <a href="about.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">About</a>    <a href="therapy-chat.html" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;">Perspective —</a>  </div></nav>
-  <video id="bg-video" autoplay muted loop playsinline preload="auto">
+  <video id="bg-video" autoplay muted playsinline preload="auto">
     <source src="bg-whatif-small.mp4" type="video/mp4">
   </video>
 
-  <button id="audio-btn" onclick="toggleAudio()" title="Toggle audio" style="position:fixed;top:68px;left:22px;z-index:200;background:rgba(5,6,10,0.82);border:1px solid #C8F000;border-radius:3px;color:#C8F000;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;backdrop-filter:blur(16px);animation:audio-pulse 2s ease-in-out infinite;">
-    <svg id="audio-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8F000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-    AUDIO
-  </button>
   <style>
     @keyframes audio-pulse {
       0%,100% { box-shadow: 0 0 0 0 rgba(200,240,0,0.45); }
@@ -186,7 +182,13 @@
         <div class="badge-dot"></div>
         <span class="badge-label">Alpha · v0.1</span>
       </div>
-      <div class="header-title">PER<span>SP</span>ECTIVE</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="header-title">PER<span>SP</span>ECTIVE</div>
+        <button id="audio-btn" onclick="toggleAudio()" title="Toggle audio" style="background:rgba(5,6,10,0.82);border:1px solid #C8F000;border-radius:3px;color:#C8F000;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;width:fit-content;animation:audio-pulse 2s ease-in-out infinite;">
+          <svg id="audio-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C8F000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          AUDIO
+        </button>
+      </div>
       <span class="admin-badge" id="admin-badge">ADMIN</span>
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
@@ -251,6 +253,24 @@
 
   const bgVideo = document.getElementById('bg-video');
   bgVideo.play().catch(() => {});
+
+  bgVideo.addEventListener('ended', function () {
+    bgVideo.src = 'bg-reflect.mp4';
+    bgVideo.loop = true;
+    bgVideo.muted = true;
+    bgVideo.load();
+    bgVideo.play().catch(() => {});
+    // reset audio button to muted state
+    const btn  = document.getElementById('audio-btn');
+    const icon = document.getElementById('audio-icon');
+    if (btn) {
+      icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+      btn.style.animation = 'audio-pulse 2s ease-in-out infinite';
+      btn.style.borderColor = '#C8F000';
+      btn.style.color = '#C8F000';
+      icon.setAttribute('stroke', '#C8F000');
+    }
+  });
 
   function toggleAudio() {
     const btn  = document.getElementById('audio-btn');
