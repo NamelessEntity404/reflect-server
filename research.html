@@ -177,6 +177,20 @@
 </style>
 <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="glass.css">
+<style>
+/* Unified light source — research.html paper-cards only.
+   JS sets --lx/--ly per card so all cards share one light point,
+   like windows on a building facing the same sun. */
+.paper-card::before {
+  background: radial-gradient(
+    ellipse 130% 100% at var(--lx, 18%) var(--ly, 12%),
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 38%,
+    rgba(255, 255, 255, 0.00) 65%,
+    rgba(200, 240, 0, 0.02) 100%
+  ) !important;
+}
+</style>
 </head>
 <body>
 
@@ -354,5 +368,29 @@
   })();
   </script>
 <script src="carousel.js?v=1"></script>
+<script>
+(function () {
+  function syncLight() {
+    document.querySelectorAll('.grid').forEach(function (grid) {
+      var gr = grid.getBoundingClientRect();
+      var LX = gr.width  * 0.18;
+      var LY = gr.height * 0.12;
+      grid.querySelectorAll('.paper-card').forEach(function (card) {
+        var cr  = card.getBoundingClientRect();
+        var lx  = ((LX - (cr.left - gr.left)) / cr.width  * 100).toFixed(1) + '%';
+        var ly  = ((LY - (cr.top  - gr.top))  / cr.height * 100).toFixed(1) + '%';
+        card.style.setProperty('--lx', lx);
+        card.style.setProperty('--ly', ly);
+      });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncLight);
+  } else {
+    syncLight();
+  }
+  window.addEventListener('resize', syncLight);
+})();
+</script>
 </body>
 </html>
