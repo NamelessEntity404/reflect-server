@@ -338,7 +338,13 @@
 <script>
   (function(){
     var v=document.getElementById('bg-video');
-    if(v){v.play().catch(function(){});}
+    if(v){
+      v.play().catch(function(){
+        // Safari blocked autoplay — play on first click anywhere
+        document.addEventListener('click', function(){v.play().catch(function(){});}, {once:true});
+        document.addEventListener('touchstart', function(){v.play().catch(function(){});}, {once:true, passive:true});
+      });
+    }
   })();
 </script>
 </body>
