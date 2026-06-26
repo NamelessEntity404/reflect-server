@@ -30,8 +30,6 @@
   .bc { font-family: 'Barlow Condensed', sans-serif; }
   .mono { font-family: var(--mono); }
 
-  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
-
   .scene {
     min-height: 100vh;
     display: flex;
@@ -330,7 +328,6 @@
     <source src="bg-research.webm" type="video/webm">
     <source src="bg-research.mp4" type="video/mp4">
   </video>
-<canvas id="gl"></canvas>
 
   <nav>
     <a href="index.html">Page 1</a>
@@ -717,95 +714,7 @@
   <div id="end-spacer"></div>
 
   <!-- WEBGL -->
-  <script>
-  (() => {
-    const canvas = document.getElementById('gl');
-    const gl = canvas.getContext('webgl', { antialias: true, alpha: false, preserveDrawingBuffer: true });
-    if (!gl) return;
-    function resize() {
-      canvas.width = window.innerWidth * Math.min(window.devicePixelRatio || 1, 2);
-      canvas.height = window.innerHeight * Math.min(window.devicePixelRatio || 1, 2);
-      gl.viewport(0, 0, canvas.width, canvas.height);
-    }
-    window.addEventListener('resize', resize, { passive: true });
-    resize();
-    const vsSrc = `attribute vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
-    const fsSrc = `
-      precision highp float;
-      uniform vec2 uRes;
-      uniform float uTime;
-      uniform float uScroll;
-      float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
-      void main() {
-        vec2 uv = (gl_FragCoord.xy - 0.5 * uRes.xy) / uRes.y;
-        float t = uTime * 0.06 + uScroll * 6.0;
-        vec3 col = vec3(0.03, 0.035, 0.06);
-        float y = uv.y + 0.55;
-        if (y > 0.001) {
-          float depth = 0.6 / y;
-          vec2 grid = uv * depth;
-          grid.y += t * 2.2;
-          grid.x += sin(uScroll * 6.2832) * 1.5;
-          vec2 gl2 = abs(fract(grid * 3.0) - 0.5);
-          float line = smoothstep(0.0, 0.06, min(gl2.x, gl2.y));
-          float fog = exp(-depth * 0.18);
-          float hue = uScroll * 6.2832;
-          vec3 gridColor = mix(vec3(0.30,1.0,0.90), vec3(1.0,0.30,0.84), sin(hue) * 0.5 + 0.5);
-          col += (1.0 - line) * fog * gridColor * 2.2;
-        }
-        vec2 starUv = uv * 4.0 + vec2(t * 0.25, uScroll * 2.0);
-        vec2 cell = floor(starUv * 60.0);
-        float starN = hash(cell);
-        if (starN > 0.97) {
-          vec2 f = fract(starUv * 60.0) - 0.5;
-          float d = length(f);
-          col += smoothstep(0.08, 0.0, d) * 1.2;
-        }
-        vec2 glowPos = vec2(sin(uScroll * 3.0) * 0.6, cos(uScroll * 2.0) * 0.4 + 0.2);
-        float glow = smoothstep(1.1, 0.0, length(uv - glowPos));
-        col += glow * vec3(0.85, 1.0, 0.2) * 0.22;
-        float vig = 1.0 - smoothstep(0.7, 1.7, length(uv));
-        col *= vig;
-        gl_FragColor = vec4(col, 1.0);
-      }
-    `;
-    function compile(type, src) {
-      const sh = gl.createShader(type);
-      gl.shaderSource(sh, src);
-      gl.compileShader(sh);
-      return sh;
-    }
-    const prog = gl.createProgram();
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(prog, 'aPos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    const uRes = gl.getUniformLocation(prog, 'uRes');
-    const uTime = gl.getUniformLocation(prog, 'uTime');
-    const uScroll = gl.getUniformLocation(prog, 'uScroll');
-    let scrollProgress = 0;
-    function render(time) {
-      requestAnimationFrame(render);
-      gl.uniform2f(uRes, canvas.width, canvas.height);
-      gl.uniform1f(uTime, time * 0.001);
-      gl.uniform1f(uScroll, scrollProgress);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-    }
-    requestAnimationFrame(render);
-    function updateScroll() {
-      const max = document.body.scrollHeight - window.innerHeight;
-      scrollProgress = max > 0 ? window.scrollY / max : 0;
-    }
-    window.addEventListener('scroll', updateScroll, { passive: true });
-    updateScroll();
-  })();
-  </script>
+  
 
   <!-- SCROLL ANIMATION -->
   <script>
