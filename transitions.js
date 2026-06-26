@@ -1,4 +1,25 @@
 (() => {
+  // ── Background video autoplay fix — works on every page forever ──────────
+  // Safari blocks autoplay after Railway restarts. First click/touch starts it.
+  function startBgVideo() {
+    var v = document.getElementById('bg-video');
+    if (!v) return;
+    v.play().catch(function() {
+      var resume = function() { v.play().catch(function(){}); };
+      document.addEventListener('click', resume, { once: true });
+      document.addEventListener('touchstart', resume, { once: true, passive: true });
+      document.addEventListener('keydown', resume, { once: true });
+      document.addEventListener('mousemove', resume, { once: true });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startBgVideo);
+  } else {
+    startBgVideo();
+  }
+  // Also restart video after page transitions
+  window.addEventListener('pageshow', startBgVideo);
+
   // cursor: OS default — no custom cursor
 
   // ── Page transition overlay ───────────────────────────────────────────────
