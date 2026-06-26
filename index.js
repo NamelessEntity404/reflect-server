@@ -116,13 +116,14 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && pathname === '/health') { res.writeHead(200); res.end('ok'); return; }
   if (req.method === 'OPTIONS') { cors(res); res.writeHead(204); res.end(); return; }
 
-  // Admin: upload a frame file to /app/_frames volume
+  // Admin: upload any file to /app volume
   if (req.method === 'POST' && pathname.startsWith('/admin/upload-frame')) {
     const adminToken = new URL('http://x' + req.url).searchParams.get('token');
     if (!process.env.ADMIN_TOKEN || adminToken !== process.env.ADMIN_TOKEN) { json(res, 403, { error: 'Forbidden' }); return; }
     const filePath = new URL('http://x' + req.url).searchParams.get('path');
     if (!filePath || filePath.includes('..')) { json(res, 400, { error: 'Bad path' }); return; }
-    const destPath = path.join('/app/_frames', filePath);
+    const base = new URL('http://x' + req.url).searchParams.get('base') || '_frames';
+    const destPath = path.join('/app', base, filePath);
     fs.mkdirSync(path.dirname(destPath), { recursive: true });
     const chunks = [];
     req.on('data', c => chunks.push(c));
