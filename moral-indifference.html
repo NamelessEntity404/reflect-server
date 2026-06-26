@@ -175,10 +175,9 @@ h1 .yellow { color: var(--acid); }
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
 
   /* ── APPLE FROSTED GLASS — injected ─────────────────────────────────── */
-  .card, .paper-card, .card-shell, .about-card, .scene .card,
-  .pipe-step, .guardrail, .weight-vis, .v-step, .data-table,
-  .stat, .section, .key-metric, .finding, .method-card,
-  .eval-card, .result-card, .benchmark-card, .contribution {
+  .card, .paper-card, .card-shell, .about-card,
+  .pipe-step, .guardrail, .v-step, .key-metric, .finding,
+  .method-card, .eval-card, .result-card, .benchmark-card {
     position: relative !important;
     overflow: hidden !important;
     background: linear-gradient(
@@ -200,7 +199,7 @@ h1 .yellow { color: var(--acid); }
   }
   /* Specular sheen — the glass reflection */
   .card::before, .paper-card::before, .card-shell::before, .about-card::before,
-  .pipe-step::before, .guardrail::before, .v-step::before, .key-metric::before {
+  .pipe-step::before, .guardrail::before {
     content: '' !important;
     position: absolute !important;
     inset: 0 !important;
@@ -216,7 +215,7 @@ h1 .yellow { color: var(--acid); }
     ) !important;
   }
   .card > *, .paper-card > *, .card-shell > *, .about-card > *,
-  .pipe-step > *, .guardrail > *, .v-step > *, .key-metric > * {
+  .pipe-step > *, .guardrail > * {
     position: relative !important;
     z-index: 1 !important;
   }
