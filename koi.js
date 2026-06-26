@@ -1,3 +1,4 @@
+  document.documentElement.style.cursor = "auto";
 /* ============================================================
    KOI POND — CSS segment fish + WebGL water
    Matches @thedesignely reference exactly
@@ -5,33 +6,33 @@
 (function () {
   'use strict';
 
-  /* ── HIDE CURSOR ───────────────────────────────────────────── */
-  document.documentElement.style.cursor = 'auto';
-
-  /* ── VIDEO CURSOR ──────────────────────────────────────────── */
-  const vidCursor = document.createElement('video');
-  vidCursor.src        = './_cursor/cursor_trimmed.mp4';
-  vidCursor.loop       = true;
-  vidCursor.muted      = true;
-  vidCursor.playsInline = true;
-  vidCursor.autoplay   = true;
-  const SIZE = 320; // px — tweak this to make it bigger/smaller
-  Object.assign(vidCursor.style, {
-    position:     'fixed',
-    width:        SIZE + 'px',
-    height:       SIZE + 'px',
-    objectFit:    'cover',
-    pointerEvents:'none',
-    zIndex:       '2147483647',
-    mixBlendMode: 'screen',   // black = transparent, effect stacks on top
-    transform:    'translate(-50%, -50%)',
-    top:          '0px',
-    left:         '0px',
-    willChange:   'transform',
-    borderRadius: '50%',      // circular crop keeps it clean
-  });
-  document.body.appendChild(vidCursor);
-  vidCursor.play().catch(() => {});
+  // cursor disabled — using native cursor
+  // document.documentElement.style.cursor = 'auto';
+  // 
+  // /* ── VIDEO CURSOR ──────────────────────────────────────────── */
+  // const vidCursor = document.createElement('video');
+  // vidCursor.src        = './_cursor/cursor_trimmed.mp4';
+  // vidCursor.loop       = true;
+  // vidCursor.muted      = true;
+  // vidCursor.playsInline = true;
+  // vidCursor.autoplay   = true;
+  // const SIZE = 320; // px — tweak this to make it bigger/smaller
+  // Object.assign(vidCursor.style, {
+  // position:     'fixed',
+  // width:        SIZE + 'px',
+  // height:       SIZE + 'px',
+  // objectFit:    'cover',
+  // pointerEvents:'none',
+  // zIndex:       '2147483647',
+  // mixBlendMode: 'screen',   // black = transparent, effect stacks on top
+  // transform:    'translate(-50%, -50%)',
+  // top:          '0px',
+  // left:         '0px',
+  // willChange:   'transform',
+  // borderRadius: '50%',      // circular crop keeps it clean
+  // });
+  // document.body.appendChild(vidCursor);
+  // vidCursor.play().catch(() => {});
 
   window.addEventListener('mousemove', e => {
     vidCursor.style.top  = e.clientY + 'px';
