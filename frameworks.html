@@ -1190,7 +1190,7 @@
   <script>
   (() => {
     const canvas = document.getElementById('gl');
-    const gl = canvas.getContext('webgl', { antialias: true, alpha: true, preserveDrawingBuffer: false });
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: false, preserveDrawingBuffer: true });
     if (!gl) return;
 
     function resize() {
@@ -1257,7 +1257,7 @@
         float vig = 1.0 - smoothstep(0.7, 1.7, length(uv));
         col *= vig;
 
-        gl_FragColor = vec4(col * 0.7, 0.75);
+        gl_FragColor = vec4(col, 1.0);
       }
     `;
 

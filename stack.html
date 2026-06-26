@@ -240,7 +240,7 @@
 <script>
 (() => {
   const canvas = document.getElementById('gl');
-  const gl = canvas.getContext('webgl', { antialias: true, alpha: true });
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
   if (!gl) return;
   function resize() {
     canvas.width  = window.innerWidth  * Math.min(devicePixelRatio||1,2);
@@ -249,7 +249,7 @@
   }
   window.addEventListener('resize', resize, { passive:true }); resize();
   const vs = `attribute vec2 p;void main(){gl_Position=vec4(p,0,1);}`;
-  const fs = `precision highp float;uniform vec2 uR;uniform float uT;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;float t=uT*.035;vec3 col=vec3(.02,.023,.037);float y=uv.y+.5;if(y>.001){float d=.5/y;vec2 g=uv*d;g.y+=t*2.;vec2 g2=abs(fract(g*3.)-.5);float line=smoothstep(.0,.06,min(g2.x,g2.y));float fog=exp(-d*.2);col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;}vec2 su=uv*4.+vec2(t*.1,0.);vec2 cell=floor(su*60.);float sn=h(cell);if(sn>.975){vec2 f=fract(su*60.)-.5;col+=smoothstep(.08,.0,length(f))*.6;}col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;col*=1.-smoothstep(.7,1.7,length(uv));gl_FragColor=vec4(col*0.7,0.75);}`;
+  const fs = `precision highp float;uniform vec2 uR;uniform float uT;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;float t=uT*.035;vec3 col=vec3(.02,.023,.037);float y=uv.y+.5;if(y>.001){float d=.5/y;vec2 g=uv*d;g.y+=t*2.;vec2 g2=abs(fract(g*3.)-.5);float line=smoothstep(.0,.06,min(g2.x,g2.y));float fog=exp(-d*.2);col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;}vec2 su=uv*4.+vec2(t*.1,0.);vec2 cell=floor(su*60.);float sn=h(cell);if(sn>.975){vec2 f=fract(su*60.)-.5;col+=smoothstep(.08,.0,length(f))*.6;}col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;col*=1.-smoothstep(.7,1.7,length(uv));gl_FragColor=vec4(col,1.);}`;
   function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
   const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
   const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
