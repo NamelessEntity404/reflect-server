@@ -42,8 +42,18 @@
   .btn-clear { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; color:var(--mid); background:none; border:0.5px solid rgba(168,168,154,0.2); border-radius:4px; padding:5px 10px; cursor:pointer; transition:color 0.2s,border-color 0.2s; text-transform:uppercase; }
   .btn-clear:hover { color:var(--red); border-color:rgba(255,64,64,0.4); }
 
-  /* MESSAGES */
-  .messages { flex:1; overflow-y:auto; padding:32px 24px; display:flex; flex-direction:column; align-items:center; gap:20px; scroll-behavior:smooth; }
+  /* MESSAGES — Z stack */
+  .messages { flex:1; position:relative; overflow:hidden; perspective:1400px; perspective-origin:50% 45%; }
+  .card-pair {
+    position:absolute; left:50%; top:50%;
+    width:calc(100% - 48px); max-width:720px;
+    transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; gap:12px;
+    max-height:calc(100% - 80px); overflow-y:auto;
+    transition:transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
+  }
+  .card-pair::-webkit-scrollbar { width:3px; }
+  .card-pair::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
   .messages::-webkit-scrollbar { width:4px; }
   .messages::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
 
@@ -237,7 +247,34 @@
 
   let history     = [];
   let isStreaming  = false;
-  let pendingImage = null; // { base64, mediaType, name, url }
+  let pendingImage = null;
+  let pairs = [];
+  let activePair = null;
+
+  function applyDepths() {
+    pairs.forEach((p, i) => {
+      const depth = pairs.length - 1 - i; // 0=front, 1=one back, etc
+      const z     = -depth * 80;
+      const s     = 1 - depth * 0.04;
+      const y     = -50 + depth * 3.5;
+      const op    = Math.max(1 - depth * 0.15, 0.08);
+      p.style.transform = `translate(-50%, ${y}%) translateZ(${z}px) scale(${s})`;
+      p.style.opacity   = op;
+      p.style.zIndex    = 20 - depth;
+      p.style.pointerEvents = depth === 0 ? 'all' : 'none';
+    });
+  }
+
+  function newCardPair() {
+    const msgs = document.getElementById('messages');
+    const pair = document.createElement('div');
+    pair.className = 'card-pair';
+    msgs.appendChild(pair);
+    pairs.push(pair);
+    activePair = pair;
+    applyDepths();
+    return pair;
+  }
 
   const bgVideo = document.getElementById('bg-video');
   bgVideo.play().catch(() => {});
@@ -317,40 +354,37 @@
 
   function appendUserMessage(text, imageUrl) {
     hideEmpty();
-    const msgs = document.getElementById('messages');
+    const pair = newCardPair();
     const div  = document.createElement('div');
     div.className = 'msg user';
     let content = '';
     if (imageUrl) content += `<img class="msg-image" src="${imageUrl}" alt="attached image" />`;
     if (text) content += `<div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
     div.innerHTML = `<div class="msg-meta">YOU</div>${content}`;
-    msgs.appendChild(div);
-    scrollToBottom();
+    pair.appendChild(div);
   }
 
   function createAIBubble() {
     hideEmpty();
-    const msgs   = document.getElementById('messages');
+    const pair   = activePair || newCardPair();
     const div    = document.createElement('div');
     div.className = 'msg ai';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
     div.innerHTML = '<div class="msg-meta">PERSPECTIVE</div>';
     div.appendChild(bubble);
-    msgs.appendChild(div);
-    scrollToBottom();
+    pair.appendChild(div);
     return bubble;
   }
 
   function showThinking() {
     hideEmpty();
-    const msgs = document.getElementById('messages');
+    const pair = activePair || newCardPair();
     const div  = document.createElement('div');
     div.className = 'thinking';
     div.id = 'thinking';
     div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
-    msgs.appendChild(div);
-    scrollToBottom();
+    pair.appendChild(div);
   }
 
   function removeThinking() {
@@ -408,7 +442,7 @@
   }
 
   function clearChat() {
-    history = [];
+    history = []; pairs = []; activePair = null;
     document.getElementById('user-input').disabled = false;
     document.getElementById('send-btn').disabled   = false;
     document.getElementById('messages').innerHTML = `
