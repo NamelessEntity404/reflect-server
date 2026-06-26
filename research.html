@@ -14,7 +14,7 @@
     --mono:  'JetBrains Mono', monospace;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { background: #000; } body { background: transparent; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+  html { background: #000 !important; } body { background: transparent; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
 
   /* NAV */
   .nav {
@@ -173,7 +173,7 @@
     transition: color 0.2s;
   }
   .footer-links a:hover { color: var(--acid); }
-    #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.25; pointer-events:none; }
+    #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
 </style>
 <link rel="stylesheet" href="fonts.css">
 </head>
