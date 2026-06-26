@@ -17,7 +17,7 @@
     --mono:  'JetBrains Mono', monospace;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+  html, body { background: transparent; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
   #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
 
   /* HERO */
@@ -110,9 +110,15 @@
   .footer-links { display: flex; gap: 24px; }
   .footer-links a { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
   .footer-links a:hover { color: var(--acid); }
-  </style>
+  
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.3; pointer-events:none; }
+</style>
 </head>
 <body>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
+    <source src="bg-build.mp4" type="video/mp4">
+  </video>
+
 <canvas id="gl"></canvas>
 
 <section class="hero">
@@ -362,6 +368,12 @@
   function render(t){requestAnimationFrame(render);gl.uniform2f(uR,canvas.width,canvas.height);gl.uniform1f(uT,t*.001);gl.drawArrays(gl.TRIANGLES,0,3);}
   requestAnimationFrame(render);
 })();
+</script>
+<script>
+  (function(){
+    var v=document.getElementById('bg-video');
+    if(v){v.play().catch(function(){});}
+  })();
 </script>
 </body>
 </html>

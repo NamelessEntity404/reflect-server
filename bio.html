@@ -16,7 +16,7 @@
     --mid: #9092a0;
     --rule: rgba(255,255,255,0.10);
   }
-  html, body { background: var(--paper); }
+  html, body { background: transparent; }
   body.about-page {
     color: var(--ink);
     font-family: 'Inter', sans-serif;
@@ -315,10 +315,16 @@
 
   /* end spacer so last card can fully animate in */
   #end-spacer { height: 40vh; }
-  </style>
+  
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.3; pointer-events:none; }
+</style>
 <link rel="stylesheet" href="fonts.css">
 </head>
 <body class="about-page">
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
+    <source src="bg-bio.mp4" type="video/mp4">
+  </video>
+
   <canvas id="gl"></canvas>
 
   <nav>
@@ -764,5 +770,11 @@
   </script>
 <script src="nav.js?v=3"></script>
 <script src="transitions.js"></script>
+<script>
+  (function(){
+    var v=document.getElementById('bg-video');
+    if(v){v.play().catch(function(){});}
+  })();
+</script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   <style>
   :root { --ink:#F5F2E8; --paper:#05060a; --acid:#C8F000; --mid:#A8A89A; --rule:rgba(200,240,0,0.12); --mono:'JetBrains Mono',monospace; }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden;}
+  html,body{background: transparent;color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden;}
   #gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;}
   .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 24px 80px;}
   .hero-inner{max-width:980px;width:100%;}
@@ -45,9 +45,15 @@
   .footer-links{display:flex;gap:24px;}
   .footer-links a{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--mid);text-decoration:none;transition:color 0.2s;}
   .footer-links a:hover{color:var(--acid);}
-  </style>
+  
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.3; pointer-events:none; }
+</style>
 </head>
 <body>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
+    <source src="bg-about.mp4" type="video/mp4">
+  </video>
+
 <canvas id="gl"></canvas>
 <section class="hero">
   <div class="hero-inner">
@@ -134,6 +140,12 @@
   function render(t){requestAnimationFrame(render);gl.uniform2f(uR,canvas.width,canvas.height);gl.uniform1f(uT,t*.001);gl.drawArrays(gl.TRIANGLES,0,3);}
   requestAnimationFrame(render);
 })();
+</script>
+<script>
+  (function(){
+    var v=document.getElementById('bg-video');
+    if(v){v.play().catch(function(){});}
+  })();
 </script>
 </body>
 </html>

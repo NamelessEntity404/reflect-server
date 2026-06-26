@@ -20,7 +20,7 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--paper); scroll-behavior: smooth; }
+  html, body { background: transparent; scroll-behavior: smooth; }
 
   body {
     color: var(--ink);
@@ -392,9 +392,15 @@
   }
 
   .nav-links a:hover { color: var(--acid); }
-  </style>
+  
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity:0.3; pointer-events:none; }
+</style>
 </head>
 <body>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
+    <source src="bg-training.mp4" type="video/mp4">
+  </video>
+
 
 <nav class="top-nav">
   <a href="index.html" class="nav-logo">SHANE GRAFFITI INC.</a>
@@ -825,5 +831,11 @@
 
 </div>
 
+<script>
+  (function(){
+    var v=document.getElementById('bg-video');
+    if(v){v.play().catch(function(){});}
+  })();
+</script>
 </body>
 </html>
