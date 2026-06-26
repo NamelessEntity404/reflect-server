@@ -1,47 +1,62 @@
-// SGI Carousel — 3D perspective card rotation, Tinder/Envato style
-// Works on any set of cards in a container
+// SGI Section Carousels
+// Each section of content = its own horizontal swipeable carousel
+// Scroll UP/DOWN between sections, swipe LEFT/RIGHT within each section
 
 (function() {
   'use strict';
 
-  function initCarousel(container, cards) {
-    if (!container || cards.length < 2) return;
+  var EASE = 'transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease';
 
-    let current = 0;
-    let touchStartX = 0;
+  function makeCarousel(cards, cardWidth) {
+    if (!cards || cards.length === 0) return;
+    var current = 0;
 
-    // Container setup
-    container.style.cssText += ';position:relative;perspective:1200px;perspective-origin:50% 45%;overflow:visible;';
+    // Wrap all cards in a carousel shell
+    var parent = cards[0].parentNode;
+    var shell = document.createElement('div');
+    shell.className = 'sgi-carousel';
+    shell.style.cssText = [
+      'position:relative',
+      'width:100%',
+      'height:' + (cardWidth ? Math.round(cardWidth * 1.3) : 480) + 'px',
+      'perspective:1100px',
+      'perspective-origin:50% 50%',
+      'overflow:visible',
+    ].join(';');
 
-    function pos(offset) {
-      const abs = Math.abs(offset);
-      const sign = offset > 0 ? 1 : -1;
-      if (abs === 0) return { x:0, z:0, ry:0, s:1, o:1, zi:20, pe:'all' };
-      if (abs === 1) return { x:sign*55+'%', z:-90, ry:sign*-14, s:0.88, o:0.72, zi:10, pe:'all' };
-      if (abs === 2) return { x:sign*90+'%', z:-180, ry:sign*-24, s:0.76, o:0.42, zi:5, pe:'all' };
-      return          { x:sign*115+'%', z:-260, ry:sign*-32, s:0.64, o:0.15, zi:1, pe:'none' };
+    // Move cards into shell
+    cards.forEach(function(c) { shell.appendChild(c); });
+    parent.appendChild(shell);
+
+    function getStyle(offset) {
+      var abs = Math.abs(offset);
+      var sign = offset > 0 ? 1 : -1;
+      if (abs === 0) return { x:0,        z:0,    ry:0,          s:1,    o:1,    zi:20, pe:'all' };
+      if (abs === 1) return { x:sign*52,   z:-70,  ry:sign*-12,   s:0.87, o:0.7,  zi:10, pe:'all' };
+      if (abs === 2) return { x:sign*85,   z:-140, ry:sign*-22,   s:0.74, o:0.4,  zi:5,  pe:'all' };
+      return               { x:sign*108,  z:-210, ry:sign*-30,   s:0.62, o:0.12, zi:1,  pe:'none' };
     }
 
-    function render(animated) {
+    function render() {
       cards.forEach(function(card, i) {
-        const p = pos(i - current);
-        const tr = 'translateX('+p.x+') translateZ('+p.z+'px) rotateY('+p.ry+'deg) scale('+p.s+')';
-        card.style.position = 'absolute';
-        card.style.left = '50%';
-        card.style.top = '50%';
-        card.style.marginLeft = '-' + (card.offsetWidth/2) + 'px';
-        card.style.marginTop  = '-' + (card.offsetHeight/2) + 'px';
-        card.style.transform  = tr;
-        card.style.opacity    = p.o;
-        card.style.zIndex     = p.zi;
-        card.style.pointerEvents = p.pe;
-        card.style.cursor     = Math.abs(i-current) > 0 ? 'pointer' : '';
-        if (animated !== false) {
-          card.style.transition = 'transform 0.55s cubic-bezier(0.16,1,0.3,1), opacity 0.55s ease';
-        } else {
-          card.style.transition = 'none';
-        }
+        var p = getStyle(i - current);
+        var w = card.offsetWidth || 380;
+        var h = card.offsetHeight || 420;
+        card.style.cssText += [
+          ';position:absolute',
+          'left:50%',
+          'top:50%',
+          'margin-left:-' + Math.round(w/2) + 'px',
+          'margin-top:-' + Math.round(h/2) + 'px',
+          'transform:translateX(' + p.x + '%) translateZ(' + p.z + 'px) rotateY(' + p.ry + 'deg) scale(' + p.s + ')',
+          'opacity:' + p.o,
+          'z-index:' + p.zi,
+          'pointer-events:' + p.pe,
+          'cursor:' + (Math.abs(i-current)>0 ? 'pointer' : 'default'),
+          'transition:' + EASE,
+        ].join(';');
       });
+      updateDots();
     }
 
     function goTo(idx) {
@@ -49,7 +64,7 @@
       render();
     }
 
-    // Click: side card → bring forward; front card → follow href if it's a link
+    // Click side card = bring it forward; click front card = pass through (for links)
     cards.forEach(function(card, i) {
       card.addEventListener('click', function(e) {
         if (i !== current) {
@@ -57,89 +72,120 @@
           e.stopPropagation();
           goTo(i);
         }
-        // If already current, let clicks through normally (link navigation etc)
       }, true);
     });
 
-    // Swipe
-    container.addEventListener('touchstart', function(e) {
-      touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    container.addEventListener('touchend', function(e) {
-      const dx = e.changedTouches[0].clientX - touchStartX;
+    // Touch swipe
+    var tx0 = 0;
+    shell.addEventListener('touchstart', function(e) { tx0 = e.touches[0].clientX; }, {passive:true});
+    shell.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - tx0;
       if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
-    }, { passive: true });
+    }, {passive:true});
 
-    // Arrow keys (only when container is focused or no input focused)
-    document.addEventListener('keydown', function(e) {
-      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
-      if (document.activeElement && document.activeElement.tagName === 'TEXTAREA') return;
-      if (e.key === 'ArrowRight') goTo(current + 1);
-      if (e.key === 'ArrowLeft')  goTo(current - 1);
+    // Mouse drag
+    var mx0 = 0, dragging = false;
+    shell.addEventListener('mousedown', function(e) { mx0 = e.clientX; dragging = true; });
+    shell.addEventListener('mouseup', function(e) {
+      if (!dragging) return;
+      dragging = false;
+      var dx = e.clientX - mx0;
+      if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
     });
 
     // Nav dots
-    var dotsWrap = document.createElement('div');
-    dotsWrap.style.cssText = 'position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;';
-    cards.forEach(function(_, i) {
-      var dot = document.createElement('div');
-      dot.style.cssText = 'width:6px;height:6px;border-radius:50%;background:rgba(200,240,0,0.3);cursor:pointer;transition:background 0.2s,transform 0.2s;';
-      dot.addEventListener('click', function() { goTo(i); });
-      dotsWrap.appendChild(dot);
-    });
-    container.appendChild(dotsWrap);
+    var dots = document.createElement('div');
+    dots.style.cssText = 'position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:100';
+    if (cards.length > 1) {
+      cards.forEach(function(_, i) {
+        var d = document.createElement('div');
+        d.style.cssText = 'width:6px;height:6px;border-radius:50%;background:rgba(200,240,0,0.25);cursor:pointer;transition:all 0.25s';
+        d.addEventListener('click', function() { goTo(i); });
+        dots.appendChild(d);
+      });
+      shell.appendChild(dots);
+    }
 
     function updateDots() {
-      Array.from(dotsWrap.children).forEach(function(d, i) {
+      Array.from(dots.children).forEach(function(d, i) {
         d.style.background = i === current ? '#C8F000' : 'rgba(200,240,0,0.25)';
-        d.style.transform  = i === current ? 'scale(1.4)' : 'scale(1)';
+        d.style.transform  = i === current ? 'scale(1.5)' : 'scale(1)';
       });
     }
 
-    var origGoTo = goTo;
-    goTo = function(idx) { origGoTo(idx); updateDots(); };
+    // Arrow nav buttons
+    if (cards.length > 1) {
+      ['←','→'].forEach(function(arrow, dir) {
+        var btn = document.createElement('button');
+        btn.textContent = arrow;
+        btn.style.cssText = [
+          'position:absolute',
+          dir === 0 ? 'left:8px' : 'right:8px',
+          'top:50%',
+          'transform:translateY(-50%)',
+          'z-index:100',
+          'background:rgba(200,240,0,0.08)',
+          'border:0.5px solid rgba(200,240,0,0.25)',
+          'color:rgba(200,240,0,0.7)',
+          'font-size:18px',
+          'width:36px',
+          'height:36px',
+          'border-radius:50%',
+          'cursor:pointer',
+          'display:flex',
+          'align-items:center',
+          'justify-content:center',
+          'transition:background 0.2s',
+        ].join(';');
+        btn.addEventListener('click', function() { goTo(current + (dir === 0 ? -1 : 1)); });
+        shell.appendChild(btn);
+      });
+    }
 
-    // Initial render without animation
-    render(false);
-    // Then animate in after a frame
-    requestAnimationFrame(function() { render(); updateDots(); });
+    // Initial draw (no animation)
+    cards.forEach(function(c) { c.style.transition = 'none'; });
+    requestAnimationFrame(function() { render(); });
   }
 
-  // ── AUTO-DETECT AND INIT ────────────────────────────────────────────────
-
   function setup() {
-    // About page cards
+    // ── ABOUT PAGE: about-grid ──────────────────────────────────────────────
     var aboutGrid = document.querySelector('.about-grid');
     if (aboutGrid) {
       var aboutCards = Array.from(aboutGrid.querySelectorAll('.about-card'));
-      if (aboutCards.length) {
-        aboutGrid.style.cssText += ';min-height:420px;';
-        initCarousel(aboutGrid, aboutCards);
+      if (aboutCards.length > 1) makeCarousel(aboutCards, 340);
+    }
+
+    // ── RESEARCH PAGE: each grid-section separately ─────────────────────────
+    // Group paper-cards by their section label
+    var gridSections = document.querySelectorAll('.grid-section');
+    gridSections.forEach(function(section) {
+      var cards = Array.from(section.querySelectorAll('.paper-card'));
+      if (cards.length > 1) makeCarousel(cards, 460);
+    });
+
+    // Fallback: if no grid-section, try the whole .grid
+    if (!gridSections.length) {
+      var grid = document.querySelector('.grid');
+      if (grid) {
+        var pCards = Array.from(grid.querySelectorAll('.paper-card'));
+        if (pCards.length > 1) makeCarousel(pCards, 460);
       }
     }
 
-    // Research page paper-cards
-    var grid = document.querySelector('.grid');
-    if (grid) {
-      var paperCards = Array.from(grid.querySelectorAll('.paper-card'));
-      if (paperCards.length) {
-        grid.style.cssText += ';min-height:520px;';
-        initCarousel(grid, paperCards);
-      }
-    }
-
-    // Perspective chat card-pairs
-    var msgs = document.getElementById('messages');
-    if (msgs && typeof pairs !== 'undefined') {
-      // Already handled by therapy-chat's own pair system
-      // Enhance existing pair animations
-    }
+    // ── SUBPAGES: any .pipe-step groups, .guardrail groups ──────────────────
+    var pipeGroups = document.querySelectorAll('.pipeline, .guardrail-grid, .stat-row');
+    pipeGroups.forEach(function(group) {
+      var items = Array.from(group.children).filter(function(el) {
+        return el.tagName !== 'STYLE' && el.tagName !== 'SCRIPT';
+      });
+      if (items.length > 2) makeCarousel(items, 260);
+    });
   }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', setup);
   } else {
-    setup();
+    setTimeout(setup, 100);
   }
 
 })();
