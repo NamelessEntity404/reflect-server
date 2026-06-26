@@ -1000,7 +1000,7 @@
   <script>
   (() => {
     const canvas = document.getElementById('gl');
-    const gl = canvas.getContext('webgl', { antialias: true, alpha: false, preserveDrawingBuffer: true });
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: true, preserveDrawingBuffer: false });
     if (!gl) return;
 
     function resize() {

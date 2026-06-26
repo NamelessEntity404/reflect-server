@@ -227,7 +227,7 @@
 <script>
 (() => {
   const canvas = document.getElementById('gl');
-  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: true });
   if (!gl) return;
   function resize() { canvas.width = window.innerWidth * Math.min(devicePixelRatio||1,2); canvas.height = window.innerHeight * Math.min(devicePixelRatio||1,2); gl.viewport(0,0,canvas.width,canvas.height); }
   window.addEventListener('resize', resize, { passive:true }); resize();
