@@ -486,6 +486,55 @@ footer {
 .footer-meta a { color: var(--ink-muted); text-decoration: none; }
 .footer-meta a:hover { color: var(--acid); }
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
+
+  /* ── APPLE FROSTED GLASS — injected ─────────────────────────────────── */
+  .card, .paper-card, .card-shell, .about-card, .scene .card,
+  .pipe-step, .guardrail, .weight-vis, .v-step, .data-table,
+  .stat, .section, .key-metric, .finding, .method-card,
+  .eval-card, .result-card, .benchmark-card, .contribution {
+    position: relative !important;
+    overflow: hidden !important;
+    background: linear-gradient(
+      155deg,
+      rgba(22,24,20,0.55) 0%,
+      rgba(10,11,9,0.72) 55%,
+      rgba(18,20,16,0.60) 100%
+    ) !important;
+    backdrop-filter: blur(48px) saturate(180%) brightness(0.88) !important;
+    -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.88) !important;
+    border: 0.5px solid rgba(255,255,255,0.13) !important;
+    box-shadow:
+      0 24px 56px rgba(0,0,0,0.65),
+      0 6px 16px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.20),
+      inset 0 -1px 0 rgba(0,0,0,0.45),
+      inset 1px 0 0 rgba(255,255,255,0.07),
+      inset -1px 0 0 rgba(0,0,0,0.2) !important;
+  }
+  /* Specular sheen — the glass reflection */
+  .card::before, .paper-card::before, .card-shell::before, .about-card::before,
+  .pipe-step::before, .guardrail::before, .v-step::before, .key-metric::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: inherit !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    background: linear-gradient(
+      132deg,
+      rgba(255,255,255,0.09) 0%,
+      rgba(255,255,255,0.04) 30%,
+      rgba(255,255,255,0.00) 55%,
+      rgba(200,240,0,0.02) 100%
+    ) !important;
+  }
+  .card > *, .paper-card > *, .card-shell > *, .about-card > *,
+  .pipe-step > *, .guardrail > *, .v-step > *, .key-metric > * {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  /* ── END APPLE GLASS ─────────────────────────────────────────────────── */
+
 </style>
 <link rel="stylesheet" href="fonts.css">
 </head>
