@@ -1,0 +1,98 @@
+/*
+  SGI GLASS SYSTEM — Apple-level skeuomorphic frosted glass
+  Applied to every card on every page, master and subpages.
+  60% opacity, 48px blur, gradient, specular sheen, multi-layer shadow.
+*/
+
+/* ── UNIVERSAL CARD SELECTOR ─────────────────────────────────────────────── */
+.about-card,
+.paper-card,
+.card,
+.card-shell,
+.pipe-step,
+.guardrail,
+.v-step,
+.key-metric,
+.finding,
+.method-card,
+.eval-card,
+.result-card,
+.benchmark-card,
+.work-card,
+.research-card,
+.stat-card,
+.info-card {
+  position: relative !important;
+  overflow: hidden !important;
+  /* 60% opaque dark glass with gradient for depth */
+  background: linear-gradient(
+    158deg,
+    rgba(28, 30, 25, 0.58) 0%,
+    rgba(12, 13, 10, 0.65) 50%,
+    rgba(22, 24, 19, 0.60) 100%
+  ) !important;
+  backdrop-filter: blur(48px) saturate(180%) brightness(0.9) !important;
+  -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.9) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    0 6px 16px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40),
+    inset 1px 0 0 rgba(255, 255, 255, 0.07),
+    inset -1px 0 0 rgba(0, 0, 0, 0.20) !important;
+}
+
+/* ── SPECULAR SHEEN (glass reflection) ───────────────────────────────────── */
+.about-card::before,
+.paper-card::before,
+.card::before,
+.card-shell::before,
+.pipe-step::before,
+.guardrail::before,
+.v-step::before,
+.key-metric::before,
+.finding::before,
+.method-card::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.10) 0%,
+    rgba(255, 255, 255, 0.04) 35%,
+    rgba(255, 255, 255, 0.00) 55%,
+    rgba(200, 240, 0, 0.025) 100%
+  ) !important;
+}
+
+/* Keep card content above the sheen */
+.about-card > *,
+.paper-card > *,
+.card > *,
+.card-shell > *,
+.pipe-step > *,
+.guardrail > *,
+.v-step > *,
+.key-metric > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* ── HOVER STATE ─────────────────────────────────────────────────────────── */
+.about-card:hover,
+.paper-card:hover,
+.card:hover,
+.work-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(200, 240, 0, 0.28) !important;
+  box-shadow:
+    0 28px 60px rgba(0, 0, 0, 0.65),
+    0 8px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40) !important;
+}
