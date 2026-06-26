@@ -1,8 +1,22 @@
 /*
   SGI GLASS SYSTEM — Apple-level skeuomorphic frosted glass
   Applied to every card on every page, master and subpages.
-  60% opacity, 48px blur, gradient, specular sheen, multi-layer shadow.
+  60% opacity, 24px blur, gradient, specular sheen, multi-layer shadow.
+
+  ══════════════════════════════════════════════════════════════════
+  HARD RULES — NEVER VIOLATE:
+  1. #bg-video and video elements are NEVER touched by this file
+  2. body and html background are NEVER touched by this file
+  3. Cards and videos do NOT affect each other's CSS ever
+  4. backdrop-filter blur MAX 24px to prevent GPU overload on video
+  ══════════════════════════════════════════════════════════════════
 */
+
+/* EXPLICIT PROTECTION — video background is sacred, untouchable */
+#bg-video,
+video {
+  /* DO NOT ADD ANYTHING HERE — this selector exists to document the rule */
+}
 
 /* ── UNIVERSAL CARD SELECTOR ─────────────────────────────────────────────── */
 .about-card,
@@ -31,8 +45,8 @@
     rgba(12, 13, 10, 0.65) 50%,
     rgba(22, 24, 19, 0.60) 100%
   ) !important;
-  backdrop-filter: blur(48px) saturate(180%) brightness(0.9) !important;
-  -webkit-backdrop-filter: blur(48px) saturate(180%) brightness(0.9) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
   border: 0.5px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 18px !important;
   box-shadow:
