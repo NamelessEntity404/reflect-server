@@ -20,17 +20,6 @@
   // Also restart video after page transitions
   window.addEventListener('pageshow', startBgVideo);
 
-  // Pause video when tab is hidden to free GPU/CPU
-  document.addEventListener('visibilitychange', function() {
-    var v = document.getElementById('bg-video');
-    if (!v) return;
-    if (document.hidden) {
-      v.pause();
-    } else {
-      v.play().catch(function(){});
-    }
-  });
-
   // cursor: OS default — no custom cursor
 
   // ── Page transition overlay ───────────────────────────────────────────────
