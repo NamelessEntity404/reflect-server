@@ -393,8 +393,36 @@
   }
 
   .nav-links a:hover { color: var(--acid); }
-  
+
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
+
+  #bg-toggle {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 5px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: border-color 0.2s, color 0.2s;
+    margin-left: 24px;
+  }
+  #bg-toggle:hover { color: var(--acid); border-color: rgba(200,240,0,0.3); }
+  #bg-toggle.video-on { color: var(--acid); border-color: rgba(200,240,0,0.25); }
+  #bg-toggle-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--mid);
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  #bg-toggle.video-on #bg-toggle-dot { background: var(--acid); }
 </style>
   <link rel="stylesheet" href="glass.css">
 </head>
@@ -406,10 +434,14 @@
 
 <nav class="top-nav">
   <a href="index.html" class="nav-logo">SHANE GRAFFITI INC.</a>
-  <div class="nav-links">
+  <div class="nav-links" style="align-items:center;">
     <a href="index.html">Home</a>
     <a href="therapy-chat.html">Perspective</a>
     <a href="adversarial-research.html">Research</a>
+    <button id="bg-toggle" class="video-on" onclick="toggleBg()" title="Toggle background">
+      <span id="bg-toggle-dot"></span>
+      <span id="bg-toggle-label">VIDEO</span>
+    </button>
   </div>
 </nav>
 
@@ -958,6 +990,35 @@
   })();
 </script>
 <script src="carousel.js?v=1"></script>
+
+<script>
+(function(){
+  var btn = document.getElementById('bg-toggle');
+  var vid = document.getElementById('bg-video');
+  var isVideo = localStorage.getItem('bg-pref') !== 'black';
+
+  function apply(video) {
+    if (video) {
+      vid.style.display = '';
+      vid.play().catch(function(){});
+      btn.classList.add('video-on');
+      document.getElementById('bg-toggle-label').textContent = 'VIDEO';
+    } else {
+      vid.style.display = 'none';
+      btn.classList.remove('video-on');
+      document.getElementById('bg-toggle-label').textContent = 'BLACK';
+    }
+  }
+
+  window.toggleBg = function() {
+    isVideo = !isVideo;
+    localStorage.setItem('bg-pref', isVideo ? 'video' : 'black');
+    apply(isVideo);
+  };
+
+  apply(isVideo);
+})();
+</script>
 
 <script>
 (function(){
