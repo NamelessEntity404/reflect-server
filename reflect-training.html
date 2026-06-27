@@ -454,6 +454,87 @@
     </div>
   </div>
 
+  <!-- WHY THIS IS DIFFERENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">WHY THIS PIPELINE IS DIFFERENT</div>
+      <span class="section-tag">top 0.1%</span>
+    </div>
+    <p class="section-note">
+      Most fine-tuning projects download Alpaca, train for a weekend, upload to HuggingFace. Here is what that looks like next to this.
+    </p>
+
+    <table class="data-table" style="margin-bottom:32px;">
+      <thead>
+        <tr>
+          <th>Developer tier</th>
+          <th>What they do</th>
+          <th>Datasets</th>
+          <th>Training objectives</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="source-name" style="color:var(--mid);">Average (70%)</td>
+          <td class="source-desc" style="color:rgba(245,242,232,0.4);">Download Alpaca or ShareGPT. Format it. Train 3 epochs.</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">1–2</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">SFT only</td>
+        </tr>
+        <tr>
+          <td class="source-name" style="color:var(--mid);">Good (25%)</td>
+          <td class="source-desc" style="color:rgba(245,242,232,0.4);">5–10 datasets. Basic dedup. Maybe HH-RLHF for DPO. No voice layer.</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">5–10</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">SFT + 1 DPO domain</td>
+        </tr>
+        <tr>
+          <td class="source-name" style="color:var(--mid);">Strong (5%)</td>
+          <td class="source-desc" style="color:rgba(245,242,232,0.4);">20–30 datasets. Cleaning pipeline. Multiple training objectives. Where most ML engineers at actual companies operate.</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">20–30</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">SFT + DPO + RAG</td>
+        </tr>
+        <tr style="background:rgba(200,240,0,0.03);">
+          <td class="source-name" style="color:var(--acid);">This pipeline (top 0.1%)</td>
+          <td class="source-desc">60+ public datasets. 10,792 pages of proprietary personal data. 215k rows of original classifier research. 8 DPO domains. 7 extraction methods. 3-pass semantic dedup. Identity layer across every record.</td>
+          <td class="source-size" style="color:var(--acid);">60+</td>
+          <td class="source-size" style="color:var(--acid);">SFT · DPO · RAG · CoT · Multi-turn · Adversarial</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pipeline">
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">01</div>
+        <div class="pipe-name">SFT + DPO across every domain</div>
+        <div class="pipe-desc">Most pipelines skip DPO — it requires pairs and more engineering. This pipeline runs preference training across 8 distinct domains: emotion, cybersecurity, web attacks, HH-RLHF alignment, sentiment, harmful actions, prompt injection, and personal data. Behavioral shaping at that depth is where models either develop a voice or don't.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">02</div>
+        <div class="pipe-name">Irreplaceable proprietary data</div>
+        <div class="pipe-desc">The diary PDFs, the classifier CSVs, the legal filings, the abuse documentation — these cannot be downloaded. They do not exist anywhere else. A model trained on someone's actual lived experience with these systems produces responses that no model trained purely on public internet text can replicate. That asymmetry is the product.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">03</div>
+        <div class="pipe-name">Identity layer across every record</div>
+        <div class="pipe-desc">Every single training record — whether it came from a cybersecurity dataset, a legal corpus, or a RAG dataset — carries the Perspective system prompt. The model doesn't learn to be a generic assistant that sometimes sounds like Shane. It learns that every response IS Perspective. That's architecturally different from appending a system prompt at inference time.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">04</div>
+        <div class="pipe-name">215k rows of original classifier research</div>
+        <div class="pipe-desc">No dataset on HuggingFace teaches what a "Metadata Trust Suppressor" or "Deferred Identity Cementing" classifier does — because those concepts were invented here. When Perspective explains how social media suppression works, it answers with a framework that doesn't exist anywhere else. Because the training data for that framework is on a private hard drive and nowhere else on earth.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">05</div>
+        <div class="pipe-name">Six training objectives simultaneously</div>
+        <div class="pipe-desc">Chain-of-thought. Multi-turn progressive deep dives. RAG-format context + answer. Adversarial scenario analysis. Section-level Q&A. Flat instruction-following. Most pipelines pick one. Each objective teaches a different capability. The result is a model that can reason through a problem, go deep in conversation, retrieve from context, analyze adversarial situations, and follow precise instructions — all as the same entity.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">06</div>
+        <div class="pipe-name">Built from inside the experience</div>
+        <div class="pipe-desc">Every other mental health AI was built by developers who read about trauma. This one was built by someone navigating it in real time, using AI to survive it, and encoding every insight into training data as it happened. The difference is audible in the first response. A model trained on primary source documentation of abuse engages differently than one trained on clinical approximations of what abuse looks like.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- WEIGHT VISUALIZATION -->
   <div class="section">
     <div class="section-header">
