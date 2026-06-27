@@ -450,10 +450,13 @@
   <link rel="stylesheet" href="glass.css">
 <style>
 /* ── CARD RULES — thick 3D skeuomorphic glass ── */
+/* card rules — exact match to about.html .about-card */
 .pipe-step, .guardrail {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 22px !important;
   background: linear-gradient(170deg, rgba(255,255,255,0.08) 0%, rgba(14,16,12,0.15) 14%, rgba(7,9,6,0.20) 52%, rgba(13,15,11,0.12) 100%) !important;
   border: none !important;
-  border-radius: 22px !important;
   backdrop-filter: blur(24px) saturate(220%) brightness(1.12) !important;
   -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.12) !important;
   box-shadow:
@@ -469,8 +472,7 @@
     inset 0 -2px 0   rgba(0,0,0,0.80),
     inset -1px 0 0   rgba(0,0,0,0.40),
     inset 0 0 80px   rgba(255,255,255,0.05) !important;
-  overflow: hidden !important;
-  position: relative !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
 }
 .pipe-step::before, .guardrail::before {
   content: '' !important;
@@ -485,6 +487,22 @@
     linear-gradient(126deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.24) 26%, rgba(255,255,255,0.14) 38%, rgba(255,255,255,0.02) 52%, rgba(255,255,255,0.00) 65%, rgba(200,240,0,0.03) 100%) !important;
 }
 .pipe-step > *, .guardrail > * { position: relative !important; z-index: 1 !important; }
+.pipe-step:hover, .guardrail:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow:
+    0 100px 200px rgba(0,0,0,0.92),
+    0 32px 64px  rgba(0,0,0,0.70),
+    0 0 0 1px    rgba(200,240,0,0.35),
+    0 0 50px     rgba(200,240,0,0.07),
+    inset 0 1px  0   rgba(255,255,255,1.00),
+    inset 0 3px  0   rgba(255,255,255,0.42),
+    inset 0 7px  14px rgba(255,255,255,0.10),
+    inset 1px 0  0   rgba(255,255,255,0.65),
+    inset 3px 0  6px rgba(255,255,255,0.14),
+    inset 0 -2px 0   rgba(0,0,0,0.85),
+    inset -1px 0 0   rgba(0,0,0,0.45),
+    inset 0 0 80px   rgba(255,255,255,0.07) !important;
+}
 
 /* ── INTERACTION RULES ── */
 
