@@ -397,26 +397,28 @@
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
 
   #bg-switcher {
+    position: fixed;
+    top: 72px;
+    right: 24px;
+    z-index: 200;
     display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(5,6,10,0.7);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
-    padding: 6px 8px;
-    margin-left: 12px;
-    backdrop-filter: blur(12px);
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(5,6,10,0.82);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 14px;
+    padding: 10px 12px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
   .bg-switcher-label {
     font-family: var(--mono);
     font-size: 9px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     color: var(--mid);
-    padding-right: 8px;
-    border-right: 1px solid rgba(255,255,255,0.1);
     text-transform: uppercase;
     user-select: none;
-    white-space: nowrap;
   }
   .bg-opt {
     display: flex;
@@ -469,35 +471,39 @@
 
 <nav class="top-nav">
   <a href="index.html" class="nav-logo">SHANE GRAFFITI INC.</a>
-  <div class="nav-links" style="align-items:center;">
+  <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="therapy-chat.html">Perspective</a>
     <a href="adversarial-research.html">Research</a>
-    <div id="bg-switcher">
-      <span class="bg-switcher-label">Background</span>
-      <button class="bg-opt active" data-bg="training" onclick="setBg('training')">
-        <span class="bg-opt-check"></span>
-        <img class="bg-thumb-img" src="thumb-training.jpg" alt="Training video">
-        <span class="bg-opt-label">Video</span>
-      </button>
-      <button class="bg-opt" data-bg="gradient" onclick="setBg('gradient')">
-        <span class="bg-opt-check"></span>
-        <img class="bg-thumb-img" src="thumb-gradient.jpg" alt="Gradient">
-        <span class="bg-opt-label">Gradient</span>
-      </button>
-      <button class="bg-opt" data-bg="smoke" onclick="setBg('smoke')">
-        <span class="bg-opt-check"></span>
-        <img class="bg-thumb-img" src="thumb-smoke.jpg" alt="Smoke">
-        <span class="bg-opt-label">Smoke</span>
-      </button>
-      <button class="bg-opt" data-bg="black" onclick="setBg('black')">
-        <span class="bg-opt-check"></span>
-        <span class="bg-thumb-img" style="background:#000;border-radius:4px;"></span>
-        <span class="bg-opt-label">Black</span>
-      </button>
-    </div>
   </div>
 </nav>
+
+<!-- BACKGROUND SWITCHER — fixed floating panel -->
+<div id="bg-switcher">
+  <span class="bg-switcher-label">Background</span>
+  <div style="display:flex;gap:6px;">
+    <button class="bg-opt active" data-bg="training" onclick="setBg('training')">
+      <span class="bg-opt-check"></span>
+      <img class="bg-thumb-img" src="thumb-training.jpg" alt="Training video">
+      <span class="bg-opt-label">Video</span>
+    </button>
+    <button class="bg-opt" data-bg="gradient" onclick="setBg('gradient')">
+      <span class="bg-opt-check"></span>
+      <img class="bg-thumb-img" src="thumb-gradient.jpg" alt="Gradient">
+      <span class="bg-opt-label">Gradient</span>
+    </button>
+    <button class="bg-opt" data-bg="smoke" onclick="setBg('smoke')">
+      <span class="bg-opt-check"></span>
+      <img class="bg-thumb-img" src="thumb-smoke.jpg" alt="Smoke">
+      <span class="bg-opt-label">Smoke</span>
+    </button>
+    <button class="bg-opt" data-bg="black" onclick="setBg('black')">
+      <span class="bg-opt-check"></span>
+      <span class="bg-thumb-img" style="background:#000;"></span>
+      <span class="bg-opt-label">Black</span>
+    </button>
+  </div>
+</div>
 
 <div class="page" style="padding-top: 120px;">
 
