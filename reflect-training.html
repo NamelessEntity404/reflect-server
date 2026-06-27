@@ -353,52 +353,12 @@
   }
 
   /* ── NAV ─────────────────────────────────────────────── */
-  .top-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 32px;
-    background: rgba(5,6,10,0.65);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .nav-logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    letter-spacing: 0.04em;
-    color: var(--acid);
-    text-decoration: none;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 24px;
-  }
-
-  .nav-links a {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--mid);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover { color: var(--acid); }
 
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
 
   #bg-switcher {
     position: fixed;
-    top: 72px;
+    top: 66px;
     right: 24px;
     z-index: 200;
     display: flex;
@@ -469,14 +429,7 @@
   <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-training.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
 
 
-<nav class="top-nav">
-  <a href="index.html" class="nav-logo">SHANE GRAFFITI INC.</a>
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="therapy-chat.html">Perspective</a>
-    <a href="adversarial-research.html">Research</a>
-  </div>
-</nav>
+<script src="nav.js?v=3"></script>
 
 <!-- BACKGROUND SWITCHER — fixed floating panel -->
 <div id="bg-switcher">
@@ -505,7 +458,7 @@
   </div>
 </div>
 
-<div class="page" style="padding-top: 120px;">
+<div class="page" style="padding-top: 40px;">
 
   <!-- HERO -->
   <div class="hero">
