@@ -161,6 +161,74 @@
   }
   .disclaimer-confirm:hover { opacity: 0.85; }
   </style>
+  <style>
+  #bg-switcher-p {
+    position: fixed;
+    top: 66px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(5,6,10,0.82);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 14px;
+    padding: 10px 12px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .bgp-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: #A8A89A;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .bgp-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .bgp-opt:hover { border-color: rgba(255,255,255,0.25); }
+  .bgp-opt.active { border-color: rgba(200,240,0,0.5); background: rgba(200,240,0,0.08); }
+  .bgp-opt img, .bgp-opt .bgp-thumb {
+    width: 40px;
+    height: 26px;
+    border-radius: 4px;
+    object-fit: cover;
+    display: block;
+    background: #111;
+  }
+  .bgp-opt-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #A8A89A;
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .bgp-opt.active .bgp-opt-label { color: #C8F000; }
+  .bgp-check {
+    display: none;
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #C8F000;
+  }
+  .bgp-opt.active .bgp-check { display: block; }
+  </style>
 <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="glass.css">
 </head>
@@ -168,6 +236,37 @@
   <video id="bg-video" autoplay muted playsinline preload="auto">
     <source src="bg-whatif-small.mp4" type="video/mp4">
   </video>
+
+  <div id="bg-switcher-p">
+    <span class="bgp-label">Background</span>
+    <div style="display:flex;gap:6px;">
+      <button class="bgp-opt active" data-bg="forest" onclick="setPBg('forest')">
+        <span class="bgp-check"></span>
+        <img src="thumb-forest.jpg" alt="Forest" class="bgp-img">
+        <span class="bgp-opt-label">Forest</span>
+      </button>
+      <button class="bgp-opt" data-bg="clouds" onclick="setPBg('clouds')">
+        <span class="bgp-check"></span>
+        <img src="thumb-clouds.jpg" alt="Clouds" class="bgp-img">
+        <span class="bgp-opt-label">Clouds</span>
+      </button>
+      <button class="bgp-opt" data-bg="tunnel" onclick="setPBg('tunnel')">
+        <span class="bgp-check"></span>
+        <img src="thumb-tunnel.jpg" alt="Tunnel" class="bgp-img">
+        <span class="bgp-opt-label">Tunnel</span>
+      </button>
+      <button class="bgp-opt" data-bg="nyc" onclick="setPBg('nyc')">
+        <span class="bgp-check"></span>
+        <img src="thumb-nyc.jpg" alt="NYC" class="bgp-img">
+        <span class="bgp-opt-label">NYC</span>
+      </button>
+      <button class="bgp-opt" data-bg="black" onclick="setPBg('black')">
+        <span class="bgp-check"></span>
+        <span class="bgp-thumb" style="background:#000;"></span>
+        <span class="bgp-opt-label">Black</span>
+      </button>
+    </div>
+  </div>
 
   <style>
     @keyframes audio-pulse {
@@ -567,5 +666,42 @@
 <script src="nav.js?v=3"></script>
 <script src="transitions.js"></script>
 <script src="carousel.js?v=1"></script>
+
+<script>
+(function(){
+  var PSOURCES = { forest:'bg-forest.mp4', clouds:'bg-clouds.mp4', tunnel:'bg-tunnel.mp4', nyc:'bg-nyc.mp4' };
+  var vid = document.getElementById('bg-video');
+
+  window.setPBg = function(choice) {
+    document.querySelectorAll('.bgp-opt').forEach(function(b){
+      b.classList.toggle('active', b.dataset.bg === choice);
+    });
+    localStorage.setItem('p-bg-pref', choice);
+    if (choice === 'black') {
+      vid.style.opacity = '0';
+      vid.pause();
+    } else {
+      var newSrc = PSOURCES[choice];
+      if (vid.getAttribute('src') !== newSrc) {
+        vid.src = newSrc;
+        vid.load();
+      }
+      vid.style.opacity = '0.35';
+      vid.loop = true;
+      vid.muted = true;
+      vid.play().catch(function(){});
+    }
+  };
+
+  vid.addEventListener('ended', function(){
+    if (vid.style.opacity !== '0') {
+      vid.currentTime = 0;
+      vid.play().catch(function(){});
+    }
+  });
+
+  window.setPBg(localStorage.getItem('p-bg-pref') || 'forest');
+})();
+</script>
 </body>
 </html>
