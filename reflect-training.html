@@ -399,30 +399,51 @@
   #bg-toggle {
     font-family: var(--mono);
     font-size: 10px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--mid);
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--ink);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
     border-radius: 20px;
-    padding: 5px 14px;
+    padding: 7px 16px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 7px;
-    transition: border-color 0.2s, color 0.2s;
-    margin-left: 24px;
+    gap: 10px;
+    transition: all 0.2s;
+    margin-left: 8px;
+    white-space: nowrap;
   }
-  #bg-toggle:hover { color: var(--acid); border-color: rgba(200,240,0,0.3); }
-  #bg-toggle.video-on { color: var(--acid); border-color: rgba(200,240,0,0.25); }
-  #bg-toggle-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--mid);
-    transition: background 0.2s;
+  #bg-toggle:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+  #bg-toggle.video-on { background: rgba(200,240,0,0.12); border-color: rgba(200,240,0,0.4); color: var(--acid); }
+  #bg-toggle.video-on:hover { background: rgba(200,240,0,0.18); }
+  /* pill track */
+  .bg-track {
+    width: 28px; height: 16px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    position: relative;
     flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s;
   }
-  #bg-toggle.video-on #bg-toggle-dot { background: var(--acid); }
+  #bg-toggle.video-on .bg-track {
+    background: rgba(200,240,0,0.25);
+    border-color: rgba(200,240,0,0.5);
+  }
+  /* thumb */
+  .bg-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    transition: transform 0.2s, background 0.2s;
+  }
+  #bg-toggle.video-on .bg-thumb {
+    transform: translateX(12px);
+    background: var(--acid);
+  }
 </style>
   <link rel="stylesheet" href="glass.css">
 </head>
@@ -438,9 +459,10 @@
     <a href="index.html">Home</a>
     <a href="therapy-chat.html">Perspective</a>
     <a href="adversarial-research.html">Research</a>
-    <button id="bg-toggle" class="video-on" onclick="toggleBg()" title="Toggle background">
-      <span id="bg-toggle-dot"></span>
-      <span id="bg-toggle-label">VIDEO</span>
+    <button id="bg-toggle" class="video-on" onclick="toggleBg()">
+      <span id="bg-toggle-label">BG</span>
+      <span class="bg-track"><span class="bg-thumb"></span></span>
+      <span id="bg-toggle-state">ON</span>
     </button>
   </div>
 </nav>
@@ -1002,11 +1024,11 @@
       vid.style.display = '';
       vid.play().catch(function(){});
       btn.classList.add('video-on');
-      document.getElementById('bg-toggle-label').textContent = 'VIDEO';
+      document.getElementById('bg-toggle-state').textContent = 'ON';
     } else {
       vid.style.display = 'none';
       btn.classList.remove('video-on');
-      document.getElementById('bg-toggle-label').textContent = 'BLACK';
+      document.getElementById('bg-toggle-state').textContent = 'OFF';
     }
   }
 
