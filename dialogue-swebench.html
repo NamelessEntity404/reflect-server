@@ -401,22 +401,40 @@
 <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="glass.css">
 <style>
-/* Apple glass treatment for .card — same recipe as glass.css */
+/* Hyper-realistic skeuomorphic glass for .card */
 .card {
-  background: linear-gradient(158deg, rgba(28,30,25,0.28) 0%, rgba(12,13,10,0.32) 50%, rgba(22,24,19,0.28) 100%);
-  border: 0.5px solid rgba(255,255,255,0.14);
-  border-radius: 18px;
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: linear-gradient(
+    170deg,
+    rgba(255,255,255,0.07) 0%,
+    rgba(20,22,18,0.18) 18%,
+    rgba(10,12,8,0.22)   55%,
+    rgba(18,20,15,0.14)  100%
+  );
+  border: none;
+  border-radius: 20px;
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.08);
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.08);
   box-shadow:
-    0 20px 50px rgba(0,0,0,0.55),
-    0 6px 16px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.20),
-    inset 0 -1px 0 rgba(0,0,0,0.40),
-    inset 1px 0 0 rgba(255,255,255,0.07),
-    inset -1px 0 0 rgba(0,0,0,0.20);
+    /* depth shadow */
+    0 40px 100px rgba(0,0,0,0.75),
+    0 12px 32px  rgba(0,0,0,0.50),
+    0 2px  8px   rgba(0,0,0,0.35),
+    /* outer edge glow — ambient light wrapping the glass */
+    0 0 0 0.5px rgba(255,255,255,0.18),
+    /* top rim — brightest edge, light hits the glass bevel head-on */
+    inset 0 1.5px 0 rgba(255,255,255,0.72),
+    /* left rim */
+    inset 1px 0 0 rgba(255,255,255,0.28),
+    /* bottom rim — underside of glass, in shadow */
+    inset 0 -1px 0 rgba(0,0,0,0.60),
+    /* right rim — slight dark */
+    inset -1px 0 0 rgba(0,0,0,0.22),
+    /* inner body glow — light trapped inside the glass */
+    inset 0 0 60px rgba(255,255,255,0.04);
   overflow: hidden;
+  position: relative;
 }
+/* Layered specular: top horizontal band + diagonal catch */
 .card::before {
   content: '';
   position: absolute;
@@ -424,16 +442,44 @@
   border-radius: inherit;
   pointer-events: none;
   z-index: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255,255,255,0.10) 0%,
-    rgba(255,255,255,0.04) 35%,
-    rgba(255,255,255,0.00) 55%,
-    rgba(200,240,0,0.025) 100%
-  );
+  background:
+    /* flat top-edge highlight band — like a glass pane lit from above */
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.22) 0%,
+      rgba(255,255,255,0.07) 10%,
+      rgba(255,255,255,0.00) 28%
+    ),
+    /* diagonal specular catch — angled light reflection traversing the panel */
+    linear-gradient(
+      128deg,
+      rgba(255,255,255,0.00) 0%,
+      rgba(255,255,255,0.18) 30%,
+      rgba(255,255,255,0.10) 42%,
+      rgba(255,255,255,0.00) 55%,
+      rgba(200,240,0,0.03)   100%
+    );
 }
 .card > * { position: relative; z-index: 1; }
-.card:hover { border-color: rgba(200,240,0,0.28); }
+/* Hover: light intensifies as if moving the panel toward a lamp */
+.card:hover {
+  box-shadow:
+    0 50px 120px rgba(0,0,0,0.80),
+    0 16px 40px  rgba(0,0,0,0.55),
+    0 0 0 0.5px  rgba(255,255,255,0.26),
+    inset 0 1.5px 0 rgba(255,255,255,0.85),
+    inset 1px 0 0  rgba(255,255,255,0.36),
+    inset 0 -1px 0 rgba(0,0,0,0.65),
+    inset -1px 0 0 rgba(0,0,0,0.28),
+    inset 0 0 60px rgba(255,255,255,0.06);
+  background: linear-gradient(
+    170deg,
+    rgba(255,255,255,0.10) 0%,
+    rgba(20,22,18,0.22) 18%,
+    rgba(10,12,8,0.26)  55%,
+    rgba(18,20,15,0.18) 100%
+  );
+}
 </style>
 </head>
 <body class="sw-page">
