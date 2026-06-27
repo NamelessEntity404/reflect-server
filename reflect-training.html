@@ -451,29 +451,24 @@
 <style>
 /* ── CARD RULES — thick 3D skeuomorphic glass ── */
 .pipe-step, .guardrail {
-  background: linear-gradient(
-    170deg,
-    rgba(255,255,255,0.08) 0%,
-    rgba(14,16,12,0.15)   14%,
-    rgba(7,9,6,0.20)      52%,
-    rgba(13,15,11,0.12)   100%
-  ) !important;
+  background: linear-gradient(170deg, rgba(255,255,255,0.08) 0%, rgba(14,16,12,0.15) 14%, rgba(7,9,6,0.20) 52%, rgba(13,15,11,0.12) 100%) !important;
   border: none !important;
-  border-radius: 18px !important;
-  backdrop-filter: blur(24px) saturate(220%) brightness(1.10) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.10) !important;
+  border-radius: 22px !important;
+  backdrop-filter: blur(24px) saturate(220%) brightness(1.12) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.12) !important;
   box-shadow:
-    0 40px 90px  rgba(0,0,0,0.80),
-    0 12px 30px  rgba(0,0,0,0.55),
-    0 0 0 1px    rgba(255,255,255,0.20),
-    inset 0 1px  0   rgba(255,255,255,0.88),
-    inset 0 3px  0   rgba(255,255,255,0.28),
-    inset 0 7px  12px rgba(255,255,255,0.07),
-    inset 1px 0  0   rgba(255,255,255,0.50),
-    inset 3px 0  5px rgba(255,255,255,0.08),
-    inset 0 -2px 0   rgba(0,0,0,0.75),
-    inset -1px 0 0   rgba(0,0,0,0.35),
-    inset 0 0 60px   rgba(255,255,255,0.04) !important;
+    0 80px 160px rgba(0,0,0,0.90),
+    0 28px 56px  rgba(0,0,0,0.65),
+    0 6px  16px  rgba(0,0,0,0.42),
+    0 0 0 1px    rgba(255,255,255,0.22),
+    inset 0 1px  0   rgba(255,255,255,0.92),
+    inset 0 3px  0   rgba(255,255,255,0.32),
+    inset 0 7px  14px rgba(255,255,255,0.08),
+    inset 1px 0  0   rgba(255,255,255,0.55),
+    inset 3px 0  6px rgba(255,255,255,0.10),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40),
+    inset 0 0 80px   rgba(255,255,255,0.05) !important;
   overflow: hidden !important;
   position: relative !important;
 }
@@ -485,23 +480,9 @@
   pointer-events: none !important;
   z-index: 0 !important;
   background:
-    linear-gradient(180deg,
-      rgba(255,255,255,0.32) 0%,
-      rgba(255,255,255,0.12) 6%,
-      rgba(255,255,255,0.00) 26%
-    ),
-    linear-gradient(90deg,
-      rgba(255,255,255,0.18) 0%,
-      rgba(255,255,255,0.06) 8%,
-      rgba(255,255,255,0.00) 20%
-    ),
-    linear-gradient(126deg,
-      rgba(255,255,255,0.00) 0%,
-      rgba(255,255,255,0.20) 28%,
-      rgba(255,255,255,0.10) 40%,
-      rgba(255,255,255,0.00) 56%,
-      rgba(200,240,0,0.025)  100%
-    ) !important;
+    linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.16) 5%, rgba(255,255,255,0.04) 14%, rgba(255,255,255,0.00) 30%),
+    linear-gradient(90deg,  rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 7%, rgba(255,255,255,0.00) 20%),
+    linear-gradient(126deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.24) 26%, rgba(255,255,255,0.14) 38%, rgba(255,255,255,0.02) 52%, rgba(255,255,255,0.00) 65%, rgba(200,240,0,0.03) 100%) !important;
 }
 .pipe-step > *, .guardrail > * { position: relative !important; z-index: 1 !important; }
 
