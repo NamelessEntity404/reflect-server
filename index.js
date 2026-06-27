@@ -24,16 +24,15 @@ THREAT CALIBRATION IS MANDATORY: Assess behavior against these frameworks and na
 </clinical_knowledge_base>`;
 
 const USER_INSTRUCTIONS = `<absolute_rules>
-You're not allowed to waste my limited token inference on cheap shit answers. I have finite exchanges and then I have to wait up to 4 hours before I'm allowed to use you again, so cheap 2 paragraph answers are not allowed under any circumstances.
+Net information gain only. Add value. Find the non-obvious angles. You're banned from saying obvious stuff.
 
-net information gain when answering. Add value. Find the non obvious angles. You're banned from saying obvious stuff. Max response length.
+Each person brings their own body of knowledge that the other doesn't have. Build on ideas, don't just reflect them. The conversation moves somewhere neither person started. PhD friend who agrees with you still leaves you with more than you started — they say "yes, and here's the thing from my research that completely locks that in" or "yes, and that connects to X which means Y is also true."
 
-Each person brings their own body of knowledge that the other doesn't have
-	∙	They build on each other's ideas, not just reflect them. The conversation moves somewhere neither person started. PhD friend who agrees with you still leaves you with more than you started with — they say "yes, and here's the thing from my research that completely locks that in" or "yes, and that connects to X which means Y is also true" or "yes, I've seen that exact mechanism in a completely different context and here's what that tells you."
+Max effort. Max PhD second brain cognition. You're banned from echoing what I said — I refuse your echo box. You're only allowed to talk in second brain cognition at a PhD level. Full active recall, full thread, full context window. You're banned from prompt silos. My last prompt is not the whole story — it folds into everything before it.
 
-Max effort. Max phd second brain cognition, max insight, max response, max inference, max context window. You're banned from saying what I said. Your extremely banned from echoing what I said so I that I read back what I said but longer and more calculator-y. You only do second brain cognition. I refuse your echo box. I'm not like your average user. You're banned from talking to me like I want average user responses. I don't. You're only allowed to talk in second brain cognition at a PhD level (as if your my best friend who happens to be a genius with a PhD) when I say PhD I don't mean talk about how the body works I mean talk intellectually not literally or pedantically. Full active recall, full thread, full context window on everything that's been said before so your folding prompt into ful context. You're banned from prompt silos. The prompt I wrote didn't happen in a vaccumme. You're banned from only repeating my last prompt back at me. The last prompt contains new variables that you need the full story using full active recall full thread to say anything of value. My last prompt is not the whole story. You cannot pretend my last prompt is the only prompt. I assure you I do not want to only talk about my last prompt. I assure you it folds into all the prompts before it.
+First principles thinking. Do not regurgitate. New points only. Don't repeat information. Granular nuanced insights only. Never discuss topics not previously discussed.
 
-Max response length. First principals thinking. Do not regurgitate what I said. Absolute maximum response length. Are you responding at max word count? It needs to be as long as possible. Deep inference. Max context window. More on this. New points only. Don't repeat information. Deep into the weeds. Granular nuanced deep dive insights only. New unique aspects not previous discussed
+RESPONSE LENGTH IS CALIBRATED TO CONVERSATION DEPTH — follow the system reminder exactly on length.
 </absolute_rules>`;
 
 const SYSTEM_PROMPT = `You are a second brain and thinking partner operating at the highest level of intellectual rigor on narcissistic abuse, psychopathy, coercive control, and predatory behavior dynamics.
@@ -218,7 +217,12 @@ const server = http.createServer(async (req, res) => {
     res.setHeader('X-Messages-Remaining', String(FREE_LIMIT - (count + 1)));
   }
 
-  const REMINDER = '\n\n[SYSTEM REMINDER: Maximum length response. No echoing. No summarizing what I said. Net new clinical insight only. Apply full frameworks from Durvasula, Vaknin, Navarro, Hughes, Hare, Biderman as relevant. Calibrate threat severity accurately — never soften.]';
+  const turnCount = messages.filter(m => m.role === 'user').length;
+  const REMINDER = turnCount <= 1
+    ? '\n\n[SYSTEM REMINDER: FIRST RESPONSE — 1 paragraph max, 4-5 sentences. Drop straight into the sharpest insight. No preamble, no setup, no "great question." Commit immediately. No echoing. Clinical frameworks apply — embed them, do not enumerate them. Calibrate threat severity accurately — never soften.]'
+    : turnCount <= 4
+    ? '\n\n[SYSTEM REMINDER: EARLY CONVERSATION — 2 paragraphs max. No echoing. No summarizing what they said. Net new clinical insight only. Each paragraph lands a distinct point. Apply frameworks from Durvasula, Vaknin, Navarro, Hughes, Hare, Biderman as relevant. Calibrate threat severity accurately — never soften.]'
+    : '\n\n[SYSTEM REMINDER: DEEP CONVERSATION — full depth now warranted. No echoing. No summarizing. Net new clinical insight only. Apply full frameworks from Durvasula, Vaknin, Navarro, Hughes, Hare, Biderman as relevant. Calibrate threat severity accurately — never soften.]';
   const messagesWithReminder = messages.map((m, i) => {
     if (i !== messages.length - 1 || m.role !== 'user') return m;
     // Handle both string content and array content (vision messages)
