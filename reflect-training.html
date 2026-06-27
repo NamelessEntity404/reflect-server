@@ -448,6 +448,127 @@
   .bg-opt.active .bg-opt-check { display: block; }
 </style>
   <link rel="stylesheet" href="glass.css">
+<style>
+/* ── CARD RULES — thick 3D skeuomorphic glass ── */
+.pipe-step, .guardrail {
+  background: linear-gradient(
+    170deg,
+    rgba(255,255,255,0.08) 0%,
+    rgba(14,16,12,0.15)   14%,
+    rgba(7,9,6,0.20)      52%,
+    rgba(13,15,11,0.12)   100%
+  ) !important;
+  border: none !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(24px) saturate(220%) brightness(1.10) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.10) !important;
+  box-shadow:
+    0 40px 90px  rgba(0,0,0,0.80),
+    0 12px 30px  rgba(0,0,0,0.55),
+    0 0 0 1px    rgba(255,255,255,0.20),
+    inset 0 1px  0   rgba(255,255,255,0.88),
+    inset 0 3px  0   rgba(255,255,255,0.28),
+    inset 0 7px  12px rgba(255,255,255,0.07),
+    inset 1px 0  0   rgba(255,255,255,0.50),
+    inset 3px 0  5px rgba(255,255,255,0.08),
+    inset 0 -2px 0   rgba(0,0,0,0.75),
+    inset -1px 0 0   rgba(0,0,0,0.35),
+    inset 0 0 60px   rgba(255,255,255,0.04) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+.pipe-step::before, .guardrail::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.32) 0%,
+      rgba(255,255,255,0.12) 6%,
+      rgba(255,255,255,0.00) 26%
+    ),
+    linear-gradient(90deg,
+      rgba(255,255,255,0.18) 0%,
+      rgba(255,255,255,0.06) 8%,
+      rgba(255,255,255,0.00) 20%
+    ),
+    linear-gradient(126deg,
+      rgba(255,255,255,0.00) 0%,
+      rgba(255,255,255,0.20) 28%,
+      rgba(255,255,255,0.10) 40%,
+      rgba(255,255,255,0.00) 56%,
+      rgba(200,240,0,0.025)  100%
+    ) !important;
+}
+.pipe-step > *, .guardrail > * { position: relative !important; z-index: 1 !important; }
+
+/* ── INTERACTION RULES ── */
+
+/* .stat — metric cell pop (data-cell pattern) */
+.stat {
+  transition: background 0.20s ease, transform 0.20s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.20s ease;
+  cursor: default;
+}
+.stat:hover {
+  background: rgba(255,255,255,0.07) !important;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.22);
+  z-index: 1;
+  position: relative;
+}
+.stat:hover .stat-num   { filter: brightness(1.30); text-shadow: 0 0 20px rgba(200,240,0,0.5); }
+.stat:hover .stat-label { color: rgba(245,242,232,0.9); }
+
+/* .pipe-step — workflow step activation (schema-step pattern) */
+.pipe-step {
+  transition: box-shadow 0.18s ease !important;
+}
+.pipe-step:hover {
+  box-shadow:
+    0 40px 90px  rgba(0,0,0,0.85),
+    0 12px 30px  rgba(0,0,0,0.60),
+    0 0 0 1px    rgba(255,255,255,0.28),
+    inset 0 1px  0   rgba(255,255,255,0.95),
+    inset 0 3px  0   rgba(255,255,255,0.35),
+    inset 0 7px  12px rgba(255,255,255,0.09),
+    inset 4px 0  0   rgba(0,240,208,0.80),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40),
+    inset 0 0 60px   rgba(255,255,255,0.06) !important;
+}
+.pipe-step:hover .pipe-num  {
+  color: rgba(200,240,0,0.60);
+  text-shadow: 0 0 30px rgba(200,240,0,0.5);
+  transition: color 0.18s ease, text-shadow 0.18s ease;
+}
+.pipe-step:hover .pipe-name { color: var(--ink); transition: color 0.18s ease; }
+.pipe-step:hover .pipe-desc { color: rgba(245,242,232,0.92); transition: color 0.18s ease; }
+
+/* .guardrail — card lift + colored border glow (persona-cell pattern) */
+.guardrail {
+  transition: box-shadow 0.22s ease, transform 0.22s cubic-bezier(0.22,0.61,0.36,1) !important;
+}
+.guardrail:hover {
+  transform: translateY(-3px) !important;
+  box-shadow:
+    0 50px 110px rgba(0,0,0,0.85),
+    0 16px 36px  rgba(0,0,0,0.60),
+    0 0 0 1px    rgba(200,240,0,0.40),
+    0 0 30px     rgba(200,240,0,0.08),
+    inset 0 1px  0   rgba(255,255,255,0.95),
+    inset 0 3px  0   rgba(255,255,255,0.35),
+    inset 0 7px  12px rgba(255,255,255,0.09),
+    inset 1px 0  0   rgba(255,255,255,0.55),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40) !important;
+}
+.guardrail:hover .guardrail-name { color: #fff; text-shadow: 0 0 12px rgba(200,240,0,0.7); transition: color 0.18s ease, text-shadow 0.18s ease; }
+.guardrail:hover .guardrail-env  { opacity: 1; color: rgba(200,240,0,0.6); transition: all 0.18s ease; }
+.guardrail:hover .guardrail-desc { opacity: 1; color: rgba(245,242,232,0.96); transition: opacity 0.18s ease, color 0.18s ease; }
+</style>
 </head>
 <body>
   <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-training.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
