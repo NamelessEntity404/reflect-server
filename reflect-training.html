@@ -464,9 +464,7 @@
   <link rel="stylesheet" href="glass.css">
 </head>
 <body>
-  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
-    <source src="bg-training.mp4?v=3" type="video/mp4">
-  </video>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-training.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
 
 
 <nav class="top-nav">
@@ -1057,24 +1055,24 @@
       b.classList.toggle('active', b.dataset.bg === choice);
     });
     localStorage.setItem('bg-pref', choice);
+
     if (choice === 'black') {
-      vid.style.display = 'none';
+      vid.style.opacity = '0';
+      vid.pause();
     } else {
-      var src = SOURCES[choice];
-      var cur = vid.querySelector('source');
-      if (!cur || cur.getAttribute('src').split('?')[0] !== src) {
-        vid.innerHTML = '<source src="' + src + '" type="video/mp4">';
+      var newSrc = SOURCES[choice];
+      if (vid.getAttribute('src') !== newSrc) {
+        vid.src = newSrc;
         vid.load();
       }
-      vid.style.display = '';
+      vid.style.opacity = '0.3';
       vid.loop = true;
       vid.muted = true;
       vid.play().catch(function(){});
     }
   };
 
-  var saved = localStorage.getItem('bg-pref') || 'training';
-  setBg(saved);
+  window.setBg(localStorage.getItem('bg-pref') || 'training');
 })();
 </script>
 
