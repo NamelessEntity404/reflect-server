@@ -233,12 +233,17 @@
   <link rel="stylesheet" href="glass.css">
 </head>
 <body><nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(200,240,0,0.12);font-family:'JetBrains Mono',monospace;">  <a href="index.html" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F5F2E8;text-decoration:none;">SHANE <span style="color:#C8F000;">GRAFFITI</span> INC.</a>  <div style="display:flex;align-items:center;gap:32px;">    <a href="index.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Work</a>    <a href="research.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Research</a>    <a href="about.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">About</a>    <a href="therapy-chat.html" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;">Perspective —</a>  </div></nav>
-  <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-forest.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-whatif.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
 
   <div id="bg-switcher-p">
     <span class="bgp-label">Background</span>
     <div style="display:flex;gap:6px;">
-      <button class="bgp-opt active" data-bg="forest" onclick="setPBg('forest')">
+      <button class="bgp-opt active" data-bg="whatif" onclick="setPBg('whatif')">
+        <span class="bgp-check"></span>
+        <img src="thumb-whatif.jpg" alt="What If" class="bgp-img">
+        <span class="bgp-opt-label">Video</span>
+      </button>
+      <button class="bgp-opt" data-bg="forest" onclick="setPBg('forest')">
         <span class="bgp-check"></span>
         <img src="thumb-forest.jpg" alt="Forest" class="bgp-img">
         <span class="bgp-opt-label">Forest</span>
@@ -667,8 +672,22 @@
 
 <script>
 (function(){
-  var PSOURCES = { forest:'bg-forest.mp4', clouds:'bg-clouds.mp4', tunnel:'bg-tunnel.mp4', nyc:'bg-nyc.mp4' };
+  var PSOURCES = { whatif:'bg-whatif.mp4', forest:'bg-forest.mp4', clouds:'bg-clouds.mp4', tunnel:'bg-tunnel.mp4', nyc:'bg-nyc.mp4' };
+  var AUDIO_VIDEOS = { whatif: true };
   var vid = document.getElementById('bg-video');
+
+  function resetAudioBtn() {
+    var btn  = document.getElementById('audio-btn');
+    var icon = document.getElementById('audio-icon');
+    if (!btn) return;
+    vid.muted = true;
+    icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+    btn.style.animation = 'audio-pulse 2s ease-in-out infinite';
+    btn.style.borderColor = '#C8F000';
+    btn.style.color = '#C8F000';
+    icon.setAttribute('stroke', '#C8F000');
+    btn.style.display = AUDIO_VIDEOS[document.querySelector('.bgp-opt.active')?.dataset.bg] ? '' : 'none';
+  }
 
   window.setPBg = function(choice) {
     document.querySelectorAll('.bgp-opt').forEach(function(b){
@@ -678,6 +697,7 @@
     if (choice === 'black') {
       vid.style.opacity = '0';
       vid.pause();
+      resetAudioBtn();
     } else {
       var newSrc = PSOURCES[choice];
       if (vid.getAttribute('src') !== newSrc) {
@@ -688,6 +708,7 @@
       vid.loop = true;
       vid.muted = true;
       vid.play().catch(function(){});
+      resetAudioBtn();
     }
   };
 
@@ -698,7 +719,7 @@
     }
   });
 
-  window.setPBg(localStorage.getItem('p-bg-pref') || 'forest');
+  window.setPBg(localStorage.getItem('p-bg-pref') || 'whatif');
 })();
 </script>
 </body>
