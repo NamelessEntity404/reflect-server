@@ -516,6 +516,103 @@
 #s-closer .card:hover {
   box-shadow: 0 100px 200px rgba(0,0,0,0.95),0 32px 64px rgba(0,0,0,0.72),0 0 0 1.5px rgba(255,255,255,0.55),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.50),inset 0 7px 14px rgba(255,255,255,0.14),inset 1px 0 0 rgba(255,255,255,0.75),inset 3px 0 6px rgba(255,255,255,0.18),inset 0 -2px 0 rgba(0,0,0,0.90),inset -1px 0 0 rgba(0,0,0,0.50),0 0 100px rgba(255,255,255,0.12);
 }
+
+/* ═══════════════════════════════════════════════
+   CELL & ROW HOVER — each element type different
+   ═══════════════════════════════════════════════ */
+
+/* ── BENCH TABLE rows — spreadsheet selection bar ── */
+.bench-table td {
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.bench-table tr:hover td {
+  background: rgba(255,255,255,0.055) !important;
+  color: rgba(245,242,232,1.0);
+}
+.bench-table tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 rgba(0,240,208,0.80);
+}
+.bench-table tr.ours:hover td {
+  background: rgba(200,240,0,0.09) !important;
+  color: rgba(245,242,232,1.0);
+}
+.bench-table tr.ours:hover td:first-child {
+  box-shadow: inset 3px 0 0 rgba(200,240,0,0.90);
+}
+.bench-table tr:hover .hi  { color: #fff; text-shadow: 0 0 12px rgba(0,240,208,0.8); }
+.bench-table tr.ours:hover .hi { color: #fff; text-shadow: 0 0 12px rgba(200,240,0,0.9); }
+
+/* ── INF ROWS — document line selection ── */
+.inf-row {
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.inf-row:not(.header):hover {
+  background: rgba(255,255,255,0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(200,240,0,0.70), inset 0 0 0 0.5px rgba(200,240,0,0.18);
+}
+.inf-row:not(.header):hover .inf-cell.label { color: var(--acid); }
+.inf-row:not(.header):hover .inf-cell { color: rgba(245,242,232,1.0); }
+.inf-row:not(.header):hover .inf-cell.result { filter: brightness(1.35); }
+
+/* ── DATA CELLS — metric card pop ── */
+.data-cell {
+  transition: background 0.20s ease, transform 0.20s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.20s ease;
+  cursor: default;
+}
+.data-cell:hover {
+  background: rgba(255,255,255,0.07) !important;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.data-cell:hover .data-num { filter: brightness(1.30); }
+.data-cell:hover .data-label { color: rgba(245,242,232,0.9); }
+
+/* ── ENV PANELS — two-pane environment highlight ── */
+.env-panel {
+  transition: background 0.22s ease, box-shadow 0.22s ease;
+  cursor: default;
+}
+.env-panel.dialogue:hover {
+  background: rgba(0,240,208,0.10) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,240,208,0.30), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.env-panel.repo:hover {
+  background: rgba(200,240,0,0.09) !important;
+  box-shadow: inset 0 0 0 1px rgba(200,240,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.env-panel:hover .env-name     { color: var(--ink); }
+.env-panel:hover .env-desc     { color: rgba(245,242,232,0.96); }
+.env-panel:hover .env-stat .hi { filter: brightness(1.4); text-shadow: 0 0 10px currentColor; }
+
+/* ── SCHEMA STEPS — workflow step activation ── */
+.schema-step {
+  transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+.schema-step:hover {
+  background: rgba(255,255,255,0.055) !important;
+  box-shadow: inset 4px 0 0 rgba(0,240,208,0.75);
+}
+.schema-step:hover .schema-n    { opacity: 1; color: #fff; text-shadow: 0 0 14px rgba(0,240,208,1.0); }
+.schema-step:hover .schema-name { color: var(--ink); }
+.schema-step:hover .schema-desc { color: rgba(245,242,232,0.96); }
+.schema-step:hover .schema-badge {
+  color: var(--acid);
+  text-shadow: 0 0 10px rgba(200,240,0,0.8);
+  transform: translateX(3px);
+  transition: transform 0.18s ease, color 0.16s ease, text-shadow 0.16s ease;
+}
+
+/* ── PERSONA CELLS — profile card lift ── */
+.persona-cell {
+  transition: background 0.18s ease, transform 0.22s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.22s ease;
+}
+.persona-cell:hover {
+  background: rgba(0,240,208,0.08) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 0 0 1px rgba(0,240,208,0.25);
+}
+.persona-cell:hover .persona-name { color: var(--acid); }
+.persona-cell:hover .persona-desc { color: rgba(245,242,232,0.96); }
 </style>
 </head>
 <body class="sw-page">
