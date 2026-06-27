@@ -360,6 +360,7 @@
 
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
 
+  /* ── Background tab ── */
   #bg-switcher {
     position: fixed;
     top: 66px;
@@ -367,63 +368,82 @@
     z-index: 200;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    background: rgba(5,6,10,0.82);
+    align-items: flex-end;
+    gap: 6px;
+  }
+  #bg-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(5,6,10,0.84);
     border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 14px;
-    padding: 10px 12px;
+    border-radius: 20px;
+    padding: 6px 13px;
+    cursor: pointer;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  }
-  .bg-switcher-label {
+    box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+    transition: border-color 0.18s, background 0.18s;
     font-family: var(--mono);
     font-size: 9px;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     color: var(--mid);
     text-transform: uppercase;
     user-select: none;
+    white-space: nowrap;
+  }
+  #bg-tab-btn:hover { border-color: rgba(255,255,255,0.28); color: var(--ink); }
+  #bg-tab-btn.open  { border-color: rgba(200,240,0,0.4); color: var(--acid); }
+  #bg-tab-arrow { transition: transform 0.22s ease; display: inline-block; }
+  #bg-tab-btn.open #bg-tab-arrow { transform: rotate(180deg); }
+
+  #bg-panel {
+    display: none;
+    background: rgba(5,6,10,0.90);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 14px;
+    padding: 10px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  #bg-panel.open { display: block; }
+  .bg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 52px);
+    gap: 6px;
   }
   .bg-opt {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.07);
     border-radius: 7px;
     padding: 4px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: border-color 0.14s, background 0.14s;
     position: relative;
   }
-  .bg-opt:hover { border-color: rgba(255,255,255,0.25); }
-  .bg-opt.active { border-color: rgba(200,240,0,0.5); background: rgba(200,240,0,0.08); }
+  .bg-opt:hover  { border-color: rgba(255,255,255,0.24); }
+  .bg-opt.active { border-color: rgba(200,240,0,0.55); background: rgba(200,240,0,0.08); }
   .bg-opt .bg-thumb-img {
-    width: 40px;
-    height: 26px;
-    border-radius: 4px;
-    object-fit: cover;
-    display: block;
-    background: #111;
+    width: 44px; height: 28px;
+    border-radius: 4px; object-fit: cover;
+    display: block; background: #111;
   }
   .bg-opt .bg-opt-label {
-    font-family: var(--mono);
-    font-size: 8px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--mid);
-    transition: color 0.15s;
-    white-space: nowrap;
+    font-family: var(--mono); font-size: 7px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--mid); transition: color 0.14s; white-space: nowrap;
   }
   .bg-opt.active .bg-opt-label { color: var(--acid); }
   .bg-opt .bg-opt-check {
-    display: none;
-    position: absolute;
-    top: -4px; right: -4px;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--acid);
+    display: none; position: absolute; top: -3px; right: -3px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--acid);
   }
   .bg-opt.active .bg-opt-check { display: block; }
 </style>
@@ -435,30 +455,36 @@
 
 <script src="nav.js?v=3"></script>
 
-<!-- BACKGROUND SWITCHER — fixed floating panel -->
+<!-- BACKGROUND SWITCHER — collapsible tab -->
 <div id="bg-switcher">
-  <span class="bg-switcher-label">Background</span>
-  <div style="display:flex;gap:6px;">
-    <button class="bg-opt active" data-bg="training" onclick="setBg('training')">
-      <span class="bg-opt-check"></span>
-      <img class="bg-thumb-img" src="thumb-training.jpg" alt="Training video">
-      <span class="bg-opt-label">Video</span>
-    </button>
-    <button class="bg-opt" data-bg="gradient" onclick="setBg('gradient')">
-      <span class="bg-opt-check"></span>
-      <img class="bg-thumb-img" src="thumb-gradient.jpg" alt="Gradient">
-      <span class="bg-opt-label">Gradient</span>
-    </button>
-    <button class="bg-opt" data-bg="smoke" onclick="setBg('smoke')">
-      <span class="bg-opt-check"></span>
-      <img class="bg-thumb-img" src="thumb-smoke.jpg" alt="Smoke">
-      <span class="bg-opt-label">Smoke</span>
-    </button>
-    <button class="bg-opt" data-bg="black" onclick="setBg('black')">
-      <span class="bg-opt-check"></span>
-      <span class="bg-thumb-img" style="background:#000;"></span>
-      <span class="bg-opt-label">Black</span>
-    </button>
+  <button id="bg-tab-btn" onclick="toggleBgPanel()">
+    Backgrounds <span id="bg-tab-arrow">▾</span>
+  </button>
+  <div id="bg-panel">
+    <div class="bg-grid">
+      <button class="bg-opt active" data-bg="training" onclick="setBg('training')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-training.jpg" alt=""><span class="bg-opt-label">Training</span></button>
+      <button class="bg-opt" data-bg="gradient" onclick="setBg('gradient')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-gradient.jpg" alt=""><span class="bg-opt-label">Gradient</span></button>
+      <button class="bg-opt" data-bg="smoke" onclick="setBg('smoke')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-smoke.jpg" alt=""><span class="bg-opt-label">Smoke</span></button>
+      <button class="bg-opt" data-bg="forest" onclick="setBg('forest')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-forest.jpg" alt=""><span class="bg-opt-label">Forest</span></button>
+      <button class="bg-opt" data-bg="clouds" onclick="setBg('clouds')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-clouds.jpg" alt=""><span class="bg-opt-label">Clouds</span></button>
+      <button class="bg-opt" data-bg="tunnel" onclick="setBg('tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-tunnel.jpg" alt=""><span class="bg-opt-label">Tunnel</span></button>
+      <button class="bg-opt" data-bg="nyc" onclick="setBg('nyc')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-nyc.jpg" alt=""><span class="bg-opt-label">NYC</span></button>
+      <button class="bg-opt" data-bg="scifi-tunnel" onclick="setBg('scifi-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-scifi-tunnel.jpg" alt=""><span class="bg-opt-label">Sci-Fi</span></button>
+      <button class="bg-opt" data-bg="aerial-clouds" onclick="setBg('aerial-clouds')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-aerial-clouds.jpg" alt=""><span class="bg-opt-label">Aerial</span></button>
+      <button class="bg-opt" data-bg="wormhole" onclick="setBg('wormhole')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-wormhole.jpg" alt=""><span class="bg-opt-label">Wormhole</span></button>
+      <button class="bg-opt" data-bg="nebula" onclick="setBg('nebula')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-nebula.jpg" alt=""><span class="bg-opt-label">Nebula</span></button>
+      <button class="bg-opt" data-bg="dark-corridor" onclick="setBg('dark-corridor')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-dark-corridor.jpg" alt=""><span class="bg-opt-label">Dark Cor</span></button>
+      <button class="bg-opt" data-bg="flash-tunnel" onclick="setBg('flash-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-flash-tunnel.jpg" alt=""><span class="bg-opt-label">Flash</span></button>
+      <button class="bg-opt" data-bg="clouds2" onclick="setBg('clouds2')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-clouds2.jpg" alt=""><span class="bg-opt-label">Clouds 2</span></button>
+      <button class="bg-opt" data-bg="chevron" onclick="setBg('chevron')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-chevron.jpg" alt=""><span class="bg-opt-label">Chevron</span></button>
+      <button class="bg-opt" data-bg="futuristic-corridor" onclick="setBg('futuristic-corridor')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-futuristic-corridor.jpg" alt=""><span class="bg-opt-label">Corridor</span></button>
+      <button class="bg-opt" data-bg="scifi-corridor" onclick="setBg('scifi-corridor')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-scifi-corridor.jpg" alt=""><span class="bg-opt-label">SF Cor</span></button>
+      <button class="bg-opt" data-bg="portal" onclick="setBg('portal')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-portal.jpg" alt=""><span class="bg-opt-label">Portal</span></button>
+      <button class="bg-opt" data-bg="forest2" onclick="setBg('forest2')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-forest2.jpg" alt=""><span class="bg-opt-label">Forest 2</span></button>
+      <button class="bg-opt" data-bg="pulse-tunnel" onclick="setBg('pulse-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-pulse-tunnel.jpg" alt=""><span class="bg-opt-label">Pulse</span></button>
+      <button class="bg-opt" data-bg="geo-tunnel" onclick="setBg('geo-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-geo-tunnel.jpg" alt=""><span class="bg-opt-label">Geo</span></button>
+      <button class="bg-opt" data-bg="black" onclick="setBg('black')"><span class="bg-opt-check"></span><span class="bg-thumb-img" style="background:#000;width:44px;height:28px;border-radius:4px;display:block;"></span><span class="bg-opt-label">Black</span></button>
+    </div>
   </div>
 </div>
 
@@ -1010,7 +1036,23 @@
 
 <script>
 (function(){
-  var SOURCES = { training: 'bg-training.mp4', gradient: 'bg-gradient.mp4', smoke: 'bg-smoke.mp4' };
+  var SOURCES = {
+    training: 'bg-training.mp4', gradient: 'bg-gradient.mp4', smoke: 'bg-smoke.mp4',
+    forest: 'bg-forest.mp4', clouds: 'bg-clouds.mp4', tunnel: 'bg-tunnel.mp4', nyc: 'bg-nyc.mp4',
+    'scifi-tunnel': 'bg-scifi-tunnel.mp4', 'aerial-clouds': 'bg-aerial-clouds.mp4',
+    wormhole: 'bg-wormhole.mp4', nebula: 'bg-nebula.mp4', 'dark-corridor': 'bg-dark-corridor.mp4',
+    'flash-tunnel': 'bg-flash-tunnel.mp4', clouds2: 'bg-clouds2.mp4', chevron: 'bg-chevron.mp4',
+    'futuristic-corridor': 'bg-futuristic-corridor.mp4', 'scifi-corridor': 'bg-scifi-corridor.mp4',
+    portal: 'bg-portal.mp4', forest2: 'bg-forest2.mp4', 'pulse-tunnel': 'bg-pulse-tunnel.mp4',
+    'geo-tunnel': 'bg-geo-tunnel.mp4'
+  };
+
+  window.toggleBgPanel = function() {
+    var btn = document.getElementById('bg-tab-btn');
+    var panel = document.getElementById('bg-panel');
+    var open = panel.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  };
   var vid = document.getElementById('bg-video');
 
   window.setBg = function(choice) {
