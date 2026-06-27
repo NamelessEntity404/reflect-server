@@ -1078,6 +1078,14 @@
     }
   };
 
+  // hard fallback: force replay if browser drops the loop
+  vid.addEventListener('ended', function() {
+    if (vid.style.opacity !== '0') {
+      vid.currentTime = 0;
+      vid.play().catch(function(){});
+    }
+  });
+
   window.setBg(localStorage.getItem('bg-pref') || 'training');
 })();
 </script>
