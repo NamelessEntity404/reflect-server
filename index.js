@@ -122,7 +122,10 @@ const server = http.createServer(async (req, res) => {
     const filePath = new URL('http://x' + req.url).searchParams.get('path');
     if (!filePath || filePath.includes('..')) { json(res, 400, { error: 'Bad path' }); return; }
     const base = new URL('http://x' + req.url).searchParams.get('base') || '_frames';
-    const destPath = path.join('/app', base, filePath);
+    // Use 'volume' as base to write to persistent /data/ instead of ephemeral /app/
+    const destPath = base === 'volume'
+      ? path.join('/data', filePath)
+      : path.join('/app', base, filePath);
     fs.mkdirSync(path.dirname(destPath), { recursive: true });
     const chunks = [];
     req.on('data', c => chunks.push(c));
@@ -166,7 +169,12 @@ const server = http.createServer(async (req, res) => {
     let serveFile = pathname.slice(1);
     if (pathname === '/' || pathname === '') serveFile = 'index.html';
     if (pathname === '/perspective' || pathname === '/perspective/') serveFile = 'therapy-chat.html';
-    const filePath = path.join(__dirname, serveFile);
+    // Check /app/ first, then /data/ (Railway persistent volume) as fallback for large uploads
+    let filePath = path.join(__dirname, serveFile);
+    if (!fs.existsSync(filePath)) {
+      const dataPath = path.join('/data', serveFile);
+      if (fs.existsSync(dataPath)) filePath = dataPath;
+    }
     const ext = path.extname(filePath) || '.html';
     const mime = MIME[ext];
     if (mime) {
