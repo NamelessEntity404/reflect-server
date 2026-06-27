@@ -912,6 +912,42 @@
     </div>
   </div>
 
+  <!-- RESTRICTED: TECHNICAL REVIEW ACCESS -->
+  <div class="section" style="max-width:560px;margin:0 auto 64px;">
+    <div class="section-header">
+      <div class="section-title">TECHNICAL REVIEW</div>
+      <span class="section-tag" style="color:var(--mid);border-color:var(--mid);">restricted</span>
+    </div>
+    <p class="section-note">Full pipeline source including training notebook and architecture details. Access granted by Shane on request.</p>
+
+    <div id="nb-locked" style="margin-top:20px;">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input id="nb-input" type="password" placeholder="enter access code" autocomplete="off" style="flex:1;background:rgba(245,242,232,0.04);border:1px solid rgba(245,242,232,0.15);border-radius:4px;padding:10px 14px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='rgba(200,240,0,0.4)'" onblur="this.style.borderColor='rgba(245,242,232,0.15)'">
+        <button onclick="checkNbAccess()" style="background:rgba(200,240,0,0.08);border:1px solid rgba(200,240,0,0.3);border-radius:4px;padding:10px 18px;color:var(--acid);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(200,240,0,0.15)'" onmouseout="this.style.background='rgba(200,240,0,0.08)'">UNLOCK</button>
+      </div>
+      <div id="nb-err" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#ff6b6b;opacity:0;transition:opacity 0.3s;">incorrect access code</div>
+    </div>
+
+    <div id="nb-unlocked" style="display:none;margin-top:20px;">
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.3);background:rgba(200,240,0,0.03);">
+        <div class="pipe-name" style="color:var(--acid);">Training Notebook — Kaggle</div>
+        <div class="pipe-desc" style="margin-top:8px;">
+          Full SFT + DPO pipeline source. LLaMA 3 8B, unsloth/QLoRA, 60+ datasets, 6 training objectives simultaneously.
+          <br><br>
+          <a href="https://www.kaggle.com/baddatalogin/reflect-llama-3-sft-dpo" target="_blank" rel="noopener" style="color:var(--acid);font-family:'JetBrains Mono',monospace;font-size:12px;text-decoration:none;border-bottom:1px solid rgba(200,240,0,0.3);padding-bottom:2px;">kaggle.com/baddatalogin/reflect-llama-3-sft-dpo →</a>
+        </div>
+      </div>
+      <div class="pipe-step" style="margin-top:12px;border-color:rgba(200,240,0,0.3);background:rgba(200,240,0,0.03);">
+        <div class="pipe-name" style="color:var(--acid);">Training Dataset Repository — HuggingFace</div>
+        <div class="pipe-desc" style="margin-top:8px;">
+          Processed JSONL files: personal SFT, DPO pairs, classifier knowledge base, chain-of-thought, adversarial, multi-turn. 23 individual files.
+          <br><br>
+          <a href="https://huggingface.co/datasets/baddata404/reflect-training-data" target="_blank" rel="noopener" style="color:var(--acid);font-family:'JetBrains Mono',monospace;font-size:12px;text-decoration:none;border-bottom:1px solid rgba(200,240,0,0.3);padding-bottom:2px;">huggingface.co/datasets/baddata404/reflect-training-data →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -921,5 +957,35 @@
   })();
 </script>
 <script src="carousel.js?v=1"></script>
+
+<script>
+(function(){
+  var STORED = '020f21b62cb7b4e9218cd998377d031c6b2a1c0abb0d6dbca563d87c8802dfde';
+  var attempts = 0;
+
+  window.checkNbAccess = async function() {
+    if (attempts >= 5) return;
+    var input = document.getElementById('nb-input').value.trim();
+    if (!input) return;
+    attempts++;
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    var hex = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    if (hex === STORED) {
+      document.getElementById('nb-locked').style.display = 'none';
+      document.getElementById('nb-unlocked').style.display = 'block';
+      attempts = 0;
+    } else {
+      var err = document.getElementById('nb-err');
+      err.style.opacity = '1';
+      if (attempts >= 5) { err.textContent = 'Access locked. Refresh page to try again.'; }
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var inp = document.getElementById('nb-input');
+    if (inp) { inp.addEventListener('keydown', function(e){ if(e.key==='Enter') window.checkNbAccess(); }); }
+  });
+})();
+</script>
 </body>
 </html>
