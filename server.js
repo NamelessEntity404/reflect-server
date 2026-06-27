@@ -111,6 +111,18 @@ const MIME = {
   '.css':  'text/css',
   '.js':   'application/javascript',
   '.json': 'application/json',
+  '.mp4':  'video/mp4',
+  '.webm': 'video/webm',
+  '.ogg':  'video/ogg',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif':  'image/gif',
+  '.svg':  'image/svg+xml',
+  '.ico':  'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2':'font/woff2',
+  '.ttf':  'font/ttf',
 };
 
 function postJSON(hostname, path, headers, body, res) {
@@ -188,12 +200,43 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  let filePath = req.url === '/' ? '/index.html' : req.url;
+  let filePath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
   filePath = path.join(__dirname, filePath);
+  const ext = path.extname(filePath).toLowerCase();
+  const mime = MIME[ext] || 'text/plain';
+
+  if (ext === '.mp4' || ext === '.webm' || ext === '.ogg') {
+    fs.stat(filePath, (err, stat) => {
+      if (err) { res.writeHead(404); res.end('Not found'); return; }
+      const total = stat.size;
+      const range = req.headers.range;
+      if (range) {
+        const [startStr, endStr] = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(startStr, 10);
+        const end = endStr ? parseInt(endStr, 10) : total - 1;
+        const chunkSize = end - start + 1;
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${total}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+          'Content-Type': mime,
+        });
+        fs.createReadStream(filePath, { start, end }).pipe(res);
+      } else {
+        res.writeHead(200, {
+          'Content-Length': total,
+          'Content-Type': mime,
+          'Accept-Ranges': 'bytes',
+        });
+        fs.createReadStream(filePath).pipe(res);
+      }
+    });
+    return;
+  }
+
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found'); return; }
-    const ext = path.extname(filePath);
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'text/plain' });
+    res.writeHead(200, { 'Content-Type': mime });
     res.end(data);
   });
 });
