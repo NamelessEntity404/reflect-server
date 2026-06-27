@@ -396,54 +396,43 @@
 
   #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
 
-  #bg-toggle {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink);
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 20px;
-    padding: 7px 16px;
-    cursor: pointer;
+  #bg-switcher {
     display: flex;
     align-items: center;
-    gap: 10px;
-    transition: all 0.2s;
-    margin-left: 8px;
+    gap: 2px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 3px;
+    margin-left: 12px;
+  }
+  .bg-switcher-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--mid);
+    padding: 4px 10px 4px 8px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    margin-right: 2px;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .bg-opt {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
     white-space: nowrap;
   }
-  #bg-toggle:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
-  #bg-toggle.video-on { background: rgba(200,240,0,0.12); border-color: rgba(200,240,0,0.4); color: var(--acid); }
-  #bg-toggle.video-on:hover { background: rgba(200,240,0,0.18); }
-  /* pill track */
-  .bg-track {
-    width: 28px; height: 16px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.2);
-    position: relative;
-    flex-shrink: 0;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  #bg-toggle.video-on .bg-track {
-    background: rgba(200,240,0,0.25);
-    border-color: rgba(200,240,0,0.5);
-  }
-  /* thumb */
-  .bg-thumb {
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.5);
-    transition: transform 0.2s, background 0.2s;
-  }
-  #bg-toggle.video-on .bg-thumb {
-    transform: translateX(12px);
-    background: var(--acid);
-  }
+  .bg-opt:hover { color: var(--ink); background: rgba(255,255,255,0.07); }
+  .bg-opt.active { background: rgba(200,240,0,0.15); color: var(--acid); font-weight: 600; }
 </style>
   <link rel="stylesheet" href="glass.css">
 </head>
@@ -459,11 +448,12 @@
     <a href="index.html">Home</a>
     <a href="therapy-chat.html">Perspective</a>
     <a href="adversarial-research.html">Research</a>
-    <button id="bg-toggle" class="video-on" onclick="toggleBg()">
-      <span id="bg-toggle-label">BG</span>
-      <span class="bg-track"><span class="bg-thumb"></span></span>
-      <span id="bg-toggle-state">ON</span>
-    </button>
+    <div id="bg-switcher">
+      <span class="bg-switcher-label">BG</span>
+      <button class="bg-opt active" data-bg="training" onclick="setBg('training')">Video</button>
+      <button class="bg-opt" data-bg="gradient" onclick="setBg('gradient')">Gradient</button>
+      <button class="bg-opt" data-bg="black" onclick="setBg('black')">Black</button>
+    </div>
   </div>
 </nav>
 
@@ -1015,30 +1005,32 @@
 
 <script>
 (function(){
-  var btn = document.getElementById('bg-toggle');
+  var SOURCES = { training: 'bg-training.mp4', gradient: 'bg-gradient.mp4' };
   var vid = document.getElementById('bg-video');
-  var isVideo = localStorage.getItem('bg-pref') !== 'black';
 
-  function apply(video) {
-    if (video) {
-      vid.style.display = '';
-      vid.play().catch(function(){});
-      btn.classList.add('video-on');
-      document.getElementById('bg-toggle-state').textContent = 'ON';
-    } else {
+  window.setBg = function(choice) {
+    document.querySelectorAll('.bg-opt').forEach(function(b){
+      b.classList.toggle('active', b.dataset.bg === choice);
+    });
+    localStorage.setItem('bg-pref', choice);
+    if (choice === 'black') {
       vid.style.display = 'none';
-      btn.classList.remove('video-on');
-      document.getElementById('bg-toggle-state').textContent = 'OFF';
+    } else {
+      var src = SOURCES[choice];
+      var cur = vid.querySelector('source');
+      if (!cur || cur.getAttribute('src').split('?')[0] !== src) {
+        vid.innerHTML = '<source src="' + src + '" type="video/mp4">';
+        vid.load();
+      }
+      vid.style.display = '';
+      vid.loop = true;
+      vid.muted = true;
+      vid.play().catch(function(){});
     }
-  }
-
-  window.toggleBg = function() {
-    isVideo = !isVideo;
-    localStorage.setItem('bg-pref', isVideo ? 'video' : 'black');
-    apply(isVideo);
   };
 
-  apply(isVideo);
+  var saved = localStorage.getItem('bg-pref') || 'training';
+  setBg(saved);
 })();
 </script>
 
