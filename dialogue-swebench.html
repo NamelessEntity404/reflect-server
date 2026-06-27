@@ -921,7 +921,7 @@
         const dist   = (center - vh / 2) / (vh / 2 + r.height / 2);
         const prog   = Math.max(0, 1 - Math.abs(dist));
         const dir    = dist >= 0 ? 1 : -1;
-        card.style.opacity   = (0.82 + 0.18 * prog).toFixed(3);
+        card.style.opacity   = (0.50 + 0.45 * prog).toFixed(3);
         card.style.transform =
           `perspective(1200px) translateY(${((1-prog)*90*dir).toFixed(1)}px) ` +
           `rotateX(${((1-prog)*14*dir).toFixed(2)}deg) ` +
