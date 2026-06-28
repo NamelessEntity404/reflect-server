@@ -1,0 +1,15 @@
+_frames_reflect/
+_videos/
+pipeline/
+notes/
+memory/
+*.py
+*.sh
+*.ipynb
+*.jsonl
+*.csv
+*.md
+*.txt
+__pycache__/
+.git/
+node_modules/

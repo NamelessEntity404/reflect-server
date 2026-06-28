@@ -42,18 +42,8 @@
   .btn-clear { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; color:var(--mid); background:none; border:0.5px solid rgba(168,168,154,0.2); border-radius:4px; padding:5px 10px; cursor:pointer; transition:color 0.2s,border-color 0.2s; text-transform:uppercase; }
   .btn-clear:hover { color:var(--red); border-color:rgba(255,64,64,0.4); }
 
-  /* MESSAGES — Z stack */
-  .messages { flex:1; position:relative; overflow:hidden; perspective:1400px; perspective-origin:50% 45%; }
-  .card-pair {
-    position:absolute; left:50%; top:50%;
-    width:calc(100% - 48px); max-width:720px;
-    transform:translate(-50%,-50%);
-    display:flex; flex-direction:column; gap:12px;
-    max-height:calc(100% - 80px); overflow-y:auto;
-    transition:transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
-  }
-  .card-pair::-webkit-scrollbar { width:3px; }
-  .card-pair::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
+  /* MESSAGES */
+  .messages { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:16px; scroll-behavior:smooth; }
   .messages::-webkit-scrollbar { width:4px; }
   .messages::-webkit-scrollbar-thumb { background:rgba(200,240,0,0.15); border-radius:2px; }
 
@@ -66,18 +56,17 @@
   /* MESSAGES */
   .msg { display:flex; flex-direction:column; gap:6px; max-width:780px; animation:msg-in 0.2s ease-out; }
   @keyframes msg-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-  .msg.user { align-self:center; align-items:center; width:100%; max-width:720px; }
-  .msg.ai   { align-self:center; align-items:center; width:100%; max-width:720px; }
-  .msg { display:flex; flex-direction:column; gap:6px; max-width:720px; width:100%; }
-  .msg-meta { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; color:var(--mid); text-transform:uppercase; padding:0 4px; width:100%; }
+  .msg.user { align-self:flex-end; align-items:flex-end; }
+  .msg.ai   { align-self:flex-start; align-items:flex-start; }
+  .msg-meta { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; color:var(--mid); text-transform:uppercase; padding:0 4px; }
   .msg.user .msg-meta { color:rgba(200,240,0,0.5); }
   .msg-bubble { padding:14px 18px; border-radius:var(--glass-radius); font-size:14px; line-height:1.7; backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
-  .msg.user .msg-bubble { background:rgba(255,255,255,0.18); backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%); border:0.5px solid rgba(255,255,255,0.3); box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.4); border-radius:18px; width:100%; }
-  .msg.ai   .msg-bubble { background:linear-gradient(158deg,rgba(28,30,25,0.58) 0%,rgba(12,13,10,0.65) 50%,rgba(22,24,19,0.60) 100%); backdrop-filter:blur(24px) saturate(160%); -webkit-backdrop-filter:blur(24px) saturate(160%); border:0.5px solid rgba(255,255,255,0.14); box-shadow:0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.18); border-radius:18px; width:100%; }
+  .msg.user .msg-bubble { background:var(--glass-user-bg); border:0.5px solid rgba(200,240,0,0.22); border-bottom-right-radius:3px; }
+  .msg.ai   .msg-bubble { background:var(--glass-bg); border:var(--glass-border); border-bottom-left-radius:3px; }
   .msg.ai .msg-bubble p + p { margin-top:10px; }
 
   /* THINKING */
-  .thinking { display:flex; align-items:center; justify-content:center; gap:6px; padding:12px 16px; background:var(--glass-bg); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:16px; width:100%; max-width:720px; }
+  .thinking { display:flex; align-items:center; gap:6px; padding:12px 16px; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:var(--glass-border); box-shadow:var(--glass-shadow); border-radius:var(--glass-radius); border-bottom-left-radius:3px; align-self:flex-start; }
   .thinking-dot { width:5px; height:5px; border-radius:50%; background:var(--acid); animation:think 1.2s ease-in-out infinite; }
   .thinking-dot:nth-child(2){animation-delay:0.2s}
   .thinking-dot:nth-child(3){animation-delay:0.4s}
@@ -172,13 +161,122 @@
   }
   .disclaimer-confirm:hover { opacity: 0.85; }
   </style>
+  <style>
+  #bg-switcher-p {
+    position: fixed;
+    top: 66px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(5,6,10,0.82);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 14px;
+    padding: 10px 12px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .bgp-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: #A8A89A;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .bgp-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .bgp-opt:hover { border-color: rgba(255,255,255,0.25); }
+  .bgp-opt.active { border-color: rgba(200,240,0,0.5); background: rgba(200,240,0,0.08); }
+  .bgp-opt img, .bgp-opt .bgp-thumb {
+    width: 40px;
+    height: 26px;
+    border-radius: 4px;
+    object-fit: cover;
+    display: block;
+    background: #111;
+  }
+  .bgp-opt-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #A8A89A;
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .bgp-opt.active .bgp-opt-label { color: #C8F000; }
+  .bgp-check {
+    display: none;
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #C8F000;
+  }
+  .bgp-opt.active .bgp-check { display: block; }
+  </style>
 <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="glass.css">
 </head>
 <body><nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(200,240,0,0.12);font-family:'JetBrains Mono',monospace;">  <a href="index.html" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:0.04em;text-transform:uppercase;color:#F5F2E8;text-decoration:none;">SHANE <span style="color:#C8F000;">GRAFFITI</span> INC.</a>  <div style="display:flex;align-items:center;gap:32px;">    <a href="index.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Work</a>    <a href="research.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">Research</a>    <a href="about.html" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#A8A89A;text-decoration:none;">About</a>    <a href="therapy-chat.html" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#05060a;background:#C8F000;padding:6px 14px;border-radius:3px;text-decoration:none;">Perspective —</a>  </div></nav>
-  <video id="bg-video" autoplay muted loop playsinline preload="auto">
-    <source src="bg-reflect.mp4?v=4" type="video/mp4">
-  </video>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-whatif.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
+
+  <div id="bg-switcher-p">
+    <span class="bgp-label">Background</span>
+    <div style="display:flex;gap:6px;">
+      <button class="bgp-opt active" data-bg="whatif" onclick="setPBg('whatif')">
+        <span class="bgp-check"></span>
+        <img src="thumb-whatif.jpg" alt="What If" class="bgp-img">
+        <span class="bgp-opt-label">Video</span>
+      </button>
+      <button class="bgp-opt" data-bg="forest" onclick="setPBg('forest')">
+        <span class="bgp-check"></span>
+        <img src="thumb-forest.jpg" alt="Forest" class="bgp-img">
+        <span class="bgp-opt-label">Forest</span>
+      </button>
+      <button class="bgp-opt" data-bg="clouds" onclick="setPBg('clouds')">
+        <span class="bgp-check"></span>
+        <img src="thumb-clouds.jpg" alt="Clouds" class="bgp-img">
+        <span class="bgp-opt-label">Clouds</span>
+      </button>
+      <button class="bgp-opt" data-bg="tunnel" onclick="setPBg('tunnel')">
+        <span class="bgp-check"></span>
+        <img src="thumb-tunnel.jpg" alt="Tunnel" class="bgp-img">
+        <span class="bgp-opt-label">Tunnel</span>
+      </button>
+      <button class="bgp-opt" data-bg="nyc" onclick="setPBg('nyc')">
+        <span class="bgp-check"></span>
+        <img src="thumb-nyc.jpg" alt="NYC" class="bgp-img">
+        <span class="bgp-opt-label">NYC</span>
+      </button>
+      <button class="bgp-opt" data-bg="black" onclick="setPBg('black')">
+        <span class="bgp-check"></span>
+        <span class="bgp-thumb" style="background:#000;"></span>
+        <span class="bgp-opt-label">Black</span>
+      </button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes audio-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(200,240,0,0.45); }
+      50%      { box-shadow: 0 0 0 7px rgba(200,240,0,0); }
+    }
+  </style>
 
   <header class="header">
     <div class="header-left">
@@ -186,7 +284,13 @@
         <div class="badge-dot"></div>
         <span class="badge-label">Alpha · v0.1</span>
       </div>
-      <div class="header-title">PER<span>SP</span>ECTIVE</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="header-title">PER<span>SP</span>ECTIVE</div>
+        <button id="audio-btn" onclick="toggleAudio()" title="Toggle audio" style="background:rgba(5,6,10,0.82);border:1px solid #C8F000;border-radius:3px;color:#C8F000;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;width:fit-content;animation:audio-pulse 2s ease-in-out infinite;">
+          <svg id="audio-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C8F000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          AUDIO
+        </button>
+      </div>
       <span class="admin-badge" id="admin-badge">ADMIN</span>
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
@@ -247,37 +351,48 @@
 
   let history     = [];
   let isStreaming  = false;
-  let pendingImage = null;
-  let pairs = [];
-  let activePair = null;
-
-  function applyDepths() {
-    pairs.forEach((p, i) => {
-      const depth = pairs.length - 1 - i; // 0=front, 1=one back, etc
-      const z     = -depth * 80;
-      const s     = 1 - depth * 0.04;
-      const y     = -50 + depth * 3.5;
-      const op    = Math.max(1 - depth * 0.15, 0.08);
-      p.style.transform = `translate(-50%, ${y}%) translateZ(${z}px) scale(${s})`;
-      p.style.opacity   = op;
-      p.style.zIndex    = 20 - depth;
-      p.style.pointerEvents = depth === 0 ? 'all' : 'none';
-    });
-  }
-
-  function newCardPair() {
-    const msgs = document.getElementById('messages');
-    const pair = document.createElement('div');
-    pair.className = 'card-pair';
-    msgs.appendChild(pair);
-    pairs.push(pair);
-    activePair = pair;
-    applyDepths();
-    return pair;
-  }
+  let pendingImage = null; // { base64, mediaType, name, url }
 
   const bgVideo = document.getElementById('bg-video');
   bgVideo.play().catch(() => {});
+
+  bgVideo.addEventListener('ended', function () {
+    bgVideo.src = 'bg-reflect.mp4';
+    bgVideo.loop = true;
+    bgVideo.muted = true;
+    bgVideo.load();
+    bgVideo.play().catch(() => {});
+    // reset audio button to muted state
+    const btn  = document.getElementById('audio-btn');
+    const icon = document.getElementById('audio-icon');
+    if (btn) {
+      icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+      btn.style.animation = 'audio-pulse 2s ease-in-out infinite';
+      btn.style.borderColor = '#C8F000';
+      btn.style.color = '#C8F000';
+      icon.setAttribute('stroke', '#C8F000');
+    }
+  });
+
+  function toggleAudio() {
+    const btn  = document.getElementById('audio-btn');
+    const icon = document.getElementById('audio-icon');
+    bgVideo.muted = !bgVideo.muted;
+    if (!bgVideo.muted) {
+      bgVideo.play().catch(() => {});
+      icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+      btn.style.animation = 'none';
+      btn.style.borderColor = 'rgba(200,240,0,0.5)';
+      btn.style.color = 'rgba(200,240,0,0.6)';
+      icon.setAttribute('stroke', 'rgba(200,240,0,0.6)');
+    } else {
+      icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+      btn.style.animation = 'audio-pulse 2s ease-in-out infinite';
+      btn.style.borderColor = '#C8F000';
+      btn.style.color = '#C8F000';
+      icon.setAttribute('stroke', '#C8F000');
+    }
+  }
 
   // Only rule: pause while typing, resume after
   let typingTimer;
@@ -310,12 +425,7 @@
 
   function scrollToBottom() {
     const m = document.getElementById('messages');
-    // Only auto-scroll if user is within 120px of the bottom
-    // If they scrolled up to read, leave them alone
-    const distanceFromBottom = m.scrollHeight - m.scrollTop - m.clientHeight;
-    if (distanceFromBottom < 120) {
-      m.scrollTop = m.scrollHeight;
-    }
+    m.scrollTop = m.scrollHeight;
   }
 
   function hideEmpty() {
@@ -354,37 +464,40 @@
 
   function appendUserMessage(text, imageUrl) {
     hideEmpty();
-    const pair = newCardPair();
+    const msgs = document.getElementById('messages');
     const div  = document.createElement('div');
     div.className = 'msg user';
     let content = '';
     if (imageUrl) content += `<img class="msg-image" src="${imageUrl}" alt="attached image" />`;
     if (text) content += `<div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
     div.innerHTML = `<div class="msg-meta">YOU</div>${content}`;
-    pair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
   }
 
   function createAIBubble() {
     hideEmpty();
-    const pair   = activePair || newCardPair();
+    const msgs   = document.getElementById('messages');
     const div    = document.createElement('div');
     div.className = 'msg ai';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
     div.innerHTML = '<div class="msg-meta">PERSPECTIVE</div>';
     div.appendChild(bubble);
-    pair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
     return bubble;
   }
 
   function showThinking() {
     hideEmpty();
-    const pair = activePair || newCardPair();
+    const msgs = document.getElementById('messages');
     const div  = document.createElement('div');
     div.className = 'thinking';
     div.id = 'thinking';
     div.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
-    pair.appendChild(div);
+    msgs.appendChild(div);
+    scrollToBottom();
   }
 
   function removeThinking() {
@@ -442,7 +555,7 @@
   }
 
   function clearChat() {
-    history = []; pairs = []; activePair = null;
+    history = [];
     document.getElementById('user-input').disabled = false;
     document.getElementById('send-btn').disabled   = false;
     document.getElementById('messages').innerHTML = `
@@ -556,5 +669,58 @@
 <script src="nav.js?v=3"></script>
 <script src="transitions.js"></script>
 <script src="carousel.js?v=1"></script>
+
+<script>
+(function(){
+  var PSOURCES = { whatif:'bg-whatif.mp4', forest:'bg-forest.mp4', clouds:'bg-clouds.mp4', tunnel:'bg-tunnel.mp4', nyc:'bg-nyc.mp4' };
+  var AUDIO_VIDEOS = { whatif: true };
+  var vid = document.getElementById('bg-video');
+
+  function resetAudioBtn() {
+    var btn  = document.getElementById('audio-btn');
+    var icon = document.getElementById('audio-icon');
+    if (!btn) return;
+    vid.muted = true;
+    icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+    btn.style.animation = 'audio-pulse 2s ease-in-out infinite';
+    btn.style.borderColor = '#C8F000';
+    btn.style.color = '#C8F000';
+    icon.setAttribute('stroke', '#C8F000');
+    btn.style.display = AUDIO_VIDEOS[document.querySelector('.bgp-opt.active')?.dataset.bg] ? '' : 'none';
+  }
+
+  window.setPBg = function(choice) {
+    document.querySelectorAll('.bgp-opt').forEach(function(b){
+      b.classList.toggle('active', b.dataset.bg === choice);
+    });
+    localStorage.setItem('p-bg-pref', choice);
+    if (choice === 'black') {
+      vid.style.opacity = '0';
+      vid.pause();
+      resetAudioBtn();
+    } else {
+      var newSrc = PSOURCES[choice];
+      if (vid.getAttribute('src') !== newSrc) {
+        vid.src = newSrc;
+        vid.load();
+      }
+      vid.style.opacity = '0.35';
+      vid.loop = true;
+      vid.muted = true;
+      vid.play().catch(function(){});
+      resetAudioBtn();
+    }
+  };
+
+  vid.addEventListener('ended', function(){
+    if (vid.style.opacity !== '0') {
+      vid.currentTime = 0;
+      vid.play().catch(function(){});
+    }
+  });
+
+  window.setPBg(localStorage.getItem('p-bg-pref') || 'whatif');
+})();
+</script>
 </body>
 </html>

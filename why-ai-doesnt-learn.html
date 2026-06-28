@@ -442,7 +442,21 @@ document.querySelectorAll('.failure,.sp,.pq,.eth-item,.rb-table tr').forEach(el=
   <script>
   (function(){
     var v = document.getElementById('bg-video');
-    if(v) v.play().catch(function(){});
+    if(!v) return;
+    v.muted = true;
+    v.pause();
+    var lastTs = null;
+    function step(ts) {
+      if(lastTs !== null && v.duration) {
+        var nextTime = v.currentTime + (ts - lastTs) / 1000 / 50;
+        if(nextTime >= v.duration) nextTime -= v.duration;
+        v.currentTime = nextTime;
+      }
+      lastTs = ts;
+      requestAnimationFrame(step);
+    }
+    if(v.readyState >= 1) { requestAnimationFrame(step); }
+    else { v.addEventListener('loadedmetadata', function(){ requestAnimationFrame(step); }); }
   })();
   </script>
 <script src="carousel.js?v=1"></script>

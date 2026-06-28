@@ -1,0 +1,16 @@
+[
+  {"id":"v00","frames":135,"title":"Character Study"},
+  {"id":"v01","frames":500,"title":"Main Render"},
+  {"id":"v02","frames":140,"title":"4K Render V"},
+  {"id":"v03","frames":225,"title":"Render I — Alt"},
+  {"id":"v04","frames":225,"title":"Render I"},
+  {"id":"v05","frames":225,"title":"Render II"},
+  {"id":"v06","frames":225,"title":"Render III"},
+  {"id":"v07","frames":225,"title":"Render IV"},
+  {"id":"v08","frames":225,"title":"Render V"},
+  {"id":"v09","frames":225,"title":"Render VI"},
+  {"id":"v10","frames":225,"title":"Render VII"},
+  {"id":"v11","frames":225,"title":"Render VIII"},
+  {"id":"v12","frames":225,"title":"Render IX"},
+  {"id":"v13","frames":225,"title":"Render X"}
+]

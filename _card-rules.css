@@ -1,0 +1,170 @@
+/*
+  CARD RULES — SGI gold standard glass card treatment
+  Source of truth: about.html .about-card (verified June 2026)
+
+  Usage: add a <style> block AFTER <link rel="stylesheet" href="glass.css">
+  Replace ".card" with whatever selector the target page uses.
+  NEVER apply to: .work-card, #bg-video, video, body, html, section, div
+*/
+
+/* ── BASE GLASS ── */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(170deg,
+    rgba(255,255,255,0.08) 0%,
+    rgba(14,16,12,0.15)   14%,
+    rgba(7,9,6,0.20)      52%,
+    rgba(13,15,11,0.12)   100%
+  );
+  border: none;
+  backdrop-filter: blur(24px) saturate(220%) brightness(1.12);
+  -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.12);
+  box-shadow:
+    0 80px 160px rgba(0,0,0,0.90),
+    0 28px 56px  rgba(0,0,0,0.65),
+    0 6px  16px  rgba(0,0,0,0.42),
+    0 0 0 1px    rgba(255,255,255,0.22),
+    inset 0 1px  0   rgba(255,255,255,0.92),
+    inset 0 3px  0   rgba(255,255,255,0.32),
+    inset 0 7px  14px rgba(255,255,255,0.08),
+    inset 1px 0  0   rgba(255,255,255,0.55),
+    inset 3px 0  6px rgba(255,255,255,0.10),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40),
+    inset 0 0 80px   rgba(255,255,255,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ── THREE-LAYER SPECULAR ── */
+/* 1: top bevel face lit from above
+   2: left bevel face lit from the left
+   3: diagonal sweep across the glass face */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.16) 5%,
+      rgba(255,255,255,0.04) 14%,
+      rgba(255,255,255,0.00) 30%
+    ),
+    linear-gradient(90deg,
+      rgba(255,255,255,0.22) 0%,
+      rgba(255,255,255,0.08) 7%,
+      rgba(255,255,255,0.00) 20%
+    ),
+    linear-gradient(126deg,
+      rgba(255,255,255,0.00) 0%,
+      rgba(255,255,255,0.24) 26%,
+      rgba(255,255,255,0.14) 38%,
+      rgba(255,255,255,0.02) 52%,
+      rgba(255,255,255,0.00) 65%,
+      rgba(200,240,0,0.03)   100%
+    );
+}
+
+.card > * { position: relative; z-index: 1; }
+
+/* ── HOVER ── */
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 100px 200px rgba(0,0,0,0.92),
+    0 32px 64px  rgba(0,0,0,0.70),
+    0 0 0 1px    rgba(200,240,0,0.35),
+    0 0 50px     rgba(200,240,0,0.07),
+    inset 0 1px  0   rgba(255,255,255,1.00),
+    inset 0 3px  0   rgba(255,255,255,0.42),
+    inset 0 7px  14px rgba(255,255,255,0.10),
+    inset 1px 0  0   rgba(255,255,255,0.65),
+    inset 3px 0  6px rgba(255,255,255,0.14),
+    inset 0 -2px 0   rgba(0,0,0,0.85),
+    inset -1px 0 0   rgba(0,0,0,0.45),
+    inset 0 0 80px   rgba(255,255,255,0.07);
+}
+
+
+/* ════════════════════════════════════════════════════════
+   INTERACTION RULES — cell/row hover inside cards
+   Apply these to whatever data elements exist in the target page.
+   ════════════════════════════════════════════════════════ */
+
+/* ── TABLE ROWS — spreadsheet selection bar ── */
+.bench-table td { transition: background 0.12s ease, color 0.12s ease; }
+.bench-table tr:hover td {
+  background: rgba(255,255,255,0.055) !important;
+  color: rgba(245,242,232,1.0);
+}
+.bench-table tr:hover td:first-child { box-shadow: inset 3px 0 0 rgba(0,240,208,0.80); }
+.bench-table tr.ours:hover td        { background: rgba(200,240,0,0.09) !important; }
+.bench-table tr.ours:hover td:first-child { box-shadow: inset 3px 0 0 rgba(200,240,0,0.90); }
+.bench-table tr:hover .hi      { color: #fff; text-shadow: 0 0 12px rgba(0,240,208,0.8); }
+.bench-table tr.ours:hover .hi { color: #fff; text-shadow: 0 0 12px rgba(200,240,0,0.9); }
+
+/* ── INFO/DATA ROWS — document line selection ── */
+.inf-row { transition: background 0.18s ease, box-shadow 0.18s ease; }
+.inf-row:not(.header):hover {
+  background: rgba(255,255,255,0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(200,240,0,0.70), inset 0 0 0 0.5px rgba(200,240,0,0.18);
+}
+.inf-row:not(.header):hover .inf-cell.label  { color: var(--acid); }
+.inf-row:not(.header):hover .inf-cell        { color: rgba(245,242,232,1.0); }
+.inf-row:not(.header):hover .inf-cell.result { filter: brightness(1.35); }
+
+/* ── METRIC / DATA CELLS — pop on hover ── */
+.data-cell {
+  transition: background 0.20s ease, transform 0.20s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.20s ease;
+  cursor: default;
+}
+.data-cell:hover {
+  background: rgba(255,255,255,0.07) !important;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.data-cell:hover .data-num   { filter: brightness(1.30); }
+.data-cell:hover .data-label { color: rgba(245,242,232,0.9); }
+
+/* ── TWO-PANE PANELS ── */
+.env-panel { transition: background 0.22s ease, box-shadow 0.22s ease; cursor: default; }
+.env-panel.dialogue:hover {
+  background: rgba(0,240,208,0.10) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,240,208,0.30), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.env-panel.repo:hover {
+  background: rgba(200,240,0,0.09) !important;
+  box-shadow: inset 0 0 0 1px rgba(200,240,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.env-panel:hover .env-stat .hi { filter: brightness(1.4); text-shadow: 0 0 10px currentColor; }
+
+/* ── WORKFLOW STEPS ── */
+.schema-step { transition: background 0.16s ease, box-shadow 0.16s ease; }
+.schema-step:hover {
+  background: rgba(255,255,255,0.055) !important;
+  box-shadow: inset 4px 0 0 rgba(0,240,208,0.75);
+}
+.schema-step:hover .schema-n    { opacity: 1; color: #fff; text-shadow: 0 0 14px rgba(0,240,208,1.0); }
+.schema-step:hover .schema-name { color: var(--ink); }
+.schema-step:hover .schema-badge {
+  color: var(--acid);
+  text-shadow: 0 0 10px rgba(200,240,0,0.8);
+  transform: translateX(3px);
+  transition: transform 0.18s ease, color 0.16s ease, text-shadow 0.16s ease;
+}
+
+/* ── PROFILE / PERSONA CARDS ── */
+.persona-cell {
+  transition: background 0.18s ease, transform 0.22s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.22s ease;
+}
+.persona-cell:hover {
+  background: rgba(0,240,208,0.08) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 0 0 1px rgba(0,240,208,0.25);
+}
+.persona-cell:hover .persona-name { color: var(--acid); }

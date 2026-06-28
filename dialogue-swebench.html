@@ -400,6 +400,220 @@
 </style>
 <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="glass.css">
+<style>
+/* Hyper-realistic skeuomorphic thick glass for .card */
+.card {
+  background: linear-gradient(
+    170deg,
+    rgba(255,255,255,0.08) 0%,
+    rgba(14,16,12,0.15)   14%,
+    rgba(7,9,6,0.20)      52%,
+    rgba(13,15,11,0.12)   100%
+  );
+  border: none;
+  border-radius: 22px;
+  backdrop-filter: blur(24px) saturate(220%) brightness(1.12);
+  -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.12);
+  box-shadow:
+    /* === deep floating shadow === */
+    0 80px 160px rgba(0,0,0,0.90),
+    0 28px 56px  rgba(0,0,0,0.65),
+    0 6px  16px  rgba(0,0,0,0.42),
+    /* === glass perimeter — outer bright ring of the panel edge === */
+    0 0 0 1px   rgba(255,255,255,0.22),
+    /* === top bevel — 3 stacked layers simulate a thick beveled top edge === */
+    inset 0 1px  0  rgba(255,255,255,0.92),
+    inset 0 3px  0  rgba(255,255,255,0.32),
+    inset 0 7px  14px rgba(255,255,255,0.08),
+    /* === left bevel === */
+    inset 1px 0  0  rgba(255,255,255,0.55),
+    inset 3px 0  6px rgba(255,255,255,0.10),
+    /* === bottom — underside in deep shadow === */
+    inset 0 -2px 0  rgba(0,0,0,0.80),
+    /* === right shadow edge === */
+    inset -1px 0 0  rgba(0,0,0,0.40),
+    /* === inner body glow — light trapped in the glass === */
+    inset 0 0 80px  rgba(255,255,255,0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Three-layer specular: top face + left face + diagonal sweep */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    /* 1 — top face of the bevel lit from above */
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.16) 5%,
+      rgba(255,255,255,0.04) 14%,
+      rgba(255,255,255,0.00) 30%
+    ),
+    /* 2 — left face of the bevel lit from the left */
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.22) 0%,
+      rgba(255,255,255,0.08) 7%,
+      rgba(255,255,255,0.00) 20%
+    ),
+    /* 3 — diagonal specular sweep across the glass face */
+    linear-gradient(
+      126deg,
+      rgba(255,255,255,0.00) 0%,
+      rgba(255,255,255,0.24) 26%,
+      rgba(255,255,255,0.14) 38%,
+      rgba(255,255,255,0.02) 52%,
+      rgba(255,255,255,0.00) 65%,
+      rgba(200,240,0,0.03)   100%
+    );
+}
+
+.card > * { position: relative; z-index: 1; }
+
+/* ── Per-card hover: shared bevel brighten + unique glow accent ── */
+.card:hover {
+  background: linear-gradient(170deg,rgba(255,255,255,0.12) 0%,rgba(14,16,12,0.20) 14%,rgba(7,9,6,0.25) 52%,rgba(13,15,11,0.16) 100%);
+}
+/* hero — pure white, like looking through a pristine pane */
+#s-hero .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(255,255,255,0.40),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 60px rgba(255,255,255,0.08);
+}
+/* env — warm amber, environmental context */
+#s-env .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(255,200,80,0.35),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 60px rgba(255,180,40,0.10);
+}
+/* schema — cyan, schema intelligence */
+#s-schema .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(0,240,208,0.38),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 70px rgba(0,240,208,0.12);
+}
+/* sim — deep blue-violet, simulation space */
+#s-sim .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(100,120,255,0.38),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 70px rgba(80,100,255,0.12);
+}
+/* results — acid green, brand accent */
+#s-results .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(200,240,0,0.42),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 80px rgba(200,240,0,0.14);
+}
+/* quality — rose/magenta, qualitative */
+#s-quality .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(255,80,180,0.35),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 70px rgba(255,60,160,0.10);
+}
+/* findings — teal, research conclusions */
+#s-findings .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(0,200,180,0.38),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 70px rgba(0,200,170,0.10);
+}
+/* terminal — terminal phosphor green */
+#s-terminal .card:hover {
+  box-shadow: 0 90px 180px rgba(0,0,0,0.92),0 28px 56px rgba(0,0,0,0.68),0 0 0 1px rgba(80,255,100,0.35),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.42),inset 0 7px 14px rgba(255,255,255,0.10),inset 1px 0 0 rgba(255,255,255,0.65),inset 3px 0 6px rgba(255,255,255,0.14),inset 0 -2px 0 rgba(0,0,0,0.85),inset -1px 0 0 rgba(0,0,0,0.45),0 0 70px rgba(60,255,80,0.10);
+}
+/* closer — ultra-bright white, full dramatic */
+#s-closer .card:hover {
+  box-shadow: 0 100px 200px rgba(0,0,0,0.95),0 32px 64px rgba(0,0,0,0.72),0 0 0 1.5px rgba(255,255,255,0.55),inset 0 1px 0 rgba(255,255,255,1.00),inset 0 3px 0 rgba(255,255,255,0.50),inset 0 7px 14px rgba(255,255,255,0.14),inset 1px 0 0 rgba(255,255,255,0.75),inset 3px 0 6px rgba(255,255,255,0.18),inset 0 -2px 0 rgba(0,0,0,0.90),inset -1px 0 0 rgba(0,0,0,0.50),0 0 100px rgba(255,255,255,0.12);
+}
+
+/* ═══════════════════════════════════════════════
+   CELL & ROW HOVER — each element type different
+   ═══════════════════════════════════════════════ */
+
+/* ── BENCH TABLE rows — spreadsheet selection bar ── */
+.bench-table td {
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.bench-table tr:hover td {
+  background: rgba(255,255,255,0.055) !important;
+  color: rgba(245,242,232,1.0);
+}
+.bench-table tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 rgba(0,240,208,0.80);
+}
+.bench-table tr.ours:hover td {
+  background: rgba(200,240,0,0.09) !important;
+  color: rgba(245,242,232,1.0);
+}
+.bench-table tr.ours:hover td:first-child {
+  box-shadow: inset 3px 0 0 rgba(200,240,0,0.90);
+}
+.bench-table tr:hover .hi  { color: #fff; text-shadow: 0 0 12px rgba(0,240,208,0.8); }
+.bench-table tr.ours:hover .hi { color: #fff; text-shadow: 0 0 12px rgba(200,240,0,0.9); }
+
+/* ── INF ROWS — document line selection ── */
+.inf-row {
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.inf-row:not(.header):hover {
+  background: rgba(255,255,255,0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(200,240,0,0.70), inset 0 0 0 0.5px rgba(200,240,0,0.18);
+}
+.inf-row:not(.header):hover .inf-cell.label { color: var(--acid); }
+.inf-row:not(.header):hover .inf-cell { color: rgba(245,242,232,1.0); }
+.inf-row:not(.header):hover .inf-cell.result { filter: brightness(1.35); }
+
+/* ── DATA CELLS — metric card pop ── */
+.data-cell {
+  transition: background 0.20s ease, transform 0.20s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.20s ease;
+  cursor: default;
+}
+.data-cell:hover {
+  background: rgba(255,255,255,0.07) !important;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.data-cell:hover .data-num { filter: brightness(1.30); }
+.data-cell:hover .data-label { color: rgba(245,242,232,0.9); }
+
+/* ── ENV PANELS — two-pane environment highlight ── */
+.env-panel {
+  transition: background 0.22s ease, box-shadow 0.22s ease;
+  cursor: default;
+}
+.env-panel.dialogue:hover {
+  background: rgba(0,240,208,0.10) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,240,208,0.30), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.env-panel.repo:hover {
+  background: rgba(200,240,0,0.09) !important;
+  box-shadow: inset 0 0 0 1px rgba(200,240,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.env-panel:hover .env-name     { color: var(--ink); }
+.env-panel:hover .env-desc     { color: rgba(245,242,232,0.96); }
+.env-panel:hover .env-stat .hi { filter: brightness(1.4); text-shadow: 0 0 10px currentColor; }
+
+/* ── SCHEMA STEPS — workflow step activation ── */
+.schema-step {
+  transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+.schema-step:hover {
+  background: rgba(255,255,255,0.055) !important;
+  box-shadow: inset 4px 0 0 rgba(0,240,208,0.75);
+}
+.schema-step:hover .schema-n    { opacity: 1; color: #fff; text-shadow: 0 0 14px rgba(0,240,208,1.0); }
+.schema-step:hover .schema-name { color: var(--ink); }
+.schema-step:hover .schema-desc { color: rgba(245,242,232,0.96); }
+.schema-step:hover .schema-badge {
+  color: var(--acid);
+  text-shadow: 0 0 10px rgba(200,240,0,0.8);
+  transform: translateX(3px);
+  transition: transform 0.18s ease, color 0.16s ease, text-shadow 0.16s ease;
+}
+
+/* ── PERSONA CELLS — profile card lift ── */
+.persona-cell {
+  transition: background 0.18s ease, transform 0.22s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.22s ease;
+}
+.persona-cell:hover {
+  background: rgba(0,240,208,0.08) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 0 0 1px rgba(0,240,208,0.25);
+}
+.persona-cell:hover .persona-name { color: var(--acid); }
+.persona-cell:hover .persona-desc { color: rgba(245,242,232,0.96); }
+</style>
 </head>
 <body class="sw-page">
     <video id="bg-video" autoplay muted loop playsinline preload="auto">
@@ -878,15 +1092,15 @@
         card.classList.toggle('is-read',   isRead);
       });
 
-      /* 3D scroll transform (same as em-nesy / dlawbench) */
+      /* 3D scroll transform — skip cards being hovered */
       cards.forEach((card, i) => {
-        if (!card) return;
+        if (!card || card._hovered) return;
         const r      = card.getBoundingClientRect();
         const center = r.top + r.height / 2;
         const dist   = (center - vh / 2) / (vh / 2 + r.height / 2);
         const prog   = Math.max(0, 1 - Math.abs(dist));
         const dir    = dist >= 0 ? 1 : -1;
-        card.style.opacity   = (0.82 + 0.18 * prog).toFixed(3);
+        card.style.opacity   = (0.38 + 0.55 * prog).toFixed(3);
         card.style.transform =
           `perspective(1200px) translateY(${((1-prog)*90*dir).toFixed(1)}px) ` +
           `rotateX(${((1-prog)*14*dir).toFixed(2)}deg) ` +
@@ -905,6 +1119,49 @@
       }
     }, { passive: true });
     update();
+    window._swUpdate = update;
+  })();
+  </script>
+
+  <!-- Per-card unique hover transforms -->
+  <script>
+  (() => {
+    /* Each card gets a different 3D tilt direction — no two the same */
+    const HOVER_T = {
+      's-hero':     'perspective(900px) rotateX(-7deg) translateY(-10px) scale(1.025)',
+      's-env':      'perspective(900px) rotateY(6deg) rotateX(-3deg) translateY(-7px) scale(1.018)',
+      's-schema':   'perspective(900px) translateZ(35px) translateY(-14px) scale(1.03)',
+      's-sim':      'perspective(900px) rotateY(-6deg) rotateX(-2deg) translateY(-7px) scale(1.02)',
+      's-results':  'perspective(900px) rotateX(-4deg) rotateZ(0.9deg) translateY(-9px) scale(1.025)',
+      's-quality':  'perspective(900px) rotateX(-5deg) rotateZ(-1deg) translateY(-8px) scale(1.022)',
+      's-findings': 'perspective(900px) rotateY(4deg) rotateX(-6deg) translateY(-11px) scale(1.02)',
+      's-terminal': 'perspective(900px) rotateX(-10deg) translateY(-6px) scale(1.016)',
+      's-closer':   'perspective(900px) scale(1.07) translateY(-10px) rotateX(-3deg)'
+    };
+
+    document.querySelectorAll('.scene').forEach(scene => {
+      const card = scene.querySelector('.card');
+      if (!card) return;
+      const t = HOVER_T[scene.id];
+      if (!t) return;
+
+      card.addEventListener('mouseenter', () => {
+        card._hovered = true;
+        card.style.transition = 'transform 0.40s cubic-bezier(0.22,0.61,0.36,1), opacity 0.3s ease';
+        card.style.transform  = t;
+        card.style.opacity    = '1';
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform 0.55s cubic-bezier(0.55,0.06,0.68,0.19), opacity 0.4s ease';
+        card._hovered = false;
+        /* let scroll engine reclaim on next frame */
+        requestAnimationFrame(() => {
+          if (window._swUpdate) window._swUpdate();
+          setTimeout(() => { card.style.transition = ''; }, 580);
+        });
+      });
+    });
   })();
   </script>
 

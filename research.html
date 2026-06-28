@@ -177,6 +177,44 @@
 </style>
 <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="glass.css">
+<style>
+/* ── UNIFIED LIGHTING — research grid cards ─────────────────────────────────
+   Problem: glass.css bakes a 158deg gradient into every card background,
+   so adjacent cards have competing light directions that fight each other.
+   Fix: flatten the base background to a neutral colour so the ONLY
+   directional light comes from ::before, which JS anchors to a single
+   shared point (top-left of the whole grid). All cards then belong to
+   the same lighting family, like windows on the same building wall.     */
+
+/* 1. Flat base — kill the per-card directional gradient */
+.grid .paper-card {
+  background: rgba(7, 9, 14, 0.70) !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Keep the outer grid's rounded corners and 1px separator lines */
+/* (.grid already has border-radius:18px + overflow:hidden + gap:1px) */
+
+/* 2. Unified specular — single light point, all cards read --lx/--ly from JS */
+.paper-card::before {
+  background: radial-gradient(
+    ellipse 170% 130% at var(--lx, 18%) var(--ly, 12%),
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.06) 28%,
+    rgba(255, 255, 255, 0.01) 58%,
+    rgba(200, 240, 0, 0.015) 100%
+  ) !important;
+}
+
+/* 3. Hover: brighten in place, no lift (cards are tiled, lift breaks the grid) */
+.grid .paper-card:hover {
+  background: rgba(14, 18, 12, 0.80) !important;
+  transform: none !important;
+  border: none !important;
+}
+</style>
 </head>
 <body>
 
@@ -354,5 +392,29 @@
   })();
   </script>
 <script src="carousel.js?v=1"></script>
+<script>
+(function () {
+  function syncLight() {
+    document.querySelectorAll('.grid').forEach(function (grid) {
+      var gr = grid.getBoundingClientRect();
+      var LX = gr.width  * 0.18;
+      var LY = gr.height * 0.12;
+      grid.querySelectorAll('.paper-card').forEach(function (card) {
+        var cr  = card.getBoundingClientRect();
+        var lx  = ((LX - (cr.left - gr.left)) / cr.width  * 100).toFixed(1) + '%';
+        var ly  = ((LY - (cr.top  - gr.top))  / cr.height * 100).toFixed(1) + '%';
+        card.style.setProperty('--lx', lx);
+        card.style.setProperty('--ly', ly);
+      });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncLight);
+  } else {
+    syncLight();
+  }
+  window.addEventListener('resize', syncLight);
+})();
+</script>
 </body>
 </html>

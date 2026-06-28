@@ -82,15 +82,19 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1px;
-    background: var(--rule);
-    border: 1px solid var(--rule);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-top: 1px solid rgba(255,255,255,0.16);
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 72px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
   }
 
   .stat {
-    background: var(--paper);
+    background: rgba(6,8,14,0.48);
     padding: 24px 20px;
     text-align: center;
   }
@@ -353,104 +357,377 @@
   }
 
   /* ── NAV ─────────────────────────────────────────────── */
-  .top-nav {
+
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
+
+  /* ── Background tab ── */
+  #bg-switcher {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
+    top: 66px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  #bg-tab-btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 32px;
-    background: rgba(5,6,10,0.65);
+    gap: 5px;
+    background: rgba(5,6,10,0.84);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 20px;
+    padding: 6px 13px;
+    cursor: pointer;
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .nav-logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    letter-spacing: 0.04em;
-    color: var(--acid);
-    text-decoration: none;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 24px;
-  }
-
-  .nav-links a {
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+    transition: border-color 0.18s, background 0.18s;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.18em;
     color: var(--mid);
-    text-decoration: none;
-    transition: color 0.2s;
+    text-transform: uppercase;
+    user-select: none;
+    white-space: nowrap;
   }
+  #bg-tab-btn:hover { border-color: rgba(255,255,255,0.28); color: var(--ink); }
+  #bg-tab-btn.open  { border-color: rgba(200,240,0,0.4); color: var(--acid); }
+  #bg-tab-arrow { transition: transform 0.22s ease; display: inline-block; }
+  #bg-tab-btn.open #bg-tab-arrow { transform: rotate(180deg); }
 
-  .nav-links a:hover { color: var(--acid); }
-  
-  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
+  #bg-panel {
+    display: none;
+    background: rgba(5,6,10,0.90);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 14px;
+    padding: 10px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  #bg-panel.open { display: block; }
+  .bg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 52px);
+    gap: 6px;
+  }
+  .bg-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+    padding: 4px;
+    cursor: pointer;
+    transition: border-color 0.14s, background 0.14s;
+    position: relative;
+  }
+  .bg-opt:hover  { border-color: rgba(255,255,255,0.24); }
+  .bg-opt.active { border-color: rgba(200,240,0,0.55); background: rgba(200,240,0,0.08); }
+  .bg-opt .bg-thumb-img {
+    width: 44px; height: 28px;
+    border-radius: 4px; object-fit: cover;
+    display: block; background: #111;
+  }
+  .bg-opt .bg-opt-label {
+    font-family: var(--mono); font-size: 7px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--mid); transition: color 0.14s; white-space: nowrap;
+  }
+  .bg-opt.active .bg-opt-label { color: var(--acid); }
+  .bg-opt .bg-opt-check {
+    display: none; position: absolute; top: -3px; right: -3px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--acid);
+  }
+  .bg-opt.active .bg-opt-check { display: block; }
 </style>
   <link rel="stylesheet" href="glass.css">
+<style>
+/* ── CARD RULES — thick 3D skeuomorphic glass ── */
+/* card rules — exact match to about.html .about-card */
+.pipe-step, .guardrail {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 22px !important;
+  background: linear-gradient(170deg, rgba(255,255,255,0.08) 0%, rgba(14,16,12,0.15) 14%, rgba(7,9,6,0.20) 52%, rgba(13,15,11,0.12) 100%) !important;
+  border: none !important;
+  backdrop-filter: blur(24px) saturate(220%) brightness(1.12) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(220%) brightness(1.12) !important;
+  box-shadow:
+    0 80px 160px rgba(0,0,0,0.90),
+    0 28px 56px  rgba(0,0,0,0.65),
+    0 6px  16px  rgba(0,0,0,0.42),
+    0 0 0 1px    rgba(255,255,255,0.22),
+    inset 0 1px  0   rgba(255,255,255,0.92),
+    inset 0 3px  0   rgba(255,255,255,0.32),
+    inset 0 7px  14px rgba(255,255,255,0.08),
+    inset 1px 0  0   rgba(255,255,255,0.55),
+    inset 3px 0  6px rgba(255,255,255,0.10),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40),
+    inset 0 0 80px   rgba(255,255,255,0.05) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.pipe-step::before, .guardrail::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.16) 5%, rgba(255,255,255,0.04) 14%, rgba(255,255,255,0.00) 30%),
+    linear-gradient(90deg,  rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 7%, rgba(255,255,255,0.00) 20%),
+    linear-gradient(126deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.24) 26%, rgba(255,255,255,0.14) 38%, rgba(255,255,255,0.02) 52%, rgba(255,255,255,0.00) 65%, rgba(200,240,0,0.03) 100%) !important;
+}
+.pipe-step > *, .guardrail > * { position: relative !important; z-index: 1 !important; }
+.pipe-step:hover, .guardrail:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow:
+    0 100px 200px rgba(0,0,0,0.92),
+    0 32px 64px  rgba(0,0,0,0.70),
+    0 0 0 1px    rgba(200,240,0,0.35),
+    0 0 50px     rgba(200,240,0,0.07),
+    inset 0 1px  0   rgba(255,255,255,1.00),
+    inset 0 3px  0   rgba(255,255,255,0.42),
+    inset 0 7px  14px rgba(255,255,255,0.10),
+    inset 1px 0  0   rgba(255,255,255,0.65),
+    inset 3px 0  6px rgba(255,255,255,0.14),
+    inset 0 -2px 0   rgba(0,0,0,0.85),
+    inset -1px 0 0   rgba(0,0,0,0.45),
+    inset 0 0 80px   rgba(255,255,255,0.07) !important;
+}
+
+/* ── INTERACTION RULES ── */
+
+/* .stat — metric cell pop (data-cell pattern) */
+.stat {
+  transition: background 0.20s ease, transform 0.20s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.20s ease;
+  cursor: default;
+}
+.stat:hover {
+  background: rgba(255,255,255,0.07) !important;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.22);
+  z-index: 1;
+  position: relative;
+}
+.stat:hover .stat-num   { filter: brightness(1.30); text-shadow: 0 0 20px rgba(200,240,0,0.5); }
+.stat:hover .stat-label { color: rgba(245,242,232,0.9); }
+
+/* .pipe-step — workflow step activation (schema-step pattern) */
+.pipe-step {
+  transition: box-shadow 0.18s ease !important;
+}
+.pipe-step:hover {
+  box-shadow:
+    0 40px 90px  rgba(0,0,0,0.85),
+    0 12px 30px  rgba(0,0,0,0.60),
+    0 0 0 1px    rgba(255,255,255,0.28),
+    inset 0 1px  0   rgba(255,255,255,0.95),
+    inset 0 3px  0   rgba(255,255,255,0.35),
+    inset 0 7px  12px rgba(255,255,255,0.09),
+    inset 4px 0  0   rgba(0,240,208,0.80),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40),
+    inset 0 0 60px   rgba(255,255,255,0.06) !important;
+}
+.pipe-step:hover .pipe-num  {
+  color: rgba(200,240,0,0.60);
+  text-shadow: 0 0 30px rgba(200,240,0,0.5);
+  transition: color 0.18s ease, text-shadow 0.18s ease;
+}
+.pipe-step:hover .pipe-name { color: var(--ink); transition: color 0.18s ease; }
+.pipe-step:hover .pipe-desc { color: rgba(245,242,232,0.92); transition: color 0.18s ease; }
+
+/* .guardrail — card lift + colored border glow (persona-cell pattern) */
+.guardrail {
+  transition: box-shadow 0.22s ease, transform 0.22s cubic-bezier(0.22,0.61,0.36,1) !important;
+}
+.guardrail:hover {
+  transform: translateY(-3px) !important;
+  box-shadow:
+    0 50px 110px rgba(0,0,0,0.85),
+    0 16px 36px  rgba(0,0,0,0.60),
+    0 0 0 1px    rgba(200,240,0,0.40),
+    0 0 30px     rgba(200,240,0,0.08),
+    inset 0 1px  0   rgba(255,255,255,0.95),
+    inset 0 3px  0   rgba(255,255,255,0.35),
+    inset 0 7px  12px rgba(255,255,255,0.09),
+    inset 1px 0  0   rgba(255,255,255,0.55),
+    inset 0 -2px 0   rgba(0,0,0,0.80),
+    inset -1px 0 0   rgba(0,0,0,0.40) !important;
+}
+.guardrail:hover .guardrail-name { color: #fff; text-shadow: 0 0 12px rgba(200,240,0,0.7); transition: color 0.18s ease, text-shadow 0.18s ease; }
+.guardrail:hover .guardrail-env  { opacity: 1; color: rgba(200,240,0,0.6); transition: all 0.18s ease; }
+.guardrail:hover .guardrail-desc { opacity: 1; color: rgba(245,242,232,0.96); transition: opacity 0.18s ease, color 0.18s ease; }
+</style>
 </head>
 <body>
-  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
-    <source src="bg-training.mp4?v=4" type="video/mp4">
-  </video>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" src="bg-training.mp4" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0;pointer-events:none;"></video>
 
 
-<nav class="top-nav">
-  <a href="index.html" class="nav-logo">SHANE GRAFFITI INC.</a>
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="therapy-chat.html">Perspective</a>
-    <a href="adversarial-research.html">Research</a>
+<script src="nav.js?v=3"></script>
+
+<!-- BACKGROUND SWITCHER — collapsible tab -->
+<div id="bg-switcher">
+  <button id="bg-tab-btn" onclick="toggleBgPanel()">
+    Backgrounds <span id="bg-tab-arrow">▾</span>
+  </button>
+  <div id="bg-panel">
+    <div class="bg-grid">
+      <button class="bg-opt active" data-bg="training" onclick="setBg('training')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-training.jpg" alt=""><span class="bg-opt-label">Training</span></button>
+      <button class="bg-opt" data-bg="gradient" onclick="setBg('gradient')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-gradient.jpg" alt=""><span class="bg-opt-label">Gradient</span></button>
+      <button class="bg-opt" data-bg="smoke" onclick="setBg('smoke')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-smoke.jpg" alt=""><span class="bg-opt-label">Smoke</span></button>
+      <button class="bg-opt" data-bg="forest" onclick="setBg('forest')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-forest.jpg" alt=""><span class="bg-opt-label">Forest</span></button>
+      <button class="bg-opt" data-bg="clouds" onclick="setBg('clouds')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-clouds.jpg" alt=""><span class="bg-opt-label">Clouds</span></button>
+      <button class="bg-opt" data-bg="tunnel" onclick="setBg('tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-tunnel.jpg" alt=""><span class="bg-opt-label">Tunnel</span></button>
+      <button class="bg-opt" data-bg="nyc" onclick="setBg('nyc')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-nyc.jpg" alt=""><span class="bg-opt-label">NYC</span></button>
+      <button class="bg-opt" data-bg="scifi-tunnel" onclick="setBg('scifi-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-scifi-tunnel.jpg" alt=""><span class="bg-opt-label">Sci-Fi</span></button>
+      <button class="bg-opt" data-bg="aerial-clouds" onclick="setBg('aerial-clouds')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-aerial-clouds.jpg" alt=""><span class="bg-opt-label">Aerial</span></button>
+      <button class="bg-opt" data-bg="wormhole" onclick="setBg('wormhole')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-wormhole.jpg" alt=""><span class="bg-opt-label">Wormhole</span></button>
+      <button class="bg-opt" data-bg="nebula" onclick="setBg('nebula')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-nebula.jpg" alt=""><span class="bg-opt-label">Nebula</span></button>
+      <button class="bg-opt" data-bg="dark-corridor" onclick="setBg('dark-corridor')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-dark-corridor.jpg" alt=""><span class="bg-opt-label">Dark Cor</span></button>
+      <button class="bg-opt" data-bg="flash-tunnel" onclick="setBg('flash-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-flash-tunnel.jpg" alt=""><span class="bg-opt-label">Flash</span></button>
+      <button class="bg-opt" data-bg="clouds2" onclick="setBg('clouds2')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-clouds2.jpg" alt=""><span class="bg-opt-label">Clouds 2</span></button>
+      <button class="bg-opt" data-bg="chevron" onclick="setBg('chevron')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-chevron.jpg" alt=""><span class="bg-opt-label">Chevron</span></button>
+      <button class="bg-opt" data-bg="futuristic-corridor" onclick="setBg('futuristic-corridor')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-futuristic-corridor.jpg" alt=""><span class="bg-opt-label">Corridor</span></button>
+      <button class="bg-opt" data-bg="scifi-corridor" onclick="setBg('scifi-corridor')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-scifi-corridor.jpg" alt=""><span class="bg-opt-label">SF Cor</span></button>
+      <button class="bg-opt" data-bg="portal" onclick="setBg('portal')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-portal.jpg" alt=""><span class="bg-opt-label">Portal</span></button>
+      <button class="bg-opt" data-bg="forest2" onclick="setBg('forest2')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-forest2.jpg" alt=""><span class="bg-opt-label">Forest 2</span></button>
+      <button class="bg-opt" data-bg="pulse-tunnel" onclick="setBg('pulse-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-pulse-tunnel.jpg" alt=""><span class="bg-opt-label">Pulse</span></button>
+      <button class="bg-opt" data-bg="geo-tunnel" onclick="setBg('geo-tunnel')"><span class="bg-opt-check"></span><img class="bg-thumb-img" src="thumb-geo-tunnel.jpg" alt=""><span class="bg-opt-label">Geo</span></button>
+      <button class="bg-opt" data-bg="black" onclick="setBg('black')"><span class="bg-opt-check"></span><span class="bg-thumb-img" style="background:#000;width:44px;height:28px;border-radius:4px;display:block;"></span><span class="bg-opt-label">Black</span></button>
+    </div>
   </div>
-</nav>
+</div>
 
-<div class="page" style="padding-top: 120px;">
+<div class="page" style="padding-top: 40px;">
 
   <!-- HERO -->
   <div class="hero">
     <div class="hero-label">// reflect — training corpus documentation</div>
     <h1 class="hero-title">TRAINING<br><span>CORPUS</span></h1>
     <p class="hero-sub">
-      Complete documentation of every data source used to fine-tune Perspective — a trauma-informed LLM
-      built on 10,792 pages of real-time abuse documentation, clinical research, and adversarial AI analysis.
-      No synthetic approximations of what abuse looks like. The real thing.
+      Complete documentation of every data source used to fine-tune Perspective — a trauma-informed LLM built on
+      567,000+ training pairs across 60+ curated datasets, 86 proprietary PDFs, and 215,000 rows of original
+      classifier research that exists nowhere else. Six simultaneous training objectives. Eight specialized system prompts.
+      No synthetic approximations of what abuse looks like. The real thing, at scale.
     </p>
   </div>
 
   <!-- STATS -->
   <div class="stat-row">
     <div class="stat">
+      <div class="stat-num">567k+</div>
+      <div class="stat-label">Training Pairs</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">215k</div>
+      <div class="stat-label">Classifier Rows</div>
+    </div>
+    <div class="stat">
       <div class="stat-num">86</div>
-      <div class="stat-label">Source PDFs</div>
+      <div class="stat-label">Proprietary PDFs</div>
     </div>
     <div class="stat">
-      <div class="stat-num">10,792</div>
-      <div class="stat-label">Pages Parsed</div>
+      <div class="stat-num">60+</div>
+      <div class="stat-label">Curated Datasets</div>
     </div>
     <div class="stat">
-      <div class="stat-num">55k+</div>
-      <div class="stat-label">Personal Pairs</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">45+</div>
-      <div class="stat-label">Data Sources</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">3×</div>
-      <div class="stat-label">Personal Weight</div>
+      <div class="stat-num">6</div>
+      <div class="stat-label">Training Objectives</div>
     </div>
     <div class="stat">
       <div class="stat-num">8</div>
       <div class="stat-label">System Prompts</div>
+    </div>
+  </div>
+
+  <!-- WHY THIS IS DIFFERENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">WHY THIS PIPELINE IS DIFFERENT</div>
+      <span class="section-tag">top 0.1%</span>
+    </div>
+    <p class="section-note">
+      Most fine-tuning projects download Alpaca, train for a weekend, upload to HuggingFace. Here is what that looks like next to this.
+    </p>
+
+    <table class="data-table" style="margin-bottom:32px;">
+      <thead>
+        <tr>
+          <th>Developer tier</th>
+          <th>What they do</th>
+          <th>Datasets</th>
+          <th>Training objectives</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="source-name" style="color:var(--mid);">Average (70%)</td>
+          <td class="source-desc" style="color:rgba(245,242,232,0.4);">Download Alpaca or ShareGPT. Format it. Train 3 epochs.</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">1–2</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">SFT only</td>
+        </tr>
+        <tr>
+          <td class="source-name" style="color:var(--mid);">Good (25%)</td>
+          <td class="source-desc" style="color:rgba(245,242,232,0.4);">5–10 datasets. Basic dedup. Maybe HH-RLHF for DPO. No voice layer.</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">5–10</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">SFT + 1 DPO domain</td>
+        </tr>
+        <tr>
+          <td class="source-name" style="color:var(--mid);">Strong (5%)</td>
+          <td class="source-desc" style="color:rgba(245,242,232,0.4);">20–30 datasets. Cleaning pipeline. Multiple training objectives. Where most ML engineers at actual companies operate.</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">20–30</td>
+          <td class="source-size" style="color:rgba(245,242,232,0.4);">SFT + DPO + RAG</td>
+        </tr>
+        <tr style="background:rgba(200,240,0,0.03);">
+          <td class="source-name" style="color:var(--acid);">This pipeline (top 0.1%)</td>
+          <td class="source-desc">60+ curated datasets. 567k+ total training pairs. 86 proprietary PDFs. 215k rows of original classifier research that exists nowhere else. 8 DPO domains. 7 extraction methods. 3-pass semantic dedup. Identity layer baked into every single record.</td>
+          <td class="source-size" style="color:var(--acid);">60+</td>
+          <td class="source-size" style="color:var(--acid);">SFT · DPO · RAG · CoT · Multi-turn · Adversarial</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pipeline">
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">01</div>
+        <div class="pipe-name">SFT + DPO across every domain</div>
+        <div class="pipe-desc">Most pipelines skip DPO — it requires pairs and more engineering. This pipeline runs preference training across 8 distinct domains: emotion, cybersecurity, web attacks, HH-RLHF alignment, sentiment, harmful actions, prompt injection, and personal data. Behavioral shaping at that depth is where models either develop a voice or don't.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">02</div>
+        <div class="pipe-name">Irreplaceable proprietary data</div>
+        <div class="pipe-desc">The diary PDFs, the classifier CSVs, the legal filings, the abuse documentation — these cannot be downloaded. They do not exist anywhere else. A model trained on someone's actual lived experience with these systems produces responses that no model trained purely on public internet text can replicate. That asymmetry is the product.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">03</div>
+        <div class="pipe-name">Identity layer across every record</div>
+        <div class="pipe-desc">Every single training record — whether it came from a cybersecurity dataset, a legal corpus, or a RAG dataset — carries the Perspective system prompt. The model doesn't learn to be a generic assistant that sometimes sounds like Shane. It learns that every response IS Perspective. That's architecturally different from appending a system prompt at inference time.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">04</div>
+        <div class="pipe-name">215k rows of original classifier research</div>
+        <div class="pipe-desc">No dataset on HuggingFace teaches what a "Metadata Trust Suppressor" or "Deferred Identity Cementing" classifier does — because those concepts were invented here. When Perspective explains how social media suppression works, it answers with a framework that doesn't exist anywhere else. Because the training data for that framework is on a private hard drive and nowhere else on earth.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">05</div>
+        <div class="pipe-name">Six training objectives simultaneously</div>
+        <div class="pipe-desc">Chain-of-thought. Multi-turn progressive deep dives. RAG-format context + answer. Adversarial scenario analysis. Section-level Q&A. Flat instruction-following. Most pipelines pick one. Each objective teaches a different capability. The result is a model that can reason through a problem, go deep in conversation, retrieve from context, analyze adversarial situations, and follow precise instructions — all as the same entity.</div>
+      </div>
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.2);">
+        <div class="pipe-num">06</div>
+        <div class="pipe-name">Built from inside the experience</div>
+        <div class="pipe-desc">Every other mental health AI was built by developers who read about trauma. This one was built by someone navigating it in real time, using AI to survive it, and encoding every insight into training data as it happened. The difference is audible in the first response. A model trained on primary source documentation of abuse engages differently than one trained on clinical approximations of what abuse looks like.</div>
+      </div>
     </div>
   </div>
 
@@ -831,6 +1108,42 @@
     </div>
   </div>
 
+  <!-- RESTRICTED: TECHNICAL REVIEW ACCESS -->
+  <div class="section" style="max-width:560px;margin:0 auto 64px;">
+    <div class="section-header">
+      <div class="section-title">TECHNICAL REVIEW</div>
+      <span class="section-tag" style="color:var(--mid);border-color:var(--mid);">restricted</span>
+    </div>
+    <p class="section-note">Full pipeline source including training notebook and architecture details. Access granted by Shane on request.</p>
+
+    <div id="nb-locked" style="margin-top:20px;">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input id="nb-input" type="password" placeholder="enter access code" autocomplete="off" style="flex:1;background:rgba(245,242,232,0.04);border:1px solid rgba(245,242,232,0.15);border-radius:4px;padding:10px 14px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='rgba(200,240,0,0.4)'" onblur="this.style.borderColor='rgba(245,242,232,0.15)'">
+        <button onclick="checkNbAccess()" style="background:rgba(200,240,0,0.08);border:1px solid rgba(200,240,0,0.3);border-radius:4px;padding:10px 18px;color:var(--acid);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(200,240,0,0.15)'" onmouseout="this.style.background='rgba(200,240,0,0.08)'">UNLOCK</button>
+      </div>
+      <div id="nb-err" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#ff6b6b;opacity:0;transition:opacity 0.3s;">incorrect access code</div>
+    </div>
+
+    <div id="nb-unlocked" style="display:none;margin-top:20px;">
+      <div class="pipe-step" style="border-color:rgba(200,240,0,0.3);background:rgba(200,240,0,0.03);">
+        <div class="pipe-name" style="color:var(--acid);">Training Notebook — Kaggle</div>
+        <div class="pipe-desc" style="margin-top:8px;">
+          Full SFT + DPO pipeline source. LLaMA 3 8B, unsloth/QLoRA, 60+ datasets, 6 training objectives simultaneously.
+          <br><br>
+          <a href="https://www.kaggle.com/baddatalogin/reflect-llama-3-sft-dpo" target="_blank" rel="noopener" style="color:var(--acid);font-family:'JetBrains Mono',monospace;font-size:12px;text-decoration:none;border-bottom:1px solid rgba(200,240,0,0.3);padding-bottom:2px;">kaggle.com/baddatalogin/reflect-llama-3-sft-dpo →</a>
+        </div>
+      </div>
+      <div class="pipe-step" style="margin-top:12px;border-color:rgba(200,240,0,0.3);background:rgba(200,240,0,0.03);">
+        <div class="pipe-name" style="color:var(--acid);">Training Dataset Repository — HuggingFace</div>
+        <div class="pipe-desc" style="margin-top:8px;">
+          Processed JSONL files: personal SFT, DPO pairs, classifier knowledge base, chain-of-thought, adversarial, multi-turn. 23 individual files.
+          <br><br>
+          <a href="https://huggingface.co/datasets/baddata404/reflect-training-data" target="_blank" rel="noopener" style="color:var(--acid);font-family:'JetBrains Mono',monospace;font-size:12px;text-decoration:none;border-bottom:1px solid rgba(200,240,0,0.3);padding-bottom:2px;">huggingface.co/datasets/baddata404/reflect-training-data →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -840,5 +1153,90 @@
   })();
 </script>
 <script src="carousel.js?v=1"></script>
+
+<script>
+(function(){
+  var SOURCES = {
+    training: 'bg-training.mp4', gradient: 'bg-gradient.mp4', smoke: 'bg-smoke.mp4',
+    forest: 'bg-forest.mp4', clouds: 'bg-clouds.mp4', tunnel: 'bg-tunnel.mp4', nyc: 'bg-nyc.mp4',
+    'scifi-tunnel': 'bg-scifi-tunnel.mp4', 'aerial-clouds': 'bg-aerial-clouds.mp4',
+    wormhole: 'bg-wormhole.mp4', nebula: 'bg-nebula.mp4', 'dark-corridor': 'bg-dark-corridor.mp4',
+    'flash-tunnel': 'bg-flash-tunnel.mp4', clouds2: 'bg-clouds2.mp4', chevron: 'bg-chevron.mp4',
+    'futuristic-corridor': 'bg-futuristic-corridor.mp4', 'scifi-corridor': 'bg-scifi-corridor.mp4',
+    portal: 'bg-portal.mp4', forest2: 'bg-forest2.mp4', 'pulse-tunnel': 'bg-pulse-tunnel.mp4',
+    'geo-tunnel': 'bg-geo-tunnel.mp4'
+  };
+
+  window.toggleBgPanel = function() {
+    var btn = document.getElementById('bg-tab-btn');
+    var panel = document.getElementById('bg-panel');
+    var open = panel.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  };
+  var vid = document.getElementById('bg-video');
+
+  window.setBg = function(choice) {
+    document.querySelectorAll('.bg-opt').forEach(function(b){
+      b.classList.toggle('active', b.dataset.bg === choice);
+    });
+    localStorage.setItem('bg-pref', choice);
+
+    if (choice === 'black') {
+      vid.style.opacity = '0';
+      vid.pause();
+    } else {
+      var newSrc = SOURCES[choice];
+      if (vid.getAttribute('src') !== newSrc) {
+        vid.src = newSrc;
+        vid.load();
+      }
+      vid.style.opacity = '0.3';
+      vid.loop = true;
+      vid.muted = true;
+      vid.play().catch(function(){});
+    }
+  };
+
+  // hard fallback: force replay if browser drops the loop
+  vid.addEventListener('ended', function() {
+    if (vid.style.opacity !== '0') {
+      vid.currentTime = 0;
+      vid.play().catch(function(){});
+    }
+  });
+
+  window.setBg(localStorage.getItem('bg-pref') || 'training');
+})();
+</script>
+
+<script>
+(function(){
+  var STORED = '020f21b62cb7b4e9218cd998377d031c6b2a1c0abb0d6dbca563d87c8802dfde';
+  var attempts = 0;
+
+  window.checkNbAccess = async function() {
+    if (attempts >= 5) return;
+    var input = document.getElementById('nb-input').value.trim();
+    if (!input) return;
+    attempts++;
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    var hex = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    if (hex === STORED) {
+      document.getElementById('nb-locked').style.display = 'none';
+      document.getElementById('nb-unlocked').style.display = 'block';
+      attempts = 0;
+    } else {
+      var err = document.getElementById('nb-err');
+      err.style.opacity = '1';
+      if (attempts >= 5) { err.textContent = 'Access locked. Refresh page to try again.'; }
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var inp = document.getElementById('nb-input');
+    if (inp) { inp.addEventListener('keydown', function(e){ if(e.key==='Enter') window.checkNbAccess(); }); }
+  });
+})();
+</script>
 </body>
 </html>
