@@ -108,11 +108,16 @@ function onScroll() {
 
 // ── Canvas sizing ─────────────────────────────────────────────────────────────
 function sizeCanvas(canvas) {
-  const w = canvas.offsetWidth;
-  const h = canvas.offsetHeight;
+  // Use parent card dimensions as fallback — canvas is position:absolute inside it
+  const parent = canvas.parentElement;
+  const w = canvas.offsetWidth || parent.offsetWidth || parent.getBoundingClientRect().width;
+  const h = canvas.offsetHeight || parent.offsetHeight || parent.getBoundingClientRect().height;
   if (!w || !h) return;
-  canvas.width  = w * DPR;
-  canvas.height = h * DPR;
+  const pw = Math.round(w * DPR);
+  const ph = Math.round(h * DPR);
+  if (canvas.width === pw && canvas.height === ph) return;
+  canvas.width  = pw;
+  canvas.height = ph;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -124,7 +129,6 @@ fetch('./_frames/b/manifest.json')
     cards = Array.from(document.querySelectorAll('.work-card[data-vid]')).map(el => {
       const canvas = el.querySelector('canvas');
       const vi = parseInt(el.dataset.vid.replace('v', ''), 10);
-      sizeCanvas(canvas);
       new ResizeObserver(() => { sizeCanvas(canvas); tick(); }).observe(el);
       return { el, canvas, vi };
     });
@@ -148,9 +152,13 @@ fetch('./_frames/b/manifest.json')
     };
     setTimeout(seedNext, 2000);
 
-    // Initial draw
-    tick();
+    // Size all canvases and draw after layout settles
+    cards.forEach(({ canvas }) => sizeCanvas(canvas));
+    requestAnimationFrame(() => {
+      cards.forEach(({ canvas }) => sizeCanvas(canvas));
+      tick();
+    });
   })
-  .catch(e => console.warn('[work-video-gl] manifest not found — run extract_b_frames.sh first'));
+  .catch(e => console.warn('[work-video-gl]', e));
 
 })();
