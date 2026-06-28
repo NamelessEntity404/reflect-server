@@ -20,6 +20,25 @@
   // Also restart video after page transitions
   window.addEventListener('pageshow', startBgVideo);
 
+  // ── Pause all CSS animations + video when tab is hidden ──────────────────
+  // Stops pulse-dot, thinking dots, msg-in, and all keyframe animations from
+  // burning CPU/GPU while the user is on another tab.
+  var _pauseStyle = null;
+  document.addEventListener('visibilitychange', function() {
+    var v = document.getElementById('bg-video');
+    if (document.hidden) {
+      if (v) v.pause();
+      if (!_pauseStyle) {
+        _pauseStyle = document.createElement('style');
+        _pauseStyle.textContent = '*,*::before,*::after{animation-play-state:paused!important;}';
+        document.head.appendChild(_pauseStyle);
+      }
+    } else {
+      if (_pauseStyle) { _pauseStyle.remove(); _pauseStyle = null; }
+      if (v) v.play().catch(function(){});
+    }
+  });
+
   // cursor: OS default — no custom cursor
 
   // ── Page transition overlay ───────────────────────────────────────────────
@@ -82,11 +101,7 @@
     const href = a.getAttribute('href');
     if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('javascript')) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    // Flash cursor
-    cursor.style.transform = 'translate(-50%,-50%) scale(3)';
-    ring.style.borderColor = '#C8F000';
     showOverlay();
-    setTimeout(() => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; }, 200);
   });
 
   document.addEventListener('click', e => {

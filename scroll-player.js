@@ -9,7 +9,7 @@ function initScrollPlayer(page, totalFrames) {
     canvas.height = window.innerHeight;
   }
   setSize();
-  window.addEventListener('resize', () => { setSize(); renderFrame(currentIdx); }, { passive: true });
+  window.addEventListener('resize', () => { setSize(); renderFrame(Math.round(currentFloat)); }, { passive: true });
 
   // ── Loading overlay ────────────────────────────────────────────────────────
   const overlay = document.createElement('div');
@@ -35,12 +35,18 @@ function initScrollPlayer(page, totalFrames) {
   const loadPct = overlay.querySelector('#load-pct');
 
   // ── Frame storage ──────────────────────────────────────────────────────────
-  const bitmaps    = new Array(totalFrames).fill(null);
-  let loaded       = 0;
-  let ready        = false;
-  let currentIdx   = 0;
-  let targetIdx    = 0;
-  let rafPending   = false;
+  const bitmaps  = new Array(totalFrames).fill(null);
+  let loaded     = 0;
+  let ready      = false;
+  let currentIdx = 0;
+
+  // Float position for lerp — kept separate from the integer currentIdx
+  let currentFloat = 0;
+  let targetFloat  = 0;
+
+  // How fast to chase the target. 0.08 = smooth catch-up, no skipped frames.
+  // Lower = slower/more cinematic. Higher = snappier but may skip at high velocity.
+  const LERP = 0.08;
 
   function renderFrame(idx) {
     const bmp = bitmaps[idx];
@@ -52,25 +58,29 @@ function initScrollPlayer(page, totalFrames) {
     currentIdx = idx;
   }
 
+  // ── Continuous RAF loop — lerps currentFloat toward targetFloat each tick ──
+  function tick() {
+    requestAnimationFrame(tick);
+    if (!ready) return;
+
+    currentFloat += (targetFloat - currentFloat) * LERP;
+
+    const newIdx = Math.min(Math.round(currentFloat), totalFrames - 1);
+    if (newIdx !== currentIdx) renderFrame(newIdx);
+  }
+  requestAnimationFrame(tick);
+
+  // ── Scroll handler — only sets targetFloat, never jumps directly ───────────
   function onScroll() {
     if (!ready) return;
-    const scrolled  = window.scrollY;
     const maxScroll = document.body.scrollHeight - window.innerHeight;
-    const pct = maxScroll > 0 ? Math.min(Math.max(scrolled / maxScroll, 0), 1) : 0;
-    targetIdx = Math.round(pct * (totalFrames - 1));
-    if (!rafPending) {
-      rafPending = true;
-      requestAnimationFrame(() => {
-        rafPending = false;
-        if (targetIdx !== currentIdx) renderFrame(targetIdx);
-      });
-    }
+    const pct = maxScroll > 0 ? Math.min(Math.max(window.scrollY / maxScroll, 0), 1) : 0;
+    targetFloat = pct * (totalFrames - 1);
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  // ── Preload all frames via Image — browser pipelines these efficiently ──────
-  // Load in chunks to avoid overwhelming the connection pool
+  // ── Preload all frames via Image ───────────────────────────────────────────
   const CHUNK = 8;
 
   function loadChunk(start) {
@@ -87,11 +97,9 @@ function initScrollPlayer(page, totalFrames) {
           loadBar.style.width = pct + '%';
           loadPct.textContent = pct + '%';
 
-          // Show first frame immediately
           if (loaded === 1) renderFrame(0);
 
           if (loaded === totalFrames) {
-            // All frames ready — unlock scroll
             ready = true;
             overlay.style.transition = 'opacity 0.4s';
             overlay.style.opacity = '0';
@@ -99,10 +107,7 @@ function initScrollPlayer(page, totalFrames) {
             onScroll();
           }
 
-          // Load next chunk when this chunk completes
-          if (i === end - 1 && end < totalFrames) {
-            loadChunk(end);
-          }
+          if (i === end - 1 && end < totalFrames) loadChunk(end);
         });
       };
       img.onerror = () => {
