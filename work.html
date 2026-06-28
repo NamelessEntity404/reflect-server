@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Work — Shane Graffiti Inc.</title>
   <style>
+  html { background: #000 !important; }
   :root {
     --ink:   #F5F2E8;
     --paper: #05060a;
@@ -14,9 +15,7 @@
     --mono:  'JetBrains Mono', monospace;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
-
-  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+  body { background: transparent; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; overflow-x: hidden; }
 
   /* HERO */
   .hero {
@@ -125,11 +124,7 @@
 
   /* VIDEO GRID CARDS */
   .video-card { cursor: default; }
-  .work-canvas {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    display: block; object-fit: cover;
-  }
+  .work-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
   /* FOOTER */
   .footer { border-top: 0.5px solid var(--rule); padding: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
@@ -138,12 +133,16 @@
   .footer-links { display: flex; gap: 24px; }
   .footer-links a { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
   .footer-links a:hover { color: var(--acid); }
-  </style>
+  
+  #bg-video { position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; object-fit:cover; opacity: 0.4; pointer-events:none; }
+</style>
 <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="glass.css">
 </head>
 <body>
-
-<canvas id="gl"></canvas>
+  <video id="bg-video" autoplay muted loop playsinline preload="auto" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;object-fit:cover;opacity:0.3;pointer-events:none;">
+    <source src="bg-work.mp4?v=3" type="video/mp4">
+  </video>
 
 <section class="hero">
   <div class="hero-inner">
@@ -325,114 +324,59 @@
 
     <div class="work-card video-card" data-vid="v00">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B01</div>
-        <div class="work-title">Character Study</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B01</div><div class="work-title">Character Study</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v01">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B02</div>
-        <div class="work-title">Main Render</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B02</div><div class="work-title">Main Render</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v02">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B03</div>
-        <div class="work-title">4K Render V</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B03</div><div class="work-title">4K Render V</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v03">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B04</div>
-        <div class="work-title">Render I — Alt</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B04</div><div class="work-title">Render I — Alt</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v04">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B05</div>
-        <div class="work-title">Render I</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B05</div><div class="work-title">Render I</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v05">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B06</div>
-        <div class="work-title">Render II</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B06</div><div class="work-title">Render II</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v06">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B07</div>
-        <div class="work-title">Render III</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B07</div><div class="work-title">Render III</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v07">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B08</div>
-        <div class="work-title">Render IV</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B08</div><div class="work-title">Render IV</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v08">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B09</div>
-        <div class="work-title">Render V</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B09</div><div class="work-title">Render V</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v09">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B10</div>
-        <div class="work-title">Render VI</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B10</div><div class="work-title">Render VI</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v10">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B11</div>
-        <div class="work-title">Render VII</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B11</div><div class="work-title">Render VII</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v11">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B12</div>
-        <div class="work-title">Render VIII</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B12</div><div class="work-title">Render VIII</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v12">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B13</div>
-        <div class="work-title">Render IX</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B13</div><div class="work-title">Render IX</div></div>
     </div>
-
     <div class="work-card video-card" data-vid="v13">
       <canvas class="work-canvas"></canvas>
-      <div class="work-overlay">
-        <div class="work-num">SGI-B14</div>
-        <div class="work-title">Render X</div>
-      </div>
+      <div class="work-overlay"><div class="work-num">SGI-B14</div><div class="work-title">Render X</div></div>
     </div>
 
   </div>
@@ -448,58 +392,16 @@
   </div>
 </footer>
 
-<script src="nav.js"></script>
+<script src="nav.js?v=3"></script>
 
-<script>
-(() => {
-  const canvas = document.getElementById('gl');
-  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
-  if (!gl) return;
-  function resize() {
-    canvas.width  = window.innerWidth  * Math.min(devicePixelRatio||1,2);
-    canvas.height = window.innerHeight * Math.min(devicePixelRatio||1,2);
-    gl.viewport(0,0,canvas.width,canvas.height);
-  }
-  window.addEventListener('resize', resize, { passive:true }); resize();
-  const vs = `attribute vec2 p; void main(){ gl_Position=vec4(p,0,1); }`;
-  const fs = `
-    precision highp float;
-    uniform vec2 uR; uniform float uT;
-    float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
-    void main(){
-      vec2 uv=(gl_FragCoord.xy-.5*uR.xy)/uR.y;
-      float t=uT*.035;
-      vec3 col=vec3(.02,.023,.037);
-      float y=uv.y+.5;
-      if(y>.001){
-        float d=.5/y; vec2 g=uv*d; g.y+=t*2.;
-        vec2 g2=abs(fract(g*3.)-.5);
-        float line=smoothstep(.0,.06,min(g2.x,g2.y));
-        float fog=exp(-d*.2);
-        col+=(1.-line)*fog*vec3(.78,.94,.0)*1.3;
-      }
-      vec2 su=uv*4.+vec2(t*.1,0.);
-      vec2 cell=floor(su*60.); float sn=h(cell);
-      if(sn>.975){ vec2 f=fract(su*60.)-.5; col+=smoothstep(.08,.0,length(f))*.6; }
-      col+=smoothstep(1.2,.0,length(uv-vec2(0.,.15)))*vec3(.78,.94,.0)*.08;
-      col*=1.-smoothstep(.7,1.7,length(uv));
-      gl_FragColor=vec4(col,1.);
-    }`;
-  function sh(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s; }
-  const prog=gl.createProgram();
-  gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));
-  gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));
-  gl.linkProgram(prog); gl.useProgram(prog);
-  const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
-  const ap=gl.getAttribLocation(prog,'p');
-  gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
-  const uR=gl.getUniformLocation(prog,'uR'), uT=gl.getUniformLocation(prog,'uT');
-  function render(t){ requestAnimationFrame(render); gl.uniform2f(uR,canvas.width,canvas.height); gl.uniform1f(uT,t*.001); gl.drawArrays(gl.TRIANGLES,0,3); }
-  requestAnimationFrame(render);
-})();
-</script>
+
 <script src="work-video-gl.js"></script>
 <script src="transitions.js"></script>
+<script>
+  (function(){
+    var v=document.getElementById('bg-video');
+    if(v){v.play().catch(function(){});}
+  })();
+</script>
 </body>
 </html>
