@@ -1,3 +1,4 @@
 __trauma training data/
 .DS_Store
-_frames/
+_frames/*
+!_frames/b/
